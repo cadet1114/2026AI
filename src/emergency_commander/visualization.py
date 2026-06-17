@@ -22,23 +22,50 @@ FIRE_STATUS_COLORS = {
     "medium": "#ff9f1c",
     "high": "#e3342f",
 }
-SANDBOX_GRID_CELL_SIZE = 0.45
+FIRE_STATUS_LABELS = {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+}
+SANDBOX_GRID_CELL_SIZE = 0.42
 SANDBOX_STATE_COLORS = {
-    0: "#e7d3a8",
-    1: "#d8c28f",
-    2: "#ffb13b",
-    3: "#e3342f",
-    4: "#111111",
-    5: "#5b1515",
+    0: "#ead9b4",
+    1: "#dbc492",
+    2: "#f2ad38",
+    3: "#e64032",
+    4: "#2b3033",
+    5: "#4a1719",
 }
 SANDBOX_STATE_LABELS = {
-    0: "stable terrain",
-    1: "smoke or light hazard",
-    2: "damaged / congested area",
-    3: "active fire",
-    4: "open road",
-    5: "blocked road",
+    0: "稳定地面",
+    1: "烟雾或轻微风险",
+    2: "受损或拥堵区域",
+    3: "活跃火点",
+    4: "可通行道路",
+    5: "阻断道路",
 }
+NODE_DISPLAY_LABELS = {
+    "HQ": "指挥中心",
+    "HOSPITAL": "医院",
+    "AIR_RELAY": "空中中继",
+}
+
+
+def _zone_label(zone_id: str) -> str:
+    return f"{zone_id}区"
+
+
+def _node_label(node_id: str) -> str:
+    if node_id.startswith("ZONE_"):
+        return _zone_label(node_id.removeprefix("ZONE_"))
+    return NODE_DISPLAY_LABELS.get(node_id, node_id)
+
+
+def _unit_label(unit_id: str) -> str:
+    return (
+        unit_id.replace("RescueCar-", "救援车")
+        .replace("Drone-", "无人机")
+    )
 
 
 def _is_synthetic_connector(edge: dict[str, Any]) -> bool:
@@ -121,7 +148,7 @@ def _road_state_for_cell(
     scenario: dict[str, Any],
 ) -> int | None:
     nodes = scenario["nodes"]
-    road_half_width = SANDBOX_GRID_CELL_SIZE * 0.72
+    road_half_width = SANDBOX_GRID_CELL_SIZE * 0.52
     for road in scenario["roads"]:
         if _is_synthetic_connector(road):
             continue
@@ -161,7 +188,7 @@ def _add_sandbox_state_grid(figure: go.Figure, scenario: dict[str, Any]) -> None
                 state = road_state
             z_row.append(state)
             hover_row.append(
-                f"x {x:.2f} / y {y:.2f}<br>{SANDBOX_STATE_LABELS[state]}"
+                f"坐标 ({x:.2f}, {y:.2f})<br>{SANDBOX_STATE_LABELS[state]}"
             )
         z_values.append(z_row)
         hover_text.append(hover_row)
@@ -170,7 +197,7 @@ def _add_sandbox_state_grid(figure: go.Figure, scenario: dict[str, Any]) -> None
             x=x_values,
             y=y_values,
             z=z_values,
-            name="Sandbox state grid",
+            name="地形网格",
             zmin=0,
             zmax=max(SANDBOX_STATE_COLORS),
             colorscale=_discrete_colorscale(SANDBOX_STATE_COLORS),
@@ -178,16 +205,16 @@ def _add_sandbox_state_grid(figure: go.Figure, scenario: dict[str, Any]) -> None
             text=hover_text,
             hovertemplate="%{text}<extra></extra>",
             colorbar={
-                "title": {"text": "Cell state", "font": {"color": "#f4ead5"}},
+                "title": {"text": "地块状态", "font": {"color": "#f4ead5"}},
                 "tickmode": "array",
                 "tickvals": list(SANDBOX_STATE_LABELS),
                 "ticktext": [
-                    "clear",
-                    "smoke",
-                    "damage",
-                    "fire",
-                    "road",
-                    "block",
+                    "地面",
+                    "烟雾",
+                    "受损",
+                    "火点",
+                    "道路",
+                    "阻断",
                 ],
                 "tickfont": {"color": "#f4ead5", "size": 9},
                 "thickness": 9,
@@ -224,9 +251,13 @@ def _edge_trace(
         x_values.extend([nodes[edge["from"]]["x"], nodes[edge["to"]]["x"], None])
         y_values.extend([nodes[edge["from"]]["y"], nodes[edge["to"]]["y"], None])
         risk_label = edge.get("display_risk")
-        label = f"{edge['road_id']} · {edge.get('status', 'open')}"
+        status_label = "阻断" if edge.get("status") == "blocked" else "通行"
+        label = (
+            f"{edge['road_id']}<br>{_node_label(edge['from'])} → "
+            f"{_node_label(edge['to'])}<br>状态：{status_label}"
+        )
         if risk_label is not None:
-            label += f" · risk {risk_label:.2f}"
+            label += f"<br>风险：{risk_label:.2f}"
         hover.extend([label, label, None])
     return go.Scatter(
         x=x_values,
@@ -242,10 +273,10 @@ def _edge_trace(
 def _ground_risk_groups(scenario: dict[str, Any]) -> list[tuple[str, str, list[dict[str, Any]]]]:
     weights = scenario["config"]["weights"]["astar_risk"]
     groups: dict[str, list[dict[str, Any]]] = {
-        "Low risk": [],
-        "Medium risk": [],
-        "High risk": [],
-        "Blocked": [],
+        "低风险": [],
+        "中风险": [],
+        "高风险": [],
+        "阻断": [],
     }
     for road in scenario["roads"]:
         if _is_synthetic_connector(road):
@@ -253,18 +284,18 @@ def _ground_risk_groups(scenario: dict[str, Any]) -> list[tuple[str, str, list[d
         decorated = dict(road)
         decorated["display_risk"] = road_risk(road, weights)
         if road.get("status", "open") == "blocked":
-            groups["Blocked"].append(decorated)
+            groups["阻断"].append(decorated)
         elif decorated["display_risk"] < 0.20:
-            groups["Low risk"].append(decorated)
+            groups["低风险"].append(decorated)
         elif decorated["display_risk"] < 0.45:
-            groups["Medium risk"].append(decorated)
+            groups["中风险"].append(decorated)
         else:
-            groups["High risk"].append(decorated)
+            groups["高风险"].append(decorated)
     return [
-        ("Low risk", "#12633f", groups["Low risk"]),
-        ("Medium risk", "#b97808", groups["Medium risk"]),
-        ("High risk", "#b52f23", groups["High risk"]),
-        ("Blocked", "#1b1712", groups["Blocked"]),
+        ("低风险", "#167349", groups["低风险"]),
+        ("中风险", "#c18316", groups["中风险"]),
+        ("高风险", "#cf3f30", groups["高风险"]),
+        ("阻断", "#1b1712", groups["阻断"]),
     ]
 
 
@@ -295,11 +326,12 @@ def build_map_figure(
             _edge_trace(
                 open_roads,
                 nodes,
-                name="State · Roads",
-                color="#111111",
+                name="道路骨架",
+                color="rgba(16,18,20,.72)",
             )
         )
-        figure.data[-1].line.width = 3
+        figure.data[-1].line.width = 2
+        figure.data[-1].showlegend = False
     for label, color, roads in _ground_risk_groups(scenario):
         if not roads:
             continue
@@ -307,9 +339,9 @@ def build_map_figure(
             _edge_trace(
                 roads,
                 nodes,
-                name=f"Ground · {label}",
+                name=f"{label}道路",
                 color=color,
-                dash="dash" if label == "Blocked" else None,
+                dash="dash" if label == "阻断" else None,
             )
         )
     figure.add_trace(
@@ -320,11 +352,12 @@ def build_map_figure(
                 if not _is_synthetic_connector(route)
             ],
             nodes,
-            name="Air corridors",
-            color="#008bb0",
+            name="无人机航线",
+            color="#0ba8c8",
             dash="dot",
         )
     )
+    figure.data[-1].opacity = 0.78
 
     blocked = [
         road
@@ -338,10 +371,10 @@ def build_map_figure(
                 x=[(nodes[road["from"]]["x"] + nodes[road["to"]]["x"]) / 2 for road in blocked],
                 y=[(nodes[road["from"]]["y"] + nodes[road["to"]]["y"]) / 2 for road in blocked],
                 mode="markers",
-                name="Collapsed road",
-                marker={"symbol": "x", "size": 15, "color": "#171717", "line": {"width": 3}},
+                name="断裂路段",
+                marker={"symbol": "x", "size": 14, "color": "#171717", "line": {"width": 3}},
                 text=[road["road_id"] for road in blocked],
-                hovertemplate="%{text}<br>BLOCKED<extra></extra>",
+                hovertemplate="%{text}<br>状态：阻断<extra></extra>",
             )
         )
 
@@ -365,8 +398,8 @@ def build_map_figure(
         for candidate in candidate_routes:
             route = candidate["route"]
             label = (
-                f"{candidate['unit_id']} → {candidate['target_zone']}"
-                f"<br>ETA {route['eta']:.1f} min · risk {route['path_risk']:.2f}"
+                f"{_unit_label(candidate['unit_id'])} → {_zone_label(candidate['target_zone'])}"
+                f"<br>预计 {route['eta']:.1f} 分钟 · 风险 {route['path_risk']:.2f}"
             )
             for node in route["path"]:
                 candidate_x.append(nodes[node]["x"])
@@ -380,12 +413,13 @@ def build_map_figure(
                 x=candidate_x,
                 y=candidate_y,
                 mode="lines",
-                name="Candidate routes",
+                name="候选路线",
                 text=candidate_hover,
                 hoverinfo="text",
-                line={"color": "rgba(42,55,65,.45)", "width": 3},
+                line={"color": "rgba(20,35,45,.34)", "width": 2},
             )
         )
+        figure.data[-1].showlegend = False
 
     for route in plan.get("routes", []):
         path = route["path"]
@@ -397,12 +431,12 @@ def build_map_figure(
                 x=[nodes[node]["x"] for node in path],
                 y=[nodes[node]["y"] for node in path],
                 mode="lines+markers",
-                name=f"Route · {unit_id}",
-                line={"color": UNIT_COLORS.get(unit_id, "#f05a28"), "width": 6},
-                marker={"size": 7},
+                name=f"执行路线 · {_unit_label(unit_id)}",
+                line={"color": UNIT_COLORS.get(unit_id, "#f05a28"), "width": 5},
+                marker={"size": 6, "line": {"color": "#fff8e8", "width": 1}},
                 hovertemplate=(
-                    f"{unit_id}<br>ETA {route['remaining_eta']:.1f} min"
-                    f"<br>Risk {route['path_risk']:.2f}<extra></extra>"
+                    f"{_unit_label(unit_id)}<br>剩余 {route['remaining_eta']:.1f} 分钟"
+                    f"<br>路径风险 {route['path_risk']:.2f}<extra></extra>"
                 ),
             )
         )
@@ -462,9 +496,9 @@ def build_map_figure(
             x=[nodes[zone["node_id"]]["x"] for zone in zones],
             y=[nodes[zone["node_id"]]["y"] for zone in zones],
             mode="markers",
-            name="State · Fire zones",
+            name="火势范围",
             text=[
-                f"{zone['zone_id']} fire {zone['observations']['fire']:.2f}"
+                _zone_label(zone["zone_id"])
                 for zone in zones
             ],
             marker={
@@ -481,13 +515,13 @@ def build_map_figure(
                 [
                     zone["observations"]["fire"],
                     zone["observations"]["smoke"],
-                    _fire_status(zone["observations"]),
+                    FIRE_STATUS_LABELS[_fire_status(zone["observations"])],
                 ]
                 for zone in zones
             ],
             hovertemplate=(
-                "ZONE %{text}<br>Fire %{customdata[0]:.2f}"
-                "<br>Smoke %{customdata[1]:.2f}<br>Status %{customdata[2]}<extra></extra>"
+                "%{text}<br>火势 %{customdata[0]:.2f}"
+                "<br>烟雾 %{customdata[1]:.2f}<br>等级 %{customdata[2]}<extra></extra>"
             ),
         )
     )
@@ -496,7 +530,7 @@ def build_map_figure(
             x=[nodes[zone["node_id"]]["x"] for zone in zones],
             y=[nodes[zone["node_id"]]["y"] for zone in zones],
             mode="markers",
-            name="Risk halo",
+            name="生命风险范围",
             hoverinfo="skip",
             marker={
                 "size": [42 + 34 * display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
@@ -510,10 +544,10 @@ def build_map_figure(
             x=[nodes[zone["node_id"]]["x"] for zone in zones],
             y=[nodes[zone["node_id"]]["y"] for zone in zones],
             mode="markers+text",
-            name="Disaster zones",
-            text=[f"#{rank_by_zone[zone['zone_id']]}  ZONE {zone['zone_id']}" for zone in zones],
+            name="灾区优先级",
+            text=[f"#{rank_by_zone[zone['zone_id']]} {_zone_label(zone['zone_id'])}" for zone in zones],
             textposition="top center",
-            textfont={"color": "#1b1712", "size": 12},
+            textfont={"color": "#161717", "size": 12},
             marker={
                 "size": [21 + 16 * display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
                 "color": [display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
@@ -532,9 +566,9 @@ def build_map_figure(
                 for zone in zones
             ],
             hovertemplate=(
-                "Zone %{text}<br>Trapped P %{customdata[0]:.2f}"
-                "<br>Passable P %{customdata[1]:.2f}"
-                "<br>Priority %{customdata[2]:.2f}<extra></extra>"
+                "%{text}<br>被困概率 %{customdata[0]:.2f}"
+                "<br>通行概率 %{customdata[1]:.2f}"
+                "<br>优先级 %{customdata[2]:.2f}<extra></extra>"
             ),
         )
     )
@@ -546,14 +580,15 @@ def build_map_figure(
                 x=[nodes[node]["x"] for node in junction_ids],
                 y=[nodes[node]["y"] for node in junction_ids],
                 mode="markers",
-                name="District junctions",
+                name="路网节点",
                 text=junction_ids,
                 marker={
-                    "size": 5,
-                    "color": "#59462d",
-                    "line": {"color": "#fff3d0", "width": 1},
+                    "size": 4,
+                    "color": "#6a5738",
+                    "line": {"color": "#fff3d0", "width": 0.8},
                 },
-                hovertemplate="Junction %{text}<extra></extra>",
+                hovertemplate="路网节点 %{text}<extra></extra>",
+                showlegend=False,
             )
         )
 
@@ -565,11 +600,16 @@ def build_map_figure(
             x=[nodes[node]["x"] for node in infrastructure_ids],
             y=[nodes[node]["y"] for node in infrastructure_ids],
             mode="markers+text",
-            name="Infrastructure",
-            text=infrastructure_ids,
+            name="关键设施",
+            text=[_node_label(node) for node in infrastructure_ids],
             textposition="bottom center",
-            textfont={"color": "#1b1712", "size": 11},
-            marker={"size": 15, "symbol": "diamond", "color": "#2d2a26"},
+            textfont={"color": "#141719", "size": 11},
+            marker={
+                "size": 16,
+                "symbol": "diamond",
+                "color": ["#2d2a26", "#f6f0e1", "#2d2a26"][: len(infrastructure_ids)],
+                "line": {"color": "#1b1712", "width": 1.5},
+            },
         )
     )
 
@@ -589,10 +629,10 @@ def build_map_figure(
             x=[state["position"]["x"] for state in states.values()],
             y=[state["position"]["y"] for state in states.values()],
             mode="markers+text",
-            name="Units",
-            text=list(states),
+            name="救援单位",
+            text=[_unit_label(unit_id) for unit_id in states],
             textposition="middle right",
-            textfont={"color": "#1b1712", "size": 11},
+            textfont={"color": "#141719", "size": 11},
             marker={
                 "size": 17,
                 "symbol": ["triangle-up" if state["type"] == "drone" else "square" for state in states.values()],
@@ -600,11 +640,17 @@ def build_map_figure(
                 "line": {"color": "#fff8e8", "width": 2},
             },
             customdata=[
-                [state["status"], state["onboard"], state["capacity"]]
-                for state in states.values()
+                [
+                    unit_id,
+                    state["status"],
+                    state["onboard"],
+                    state["capacity"],
+                ]
+                for unit_id, state in states.items()
             ],
             hovertemplate=(
-                "%{text}<br>Status %{customdata[0]}<br>Onboard %{customdata[1]}/%{customdata[2]}<extra></extra>"
+                "%{text}<br>编号 %{customdata[0]}<br>状态 %{customdata[1]}"
+                "<br>载员 %{customdata[2]}/%{customdata[3]}<extra></extra>"
             ),
         )
     )
@@ -618,11 +664,11 @@ def build_map_figure(
             _edge_trace(
                 focused_roads,
                 nodes,
-                name="Calculation focus · roads",
+                name="当前计算道路",
                 color="#ff6b35",
             )
         )
-        figure.data[-1].line.width = 8
+        figure.data[-1].line.width = 7
 
     focused_zones = [zone for zone in zones if zone["zone_id"] in set(focus.get("zones", []))]
     if focused_zones:
@@ -631,7 +677,7 @@ def build_map_figure(
                 x=[nodes[zone["node_id"]]["x"] for zone in focused_zones],
                 y=[nodes[zone["node_id"]]["y"] for zone in focused_zones],
                 mode="markers",
-                name="Calculation focus · zones",
+                name="当前计算灾区",
                 marker={
                     "size": 54,
                     "color": "rgba(0,0,0,0)",
@@ -648,7 +694,7 @@ def build_map_figure(
                 x=[states[unit_id]["position"]["x"] for unit_id in focused_unit_ids],
                 y=[states[unit_id]["position"]["y"] for unit_id in focused_unit_ids],
                 mode="markers",
-                name="Calculation focus · units",
+                name="当前计算单位",
                 marker={
                     "size": 28,
                     "color": "rgba(0,0,0,0)",
@@ -660,16 +706,19 @@ def build_map_figure(
 
     figure.update_layout(
         height=610,
-        margin={"l": 4, "r": 4, "t": 30, "b": 4},
+        margin={"l": 4, "r": 4, "t": 22, "b": 4},
         paper_bgcolor="#11161b",
-        plot_bgcolor="#e5d0a6",
+        plot_bgcolor="#ead8b4",
         font={"family": "Avenir Next Condensed, sans-serif", "color": "#1b1712"},
         legend={
             "orientation": "h",
-            "y": 1.04,
+            "y": 1.025,
             "x": 0,
-            "font": {"color": "#f4ead5", "size": 10},
-            "bgcolor": "rgba(23,27,32,.78)",
+            "font": {"color": "#f4ead5", "size": 9},
+            "bgcolor": "rgba(23,27,32,.66)",
+            "bordercolor": "rgba(255,255,255,.12)",
+            "borderwidth": 1,
+            "itemsizing": "constant",
         },
         xaxis={"visible": False, "scaleanchor": "y", "scaleratio": 1},
         yaxis={"visible": False},

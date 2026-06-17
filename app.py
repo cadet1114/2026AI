@@ -21,8 +21,38 @@ EVENTS = (
     ("fire_spread", "火势蔓延", "提高区域风险"),
     ("new_sos", "新增求救", "注入高置信 SOS"),
 )
+MISSION_LABELS = {
+    "ground_rescue": "地面救援",
+    "air_recon": "无人机侦查",
+    "evacuation": "转运撤离",
+    "medical_transfer": "医疗转运",
+}
+NODE_LABELS = {
+    "HQ": "指挥中心",
+    "HOSPITAL": "医院",
+    "AIR_RELAY": "空中中继",
+}
+VALIDATION_CHECK_LABELS = {
+    "JSON Schema / contract": "JSON 结构与字段契约",
+    "road endpoint references": "道路端点引用",
+    "unit start references": "救援单位起点引用",
+    "event target availability": "事件目标可用性",
+}
+STATUS_LABELS = {
+    "ready": "待命",
+    "idle": "待命",
+    "en_route": "前往灾区",
+    "rescuing": "现场救援",
+    "returning": "返程转运",
+    "completed": "完成",
+    "running": "运行中",
+    "paused": "暂停",
+    "error": "异常",
+    "stranded": "受阻",
+}
+EVENT_LOCKED_LABEL = "待解锁"
 PHASE_LABELS = {
-    "validate": ("01", "输入校验", "JSON Schema + 归一化"),
+    "validate": ("01", "输入校验", "JSON 结构校验 + 归一化"),
     "infer": ("02", "贝叶斯推理", "精确枚举后验概率"),
     "prioritize": ("03", "风险排序", "加权生命风险与优先级"),
     "route": ("04", "候选路线", "风险感知 A*"),
@@ -32,6 +62,31 @@ PHASE_LABELS = {
     "replan": ("08", "动态重规划", "事件驱动增量规划"),
     "complete": ("09", "结果汇总", "救援交付与审计"),
 }
+
+
+def _display_zone_id(value: Any) -> str:
+    text = str(value)
+    if text.startswith("ZONE_"):
+        return f"{text.removeprefix('ZONE_')} 区"
+    if len(text) == 1 and text.isalpha():
+        return f"{text} 区"
+    return text
+
+
+def _display_unit_id(value: Any) -> str:
+    text = str(value)
+    return text.replace("RescueCar-", "救援车").replace("Drone-", "无人机")
+
+
+def _display_node_id(value: Any) -> str:
+    text = str(value)
+    if text.startswith("ZONE_"):
+        return _display_zone_id(text)
+    return NODE_LABELS.get(text, text)
+
+
+def _display_route_path(path: list[str]) -> str:
+    return " → ".join(_display_node_id(node) for node in path)
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -75,7 +130,7 @@ def _render_learned_advantage_panel() -> None:
         f"<span>被困 F1 {metrics['learned_trapped_f1']:.3f} vs "
         f"{metrics['expert_trapped_f1']:.3f}</span>"
         f"<small>被困 F1 +{metrics['trapped_f1_delta']:.3f} · "
-        f"Accuracy +{metrics['trapped_accuracy_delta']:.3f} · "
+        f"准确率 +{metrics['trapped_accuracy_delta']:.3f} · "
         f"道路 ROC-AUC +{metrics['road_auc_delta']:.3f}</small></div>",
         unsafe_allow_html=True,
     )
@@ -104,7 +159,7 @@ def start_random_session() -> None:
         model_name="learned_cpt" if learned else "expert_cpt",
     )
     _save_session(session)
-    st.session_state["event_notice"] = f"复杂救援地图已生成 · SEED {seed}"
+    st.session_state["event_notice"] = f"复杂救援地图已生成 · 种子 {seed}"
 
 
 def advance_phase() -> None:
@@ -150,8 +205,8 @@ def move_history(delta: int) -> None:
 
 
 def result_markdown(result: dict[str, Any]) -> str:
-    completed = ", ".join(result["completed_zones"]) or "无"
-    incomplete = ", ".join(result["incomplete_zones"]) or "无"
+    completed = ", ".join(_display_zone_id(zone) for zone in result["completed_zones"]) or "无"
+    incomplete = ", ".join(_display_zone_id(zone) for zone in result["incomplete_zones"]) or "无"
     rows = [
         "# AI Emergency Commander 仿真结果",
         "",
@@ -167,7 +222,7 @@ def result_markdown(result: dict[str, Any]) -> str:
         "| --- | --- | ---: | ---: | ---: |",
     ]
     rows.extend(
-        f"| {unit['unit_id']} | {unit['final_status']} | "
+        f"| {_display_unit_id(unit['unit_id'])} | {STATUS_LABELS.get(unit['final_status'], unit['final_status'])} | "
         f"{unit['completed_missions']} | {unit['rescued_people']} | "
         f"{unit['travel_minutes']:.1f} |"
         for unit in result["units"]
@@ -222,7 +277,8 @@ def _render_validation(record: dict[str, Any]) -> None:
         unsafe_allow_html=True,
     )
     for check in record["operations"].get("checks", []):
-        st.markdown(f"<div class='check-line'>PASS&nbsp;&nbsp;{html.escape(check)}</div>", unsafe_allow_html=True)
+        label = VALIDATION_CHECK_LABELS.get(check, check)
+        st.markdown(f"<div class='check-line'>通过&nbsp;&nbsp;{html.escape(label)}</div>", unsafe_allow_html=True)
 
 
 def _render_inference(record: dict[str, Any]) -> None:
@@ -243,13 +299,15 @@ def _render_inference(record: dict[str, Any]) -> None:
         st.markdown(
             f"<div class='model-compare'><b>{html.escape(active_model.upper())}</b>"
             f"<span>vs {html.escape(baseline_model.upper())}</span>"
-            f"<em>MAX |Δ priority| = {max_priority_delta:.3f}</em>"
+            f"<em>最大优先级变化 = {max_priority_delta:.3f}</em>"
             f"<small>{html.escape(model_note)}</small></div>",
             unsafe_allow_html=True,
         )
+    zone_options = {zone["zone_id"]: _display_zone_id(zone["zone_id"]) for zone in zones}
     selected = st.selectbox(
         "查看区域",
         [zone["zone_id"] for zone in zones],
+        format_func=zone_options.get,
         key=f"inference_zone_{record['index']}",
         label_visibility="collapsed",
     )
@@ -280,7 +338,7 @@ def _render_inference(record: dict[str, Any]) -> None:
         _compact_frame(
             [
                 {
-                    "区域": row["zone_id"],
+                    "区域": _display_zone_id(row["zone_id"]),
                     "Δ被困": row["trapped_delta"],
                     "Δ通行": row["passability_delta"],
                     "Δ优先级": row["priority_delta"],
@@ -296,7 +354,7 @@ def _render_priority(record: dict[str, Any]) -> None:
     rows = [
         {
             "排名": item["rank"],
-            "区域": item["zone_id"],
+            "区域": _display_zone_id(item["zone_id"]),
             "被困项": item["priority_terms"]["trapped_prob"],
             "生命项": item["priority_terms"]["life_risk"],
             "紧迫项": item["priority_terms"]["time_urgency"],
@@ -306,7 +364,7 @@ def _render_priority(record: dict[str, Any]) -> None:
         for item in ranking
     ]
     st.markdown(
-        "<div class='formula-box'>PRIORITY = 0.40×P(被困) + 0.30×生命风险 + "
+        "<div class='formula-box'>优先级 = 0.40×P(被困) + 0.30×生命风险 + "
         "0.20×紧迫度 + 0.10×可通行率</div>",
         unsafe_allow_html=True,
     )
@@ -320,7 +378,10 @@ def _render_route(record: dict[str, Any]) -> None:
     if not candidates:
         st.warning("当前没有可行路线。")
         return
-    labels = [f"{item['unit_id']} → ZONE {item['target_zone']}" for item in candidates]
+    labels = [
+        f"{_display_unit_id(item['unit_id'])} → {_display_zone_id(item['target_zone'])}"
+        for item in candidates
+    ]
     label = st.selectbox(
         "候选路线",
         labels,
@@ -330,14 +391,14 @@ def _render_route(record: dict[str, Any]) -> None:
     candidate = candidates[labels.index(label)]
     route = candidate["route"]
     st.markdown(
-        f"<div class='formula-box'><b>{' → '.join(route['path'])}</b>"
-        f"<br>ETA {route['eta']:.2f} · RISK {route['path_risk']:.3f} · "
-        f"COST {route['total_cost']:.3f}<small>f(n) = g(n) + h(n)</small></div>",
+        f"<div class='formula-box'><b>{_display_route_path(route['path'])}</b>"
+        f"<br>预计 {route['eta']:.2f} 分钟 · 路径风险 {route['path_risk']:.3f} · "
+        f"总代价 {route['total_cost']:.3f}<small>A* 评价函数：f(n) = g(n) + h(n)</small></div>",
         unsafe_allow_html=True,
     )
     trace_rows = [
         {
-            "节点": item["node"],
+            "节点": _display_node_id(item["node"]),
             "g": item["g"],
             "h": item["h"],
             "f": item["f"],
@@ -358,7 +419,10 @@ def _render_utility(record: dict[str, Any]) -> None:
     if not candidates:
         st.warning("当前没有可计算效用的候选。")
         return
-    labels = [f"{item['unit_id']} → ZONE {item['target_zone']}" for item in candidates]
+    labels = [
+        f"{_display_unit_id(item['unit_id'])} → {_display_zone_id(item['target_zone'])}"
+        for item in candidates
+    ]
     label = st.selectbox(
         "效用候选",
         labels,
@@ -383,16 +447,16 @@ def _render_allocation(record: dict[str, Any]) -> None:
     st.markdown(
         f"<div class='formula-box'><b>{trace.get('considered', 0):,}</b> 个组合被检查 · "
         f"<b>{trace.get('duplicate_zone_rejections', 0):,}</b> 个重复区域组合被剔除"
-        f"<small>WINNING TOTAL = {trace.get('winning_total')}</small></div>",
+        f"<small>最优总效用 = {trace.get('winning_total')}</small></div>",
         unsafe_allow_html=True,
     )
     assignments = [
         {
-            "单位": item["unit_id"],
-            "区域": item["target_zone"],
-            "任务": item["mission_type"],
+            "单位": _display_unit_id(item["unit_id"]),
+            "区域": _display_zone_id(item["target_zone"]),
+            "任务": MISSION_LABELS.get(item["mission_type"], item["mission_type"]),
             "效用": item["expected_utility"],
-            "ETA": item["route"]["eta"],
+            "预计时间": item["route"]["eta"],
         }
         for item in record["outputs"].get("assignments", [])
     ]
@@ -402,7 +466,8 @@ def _render_allocation(record: dict[str, Any]) -> None:
         [
             {
                 "候选组合": " / ".join(
-                    f"{item['unit_id']}→{item['target_zone']}" for item in row["assignments"]
+                    f"{_display_unit_id(item['unit_id'])}→{_display_zone_id(item['target_zone'])}"
+                    for item in row["assignments"]
                 ),
                 "总效用": row["total"],
             }
@@ -414,7 +479,7 @@ def _render_allocation(record: dict[str, Any]) -> None:
 
 def _render_execution(record: dict[str, Any]) -> None:
     st.markdown(
-        f"<div class='formula-box'><b>Δt = {record['inputs']['elapsed_minutes']:.3f} min</b>"
+        f"<div class='formula-box'><b>时间步长 = {record['inputs']['elapsed_minutes']:.3f} 分钟</b>"
         f"<small>{record['inputs']['mode']} · 单次状态机推进</small></div>",
         unsafe_allow_html=True,
     )
@@ -422,7 +487,11 @@ def _render_execution(record: dict[str, Any]) -> None:
     if transitions:
         _compact_frame(
             [
-                {"单位": row["unit_id"], "原状态": row["from"], "新状态": row["to"]}
+                {
+                    "单位": _display_unit_id(row["unit_id"]),
+                    "原状态": STATUS_LABELS.get(row["from"], row["from"]),
+                    "新状态": STATUS_LABELS.get(row["to"], row["to"]),
+                }
                 for row in transitions
             ],
             height=180,
@@ -431,8 +500,8 @@ def _render_execution(record: dict[str, Any]) -> None:
     _compact_frame(
         [
             {
-                "单位": unit_id,
-                "状态": state["status"],
+                "单位": _display_unit_id(unit_id),
+                "状态": STATUS_LABELS.get(state["status"], state["status"]),
                 "剩余行程": state["remaining_travel"],
                 "剩余服务": state["remaining_service"],
                 "载员": state["onboard"],
@@ -448,7 +517,7 @@ def _render_replan(record: dict[str, Any]) -> None:
     if event:
         st.markdown(
             f"<div class='alert-box'><b>{html.escape(event['description'])}</b>"
-            f"<small>TARGET {html.escape(event['target_id'])}</small></div>",
+            f"<small>目标 {html.escape(_display_node_id(event['target_id']))}</small></div>",
             unsafe_allow_html=True,
         )
         _compact_frame(
@@ -470,7 +539,7 @@ def _render_calculation_inspector(session: LiveSimulation) -> None:
         st.caption("地图已生成。点击“执行下一算法步骤”，从输入校验开始展示完整证据链。")
         st.markdown(
             """
-            1. JSON Schema 与归一化
+            1. JSON 结构校验与归一化
             2. 贝叶斯精确枚举
             3. 加权风险排序
             4. 风险感知 A*
@@ -484,7 +553,7 @@ def _render_calculation_inspector(session: LiveSimulation) -> None:
     index = int(st.session_state.get("history_index", len(session.calculation_history) - 1))
     number, label, algorithm = PHASE_LABELS.get(record["phase"], ("--", record["phase"], ""))
     st.markdown(
-        f"<div class='inspector-head'><span>{number}</span><div><small>CALCULATION "
+        f"<div class='inspector-head'><span>{number}</span><div><small>计算过程 "
         f"{index + 1}/{len(session.calculation_history)}</small><b>{html.escape(record['title'])}</b>"
         f"<em>{html.escape(algorithm)}</em></div></div>",
         unsafe_allow_html=True,
@@ -527,7 +596,7 @@ def _render_calculation_inspector(session: LiveSimulation) -> None:
 
 
 def _render_event_dock(session: LiveSimulation | None) -> None:
-    st.markdown("<div class='dock-label'>LIVE EVENTS</div>", unsafe_allow_html=True)
+    st.markdown("<div class='dock-label'>现场事件</div>", unsafe_allow_html=True)
     enabled = bool(
         session
         and session.initial_plan
@@ -536,10 +605,10 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
     )
     for event_type, label, hint in EVENTS:
         targets = session.available_event_targets(event_type) if enabled and session else []
-        default_target = session.select_event_target(event_type) if targets and session else "LOCKED"
+        default_target = session.select_event_target(event_type) if targets and session else EVENT_LOCKED_LABEL
         selected = st.selectbox(
             f"{label}目标",
-            targets or ["LOCKED"],
+            targets or [EVENT_LOCKED_LABEL],
             index=(targets.index(default_target) if targets and default_target in targets else 0),
             key=_event_target_key(event_type),
             disabled=not targets,
@@ -554,7 +623,7 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
             args=(event_type,),
         )
         st.markdown(
-            f"<div class='event-meta'>{html.escape(hint)}<b>TARGET · {html.escape(selected)}</b></div>",
+            f"<div class='event-meta'>{html.escape(hint)}<b>目标 · {html.escape(_display_node_id(selected))}</b></div>",
             unsafe_allow_html=True,
         )
 
@@ -576,12 +645,14 @@ def _render_footer(session: LiveSimulation) -> None:
     for unit_id, state in states.items():
         task = state.get("current_task") or {}
         target = task.get("target_zone") or task.get("origin_zone") or "--"
+        status = str(state["status"])
+        status_label = STATUS_LABELS.get(status, status)
         cards.append(
             "<div class='unit-card'>"
-            f"<i class='state-{html.escape(state['status'])}'></i>"
-            f"<b>{html.escape(unit_id)}</b><span>{html.escape(state['status']).upper()}</span>"
-            f"<small>ZONE {html.escape(str(target))} · ETA {state.get('remaining_travel', 0):.1f} · "
-            f"LOAD {state.get('onboard', 0)}/{state.get('capacity', 0)}</small></div>"
+            f"<i class='state-{html.escape(status)}'></i>"
+            f"<b>{html.escape(_display_unit_id(unit_id))}</b><span>{html.escape(status_label)}</span>"
+            f"<small>目标 {html.escape(_display_zone_id(target))} · 剩余 {state.get('remaining_travel', 0):.1f} 分钟 · "
+            f"载员 {state.get('onboard', 0)}/{state.get('capacity', 0)}</small></div>"
         )
     st.markdown(
         "<div class='footer-strip'>" + "".join(cards) + "</div>",
@@ -693,20 +764,20 @@ header_title, header_meta, model_col, generate_col, next_col, minute_col, transi
     [2.25, 1.55, 1.05, 1.05, 1.22, 1.08, 1.3]
 )
 with header_title:
-    st.markdown("<div class='command-kicker'>OFFLINE RESCUE DECISION LAB</div>", unsafe_allow_html=True)
-    st.title("AI Emergency Commander")
+    st.markdown("<div class='command-kicker'>离线救援决策实验台</div>", unsafe_allow_html=True)
+    st.title("AI Emergency Commander｜灾后救援指挥台")
     st.markdown("<div class='command-sub'>复杂路网 · 可解释算法 · 手动应急推演</div>", unsafe_allow_html=True)
 with header_meta:
     if session:
         number, label, algorithm = PHASE_LABELS[session.phase]
         st.markdown(
-            f"<div class='phase-chip'><small>SEED {session.seed} · T+{session.clock_minutes:.1f} MIN</small>"
+            f"<div class='phase-chip'><small>种子 {session.seed} · 时间 +{session.clock_minutes:.1f} 分钟</small>"
             f"<b>{number} {label}</b><span>{algorithm}</span></div>",
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            "<div class='phase-chip'><small>NO ACTIVE SCENARIO</small><b>00 待命</b>"
+            "<div class='phase-chip'><small>等待场景</small><b>00 待命</b>"
             "<span>生成地图后开始</span></div>",
             unsafe_allow_html=True,
         )
@@ -760,8 +831,8 @@ if notice:
 
 if session is None:
     st.markdown(
-        "<div class='phase-chip' style='margin-top:8px'><small>COMMAND CONSOLE READY</small>"
-        "<b>等待生成复杂救援地图</b><span>系统将创建 6 个灾区、18 个城区路口、40 条地面道路和 5 个异构单位。</span></div>",
+        "<div class='phase-chip' style='margin-top:8px'><small>指挥台就绪</small>"
+        "<b>等待生成复杂救援地图</b><span>系统将创建 4-7 个灾区、随机道路骨架、受损路段和 5 个异构救援单位。</span></div>",
         unsafe_allow_html=True,
     )
     empty_left, empty_events, empty_detail = st.columns([5.7, 1.15, 3.15])
@@ -769,7 +840,7 @@ if session is None:
         st.markdown(
             "<div style='height:610px;border:1px solid #39444b;background:radial-gradient(circle at 50% 45%,#283139,#171d22);"
             "display:flex;align-items:center;justify-content:center;color:#647078;font-size:.75rem;letter-spacing:.12em'>"
-            "MAP ARRAY STANDBY</div>",
+            "地图阵列待生成</div>",
             unsafe_allow_html=True,
         )
     with empty_events:
@@ -784,8 +855,8 @@ else:
     map_column, event_column, inspector_column = st.columns([5.7, 1.15, 3.15])
     with map_column:
         st.markdown(
-            f"<div class='map-caption'><b>TACTICAL NETWORK / {len(session.scenario['nodes'])} NODES · "
-            f"{len(session.scenario['roads'])} ROADS</b><span>SELECTED CALCULATION HIGHLIGHTED</span></div>",
+            f"<div class='map-caption'><b>战术路网 / {len(session.scenario['nodes'])} 个节点 · "
+            f"{len(session.scenario['roads'])} 条道路</b><span>当前计算对象高亮显示</span></div>",
             unsafe_allow_html=True,
         )
         st.plotly_chart(
@@ -811,7 +882,7 @@ else:
         with nav_label:
             st.markdown(
                 f"<div style='text-align:center;color:#7f8b92;font-size:.58rem;padding-top:10px'>"
-                f"STEP {session.step_count} · EVENT {len(session.event_log)}</div>",
+                f"步骤 {session.step_count} · 事件 {len(session.event_log)}</div>",
                 unsafe_allow_html=True,
             )
         with nav_next:

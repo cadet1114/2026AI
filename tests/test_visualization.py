@@ -39,8 +39,8 @@ def test_visualization_builders_expose_map_metrics_and_calibration_layers():
     utility_figure = build_utility_contribution_figure(feasible)
 
     trace_names = {trace.name for trace in map_figure.data}
-    assert {"Air corridors", "Units", "Disaster zones", "Ground · Blocked"} <= trace_names
-    assert any(name.startswith("Ground · ") for name in trace_names)
+    assert {"无人机航线", "救援单位", "灾区优先级", "阻断道路"} <= trace_names
+    assert any(name.endswith("风险道路") for name in trace_names)
     assert set(probability_frame["区域"]) == {"A", "B", "C"}
     assert {"Expert CPT", "Learned CPT"} == set(metrics_frame["模型"])
     assert {trace.name for trace in calibration.data} >= {"Perfect calibration", "Expert CPT", "Learned CPT"}
@@ -69,33 +69,33 @@ def test_map_renders_complex_scenario_before_inference_and_highlights_focus():
     figure = build_map_figure(scenario, snapshot, focus=focus)
 
     trace_names = [trace.name for trace in figure.data]
-    assert "Sandbox state grid" in trace_names
-    assert "State · Roads" in trace_names
-    assert "State · Fire zones" in trace_names
-    assert "Disaster zones" in trace_names
-    assert "Units" in trace_names
-    assert "Calculation focus · roads" in trace_names
-    assert "Calculation focus · zones" in trace_names
-    assert "Calculation focus · units" in trace_names
-    disaster_trace = next(trace for trace in figure.data if trace.name == "Disaster zones")
+    assert "地形网格" in trace_names
+    assert "道路骨架" in trace_names
+    assert "火势范围" in trace_names
+    assert "灾区优先级" in trace_names
+    assert "救援单位" in trace_names
+    assert "当前计算道路" in trace_names
+    assert "当前计算灾区" in trace_names
+    assert "当前计算单位" in trace_names
+    disaster_trace = next(trace for trace in figure.data if trace.name == "灾区优先级")
     assert len(disaster_trace.x) == len(scenario["zones"])
-    unit_trace = next(trace for trace in figure.data if trace.name == "Units")
+    unit_trace = next(trace for trace in figure.data if trace.name == "救援单位")
     assert len(unit_trace.x) == 5
-    state_grid = next(trace for trace in figure.data if trace.name == "Sandbox state grid")
+    state_grid = next(trace for trace in figure.data if trace.name == "地形网格")
     assert state_grid.type == "heatmap"
     assert len(state_grid.x) * len(state_grid.y) >= 2000
     assert state_grid.x[1] - state_grid.x[0] <= 0.75
     grid_values = {value for row in state_grid.z for value in row}
     assert {3, 4} <= grid_values
     grid_colors = [entry[1] for entry in state_grid.colorscale]
-    assert "#e3342f" in grid_colors
-    assert "#111111" in grid_colors
+    assert "#e64032" in grid_colors
+    assert "#2b3033" in grid_colors
     assert len(figure.layout.shapes) == 0
-    road_trace = next(trace for trace in figure.data if trace.name == "State · Roads")
-    assert road_trace.line.color == "#111111"
-    fire_trace = next(trace for trace in figure.data if trace.name == "State · Fire zones")
+    road_trace = next(trace for trace in figure.data if trace.name == "道路骨架")
+    assert road_trace.line.color == "rgba(16,18,20,.72)"
+    fire_trace = next(trace for trace in figure.data if trace.name == "火势范围")
     assert "#e3342f" in list(fire_trace.marker.color)
-    assert figure.layout.plot_bgcolor == "#e5d0a6"
+    assert figure.layout.plot_bgcolor == "#ead8b4"
 
 
 def test_map_hides_synthetic_position_connectors_from_base_road_layers():
@@ -107,7 +107,7 @@ def test_map_hides_synthetic_position_connectors_from_base_road_layers():
     base_traces = [
         trace
         for trace in figure.data
-        if trace.name == "State · Roads" or str(trace.name).startswith("Ground · ")
+        if trace.name == "道路骨架" or str(trace.name).endswith("风险道路")
     ]
     assert base_traces
     assert not any(
