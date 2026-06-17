@@ -1141,6 +1141,18 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
 .unit-progress i { position:static; display:block; width:var(--progress); height:100%; border-radius:999px;
   background:linear-gradient(90deg,var(--green),var(--amber)); box-shadow:none; }
 [data-testid="stToast"] { background:#252e34; color:#fff0d4; }
+
+.notice-bar {
+  margin: 8px 0 10px;
+  padding: 9px 14px;
+  border: 1px solid rgba(73,209,138,.35);
+  border-left: 4px solid var(--green);
+  border-radius: 8px;
+  background: rgba(20, 38, 32, .82);
+  color: #eaf7ef;
+  font-size: .78rem;
+  font-weight: 700;
+}
 @media (max-width:1200px) {
   .progress-step small { font-size:.62rem; }
   .map-legend { grid-template-columns:repeat(4,minmax(0,1fr)); }
@@ -1210,7 +1222,14 @@ with control_col:
 
 notice = st.session_state.pop("event_notice", None)
 if notice:
-    st.toast(notice)
+    st.session_state["last_notice"] = notice
+
+last_notice = st.session_state.get("last_notice")
+if last_notice:
+    st.markdown(
+        f"<div class='notice-bar'>{html.escape(last_notice)}</div>",
+        unsafe_allow_html=True,
+    )
 
 if session is None:
     map_column, event_column, inspector_column = st.columns([6.2, 1.8, 2.4], gap="large")
