@@ -47,6 +47,7 @@ def run_a_engine_on_grid(scenario: dict[str, Any]) -> dict[str, Any]:
         assignments_list = assignments_raw
 
     assignments, routes, route_details = _convert_a_output_to_grid(
+        modules,
         a_scenario,
         scenario,
         assessments,
@@ -353,6 +354,7 @@ def _zone_scores_from_assessments(
 
 
 def _convert_a_output_to_grid(
+    modules: dict[str, Any],
     a_scenario: dict[str, Any],
     grid_scenario: dict[str, Any],
     assessments: list[dict[str, Any]],
@@ -368,11 +370,19 @@ def _convert_a_output_to_grid(
         route = item.get("route") or {}
         if not unit_id or not target_zone or not route:
             continue
+        route = _project_route_onto_grid_graph(
+            modules,
+            a_scenario,
+            unit_id,
+            target_zone,
+            route,
+        )
         assignments[unit_id] = target_zone
         routes[unit_id] = _path_nodes_to_grid_points(a_scenario, route.get("path", []))
         route_details[unit_id] = _route_detail_from_assignment(item, route)
 
     _fill_missing_unit_routes(
+        modules,
         a_scenario,
         grid_scenario,
         assessments,
@@ -381,6 +391,61 @@ def _convert_a_output_to_grid(
         route_details,
     )
     return assignments, routes, route_details
+
+
+def _project_route_onto_grid_graph(
+    modules: dict[str, Any],
+    a_scenario: dict[str, Any],
+    unit_id: str,
+    target_zone: str,
+    route: dict[str, Any],
+) -> dict[str, Any]:
+    path_points = _path_nodes_to_grid_points(a_scenario, route.get("path", []))
+    if route.get("route_layer") != "air" and not _has_non_adjacent_jump(path_points):
+        return route
+
+    grid_route = _run_grid_astar_for_assignment(
+        modules,
+        a_scenario,
+        unit_id,
+        target_zone,
+    )
+    if grid_route is None:
+        route["adapter_warning"] = "grid_astar_reprojection_failed"
+        return route
+
+    grid_route["route_layer"] = (
+        "grid_air" if _unit_type(a_scenario, unit_id) == "drone" else "ground"
+    )
+    grid_route["adapter_projection"] = "direct_route_reprojected_to_b_grid"
+    return grid_route
+
+
+def _run_grid_astar_for_assignment(
+    modules: dict[str, Any],
+    a_scenario: dict[str, Any],
+    unit_id: str,
+    target_zone: str,
+) -> dict[str, Any] | None:
+    unit = _unit_by_id(a_scenario, unit_id)
+    goal = _zone_node(a_scenario, target_zone)
+    if not unit or not goal:
+        return None
+
+    try:
+        return modules["risk_aware_astar"](
+            a_scenario["roads"],
+            nodes=a_scenario["nodes"],
+            start=unit["start_node"],
+            goal=goal,
+            speed=float(unit.get("speed", 1.0)),
+            risk_weights=a_scenario["config"]["weights"]["astar_risk"],
+            unit_type=unit["type"],
+            max_fire_risk=unit.get("constraints", {}).get("max_fire_risk"),
+            route_layer="grid_air" if unit["type"] == "drone" else "ground",
+        )
+    except Exception:
+        return None
 
 
 def _route_detail_from_assignment(
@@ -397,11 +462,14 @@ def _route_detail_from_assignment(
         "expected_utility": assignment.get("expected_utility"),
         "feasibility_reason": assignment.get("feasibility_reason", assignment.get("reason", "")),
         "reason": assignment.get("reason", ""),
+        "adapter_projection": route.get("adapter_projection", ""),
+        "adapter_warning": route.get("adapter_warning", ""),
         "utility_breakdown": assignment.get("utility_breakdown"),
     }
 
 
 def _fill_missing_unit_routes(
+    modules: dict[str, Any],
     a_scenario: dict[str, Any],
     grid_scenario: dict[str, Any],
     assessments: list[dict[str, Any]],
@@ -429,15 +497,27 @@ def _fill_missing_unit_routes(
             continue
         target_cell = _as_cell(grid_scenario["map"]["targets"][target_zone])
         start_cell = _as_cell(grid_scenario["units"][unit_id]["start"])
+        route = _run_grid_astar_for_assignment(
+            modules,
+            a_scenario,
+            unit_id,
+            target_zone,
+        )
         assignments[unit_id] = target_zone
-        routes[unit_id] = [list(start_cell), list(target_cell)]
+        routes[unit_id] = (
+            _path_nodes_to_grid_points(a_scenario, route.get("path", []))
+            if route
+            else [list(start_cell), list(target_cell)]
+        )
         route_details[unit_id] = {
             "engine": "A 同学算法适配",
-            "eta": 0.0,
-            "path_risk": 0.0,
-            "total_cost": 0.0,
-            "route_layer": "fallback",
-            "expanded_nodes": 0,
+            "eta": round(float(route.get("eta", 0.0)), 2) if route else 0.0,
+            "path_risk": round(float(route.get("path_risk", 0.0)), 3) if route else 0.0,
+            "total_cost": round(float(route.get("total_cost", 0.0)), 2) if route else 0.0,
+            "route_layer": route.get("route_layer", "fallback") if route else "fallback",
+            "expanded_nodes": route.get("expanded_nodes", 0) if route else 0,
+            "adapter_projection": "missing_assignment_filled_with_grid_astar" if route else "",
+            "adapter_warning": "" if route else "missing_assignment_grid_astar_failed",
             "reason": "A 引擎未给该单位分配任务，适配层仅补齐展示路线。",
         }
         used_zones.add(target_zone)
@@ -464,6 +544,33 @@ def _point_from_node(a_scenario: dict[str, Any], node_id: str) -> list[int] | No
     if not node:
         return None
     return [int(round(float(node["x"]))), int(round(float(node["y"])))]
+
+
+def _has_non_adjacent_jump(points: list[list[int]]) -> bool:
+    for current, nxt in zip(points, points[1:]):
+        if abs(current[0] - nxt[0]) + abs(current[1] - nxt[1]) > 1:
+            return True
+    return False
+
+
+def _unit_by_id(a_scenario: dict[str, Any], unit_id: str) -> dict[str, Any] | None:
+    return next(
+        (unit for unit in a_scenario.get("units", []) if unit.get("unit_id") == unit_id),
+        None,
+    )
+
+
+def _unit_type(a_scenario: dict[str, Any], unit_id: str) -> str:
+    unit = _unit_by_id(a_scenario, unit_id)
+    return str(unit.get("type", "")) if unit else ""
+
+
+def _zone_node(a_scenario: dict[str, Any], zone_id: str) -> str | None:
+    zone = next(
+        (item for item in a_scenario.get("zones", []) if item.get("zone_id") == zone_id),
+        None,
+    )
+    return str(zone["node_id"]) if zone and zone.get("node_id") else None
 
 
 def _neighbors(cell: tuple[int, int], width: int, height: int) -> list[tuple[int, int]]:
