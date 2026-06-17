@@ -124,10 +124,10 @@ def test_streamlit_demo_starts_without_runtime_exception():
     assert not app.exception
     assert any("AI Emergency Commander" in title.value for title in app.title)
     labels = {button.label for button in app.button}
-    assert "生成复杂地图" in labels
+    assert "导入地图模型" in labels
     assert {"道路坍塌", "火势蔓延", "新增求救"} <= labels
     assert "无人机情报" not in labels
-    assert any("等待生成复杂救援地图" in item.value for item in app.markdown)
+    assert any("等待导入地图模型" in item.value for item in app.markdown)
 
 
 def test_learned_cpt_mode_shows_advantage_metrics_in_console():
@@ -135,7 +135,7 @@ def test_learned_cpt_mode_shows_advantage_metrics_in_console():
 
     app.selectbox(key="model_selector").select("学习 CPT").run()
     next(
-        button for button in app.button if button.label == "生成复杂地图"
+        button for button in app.button if button.label == "导入地图模型"
     ).click().run()
 
     markdown = "\n".join(item.value for item in app.markdown)
@@ -148,7 +148,7 @@ def test_generation_creates_a_manual_session_that_advances_one_phase_per_click()
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
 
     next(
-        button for button in app.button if button.label == "生成复杂地图"
+        button for button in app.button if button.label == "导入地图模型"
     ).click().run()
 
     assert not app.exception
@@ -174,7 +174,7 @@ def test_event_dock_uses_operator_selected_target():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
 
     next(
-        button for button in app.button if button.label == "生成复杂地图"
+        button for button in app.button if button.label == "导入地图模型"
     ).click().run()
     for _ in range(6):
         next(

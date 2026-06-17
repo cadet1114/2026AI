@@ -372,7 +372,7 @@ def start_random_session() -> None:
         model_name="learned_cpt" if learned else "expert_cpt",
     )
     _save_session(session)
-    st.session_state["event_notice"] = f"复杂救援地图已生成 · 种子 {seed}"
+    st.session_state["event_notice"] = f"地图模型已导入 · 种子 {seed}"
 
 
 def advance_phase() -> None:
@@ -856,7 +856,7 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
             target = "等待任务分配"
         else:
             status_label, status_kind = "待解锁", "locked"
-            target = "等待地图生成"
+            target = "等待导入地图模型"
         st.markdown(
             f"<div class='event-card-head'><b>资源调度</b>"
             f"<span class='event-status {status_kind}'>{status_label}</span></div>",
@@ -1174,7 +1174,7 @@ with control_col:
     action_a, action_b = st.columns(2)
     with action_a:
         st.button(
-            "生成复杂地图",
+            "导入地图模型",
             key="generate_map",
             on_click=start_random_session,
             type="primary",
@@ -1222,8 +1222,8 @@ if session is None:
                 unsafe_allow_html=True,
             )
             st.markdown(
-                "<div class='map-empty'><b>等待生成复杂救援地图</b>"
-                "<span>点击“生成复杂地图”，系统将创建 4-7 个灾区、随机道路骨架、受损路段和 5 个异构救援单位。</span></div>",
+                "<div class='map-empty'><b>等待导入地图模型</b>"
+                "<span>点击“导入地图模型”，系统将载入 4-7 个灾区、随机道路骨架、受损路段和 5 个异构救援单位。</span></div>",
                 unsafe_allow_html=True,
             )
             st.markdown(_render_map_legend(), unsafe_allow_html=True)
