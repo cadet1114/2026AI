@@ -1,0 +1,537 @@
+{
+  "scenario_id": "demo_case_01",
+  "run_mode": "learned",
+  "weights_used": {
+    "trapped": {
+      "sos": 0.54861389,
+      "collapse": 0.12252484,
+      "human_activity": 0.28427073,
+      "smoke": 0.04459054
+    },
+    "passability": {
+      "road_damage": 0.15490846,
+      "fire_risk": 0.57039994,
+      "congestion": 0.1474071,
+      "drone_confidence": 0.1272845
+    },
+    "life_risk": {
+      "fire": 0.4,
+      "trapped_prob": 0.35,
+      "time_urgency": 0.25
+    },
+    "priority": {
+      "trapped_prob": 0.4,
+      "life_risk": 0.3,
+      "time_urgency": 0.2,
+      "accessibility": 0.1
+    },
+    "utility": {
+      "alpha": 0.3,
+      "beta": 0.25,
+      "gamma": 0.2,
+      "delta": 0.15,
+      "epsilon": 0.1
+    },
+    "astar_risk": {
+      "fire": 0.35,
+      "damage": 0.25,
+      "congestion": 0.2,
+      "secondary": 0.2
+    }
+  },
+  "zone_assessment": [
+    {
+      "zone_id": "C",
+      "node_id": "ZONE_C",
+      "trapped_prob": 0.749534,
+      "passability_prob": 0.789998,
+      "life_risk": 0.687337,
+      "priority_score": 0.765015
+    },
+    {
+      "zone_id": "A",
+      "node_id": "ZONE_A",
+      "trapped_prob": 0.801904,
+      "passability_prob": 0.549113,
+      "life_risk": 0.700666,
+      "priority_score": 0.745873
+    },
+    {
+      "zone_id": "B",
+      "node_id": "ZONE_B",
+      "trapped_prob": 0.210585,
+      "passability_prob": 0.855688,
+      "life_risk": 0.228705,
+      "priority_score": 0.298414
+    }
+  ],
+  "assignments": [
+    {
+      "unit_id": "RescueCar-1",
+      "target_zone": "C",
+      "mission_type": "rescue",
+      "expected_utility": 0.487944,
+      "reason": "feasible"
+    },
+    {
+      "unit_id": "RescueCar-2",
+      "target_zone": "B",
+      "mission_type": "rescue",
+      "expected_utility": 0.255489,
+      "reason": "feasible"
+    },
+    {
+      "unit_id": "Drone-1",
+      "target_zone": "A",
+      "mission_type": "reconnaissance",
+      "expected_utility": 0.478165,
+      "reason": "feasible"
+    }
+  ],
+  "routes": [
+    {
+      "unit_id": "RescueCar-1",
+      "target_zone": "C",
+      "path": [
+        "HQ",
+        "ZONE_C"
+      ],
+      "road_ids": [
+        "R_HQ_C"
+      ],
+      "eta": 4.166667,
+      "path_risk": 0.355
+    },
+    {
+      "unit_id": "RescueCar-2",
+      "target_zone": "B",
+      "path": [
+        "HQ",
+        "ZONE_B"
+      ],
+      "road_ids": [
+        "R_HQ_B"
+      ],
+      "eta": 4.0,
+      "path_risk": 0.06
+    },
+    {
+      "unit_id": "Drone-1",
+      "target_zone": "A",
+      "path": [
+        "HQ",
+        "ZONE_A"
+      ],
+      "road_ids": [
+        "R_HQ_A_DIRECT"
+      ],
+      "eta": 2.5,
+      "path_risk": 0.09
+    }
+  ],
+  "replan_log": [
+    {
+      "trigger_event": {
+        "event_id": "EVT_COLLAPSE_A",
+        "event_type": "road_collapse",
+        "trigger_step": 1,
+        "target_id": "R_HQ_A_DIRECT",
+        "changes": {
+          "status": "blocked",
+          "risk.damage": 1.0
+        },
+        "description": "A区直达道路发生二次塌方"
+      },
+      "old_plan": {
+        "zone_assessment": [
+          {
+            "zone_id": "A",
+            "node_id": "ZONE_A",
+            "trapped_prob": 0.801904,
+            "passability_prob": 0.549113,
+            "life_risk": 0.700666,
+            "priority_score": 0.745873
+          },
+          {
+            "zone_id": "C",
+            "node_id": "ZONE_C",
+            "trapped_prob": 0.612381,
+            "passability_prob": 0.362502,
+            "life_risk": 0.779333,
+            "priority_score": 0.695002
+          },
+          {
+            "zone_id": "B",
+            "node_id": "ZONE_B",
+            "trapped_prob": 0.210585,
+            "passability_prob": 0.855688,
+            "life_risk": 0.228705,
+            "priority_score": 0.298414
+          }
+        ],
+        "assignments": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "mission_type": "rescue",
+            "expected_utility": 0.47831,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "mission_type": "rescue",
+            "expected_utility": 0.255489,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "mission_type": "reconnaissance",
+            "expected_utility": 0.478422,
+            "reason": "feasible"
+          }
+        ],
+        "routes": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "path": [
+              "HQ",
+              "ZONE_A"
+            ],
+            "road_ids": [
+              "R_HQ_A_DIRECT"
+            ],
+            "eta": 4.166667,
+            "path_risk": 0.16
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "path": [
+              "HQ",
+              "ZONE_B"
+            ],
+            "road_ids": [
+              "R_HQ_B"
+            ],
+            "eta": 4.0,
+            "path_risk": 0.06
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "path": [
+              "HQ",
+              "ZONE_C"
+            ],
+            "road_ids": [
+              "R_HQ_C"
+            ],
+            "eta": 2.5,
+            "path_risk": 0.08875
+          }
+        ]
+      },
+      "new_plan": {
+        "zone_assessment": [
+          {
+            "zone_id": "A",
+            "node_id": "ZONE_A",
+            "trapped_prob": 0.801904,
+            "passability_prob": 0.549113,
+            "life_risk": 0.700666,
+            "priority_score": 0.745873
+          },
+          {
+            "zone_id": "C",
+            "node_id": "ZONE_C",
+            "trapped_prob": 0.612381,
+            "passability_prob": 0.362502,
+            "life_risk": 0.779333,
+            "priority_score": 0.695002
+          },
+          {
+            "zone_id": "B",
+            "node_id": "ZONE_B",
+            "trapped_prob": 0.210585,
+            "passability_prob": 0.855688,
+            "life_risk": 0.228705,
+            "priority_score": 0.298414
+          }
+        ],
+        "assignments": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "mission_type": "rescue",
+            "expected_utility": 0.46431,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "mission_type": "rescue",
+            "expected_utility": 0.255489,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "mission_type": "reconnaissance",
+            "expected_utility": 0.478422,
+            "reason": "feasible"
+          }
+        ],
+        "routes": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "path": [
+              "HQ",
+              "X",
+              "ZONE_A"
+            ],
+            "road_ids": [
+              "R_HQ_X",
+              "R_X_A"
+            ],
+            "eta": 6.666667,
+            "path_risk": 0.1125
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "path": [
+              "HQ",
+              "ZONE_B"
+            ],
+            "road_ids": [
+              "R_HQ_B"
+            ],
+            "eta": 4.0,
+            "path_risk": 0.06
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "path": [
+              "HQ",
+              "ZONE_C"
+            ],
+            "road_ids": [
+              "R_HQ_C"
+            ],
+            "eta": 2.5,
+            "path_risk": 0.08875
+          }
+        ]
+      },
+      "reason": "A区直达道路发生二次塌方"
+    },
+    {
+      "trigger_event": {
+        "event_id": "EVT_DRONE_C",
+        "event_type": "drone_update",
+        "trigger_step": 2,
+        "target_id": "C",
+        "changes": {
+          "observations.drone_confidence": 0.95,
+          "observations.sos_signal": 0.9,
+          "observations.road_damage": 0.2,
+          "observations.fire": 0.5,
+          "observations.congestion": 0.1
+        },
+        "description": "无人机确认C区北侧道路可通且SOS增强"
+      },
+      "old_plan": {
+        "zone_assessment": [
+          {
+            "zone_id": "A",
+            "node_id": "ZONE_A",
+            "trapped_prob": 0.801904,
+            "passability_prob": 0.549113,
+            "life_risk": 0.700666,
+            "priority_score": 0.745873
+          },
+          {
+            "zone_id": "C",
+            "node_id": "ZONE_C",
+            "trapped_prob": 0.612381,
+            "passability_prob": 0.362502,
+            "life_risk": 0.779333,
+            "priority_score": 0.695002
+          },
+          {
+            "zone_id": "B",
+            "node_id": "ZONE_B",
+            "trapped_prob": 0.210585,
+            "passability_prob": 0.855688,
+            "life_risk": 0.228705,
+            "priority_score": 0.298414
+          }
+        ],
+        "assignments": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "mission_type": "rescue",
+            "expected_utility": 0.46431,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "mission_type": "rescue",
+            "expected_utility": 0.255489,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "mission_type": "reconnaissance",
+            "expected_utility": 0.478422,
+            "reason": "feasible"
+          }
+        ],
+        "routes": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "A",
+            "path": [
+              "HQ",
+              "X",
+              "ZONE_A"
+            ],
+            "road_ids": [
+              "R_HQ_X",
+              "R_X_A"
+            ],
+            "eta": 6.666667,
+            "path_risk": 0.1125
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "path": [
+              "HQ",
+              "ZONE_B"
+            ],
+            "road_ids": [
+              "R_HQ_B"
+            ],
+            "eta": 4.0,
+            "path_risk": 0.06
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "C",
+            "path": [
+              "HQ",
+              "ZONE_C"
+            ],
+            "road_ids": [
+              "R_HQ_C"
+            ],
+            "eta": 2.5,
+            "path_risk": 0.08875
+          }
+        ]
+      },
+      "new_plan": {
+        "zone_assessment": [
+          {
+            "zone_id": "C",
+            "node_id": "ZONE_C",
+            "trapped_prob": 0.749534,
+            "passability_prob": 0.789998,
+            "life_risk": 0.687337,
+            "priority_score": 0.765015
+          },
+          {
+            "zone_id": "A",
+            "node_id": "ZONE_A",
+            "trapped_prob": 0.801904,
+            "passability_prob": 0.549113,
+            "life_risk": 0.700666,
+            "priority_score": 0.745873
+          },
+          {
+            "zone_id": "B",
+            "node_id": "ZONE_B",
+            "trapped_prob": 0.210585,
+            "passability_prob": 0.855688,
+            "life_risk": 0.228705,
+            "priority_score": 0.298414
+          }
+        ],
+        "assignments": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "C",
+            "mission_type": "rescue",
+            "expected_utility": 0.487944,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "mission_type": "rescue",
+            "expected_utility": 0.255489,
+            "reason": "feasible"
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "A",
+            "mission_type": "reconnaissance",
+            "expected_utility": 0.478165,
+            "reason": "feasible"
+          }
+        ],
+        "routes": [
+          {
+            "unit_id": "RescueCar-1",
+            "target_zone": "C",
+            "path": [
+              "HQ",
+              "ZONE_C"
+            ],
+            "road_ids": [
+              "R_HQ_C"
+            ],
+            "eta": 4.166667,
+            "path_risk": 0.355
+          },
+          {
+            "unit_id": "RescueCar-2",
+            "target_zone": "B",
+            "path": [
+              "HQ",
+              "ZONE_B"
+            ],
+            "road_ids": [
+              "R_HQ_B"
+            ],
+            "eta": 4.0,
+            "path_risk": 0.06
+          },
+          {
+            "unit_id": "Drone-1",
+            "target_zone": "A",
+            "path": [
+              "HQ",
+              "ZONE_A"
+            ],
+            "road_ids": [
+              "R_HQ_A_DIRECT"
+            ],
+            "eta": 2.5,
+            "path_risk": 0.09
+          }
+        ]
+      },
+      "reason": "无人机确认C区北侧道路可通且SOS增强"
+    }
+  ]
+}

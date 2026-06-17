@@ -1,0 +1,4509 @@
+{
+  "metadata": {
+    "source": "semi_synthetic_expert_rules",
+    "sample_count": 300,
+    "seed": 42
+  },
+  "samples": [
+    {
+      "sample_id": "S001",
+      "observations": {
+        "sos_signal": 0.7739560485559633,
+        "building_collapse": 0.4388784397520523,
+        "human_activity": 0.8585979199113825,
+        "smoke": 0.6973680290593639,
+        "road_damage": 0.09417734788764953,
+        "fire": 0.9756223516367559,
+        "congestion": 0.761139701990353,
+        "drone_confidence": 0.7860643052769538
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S002",
+      "observations": {
+        "sos_signal": 0.37079802423258124,
+        "building_collapse": 0.9267649888486018,
+        "human_activity": 0.6438651200806645,
+        "smoke": 0.82276161327083,
+        "road_damage": 0.44341419882733113,
+        "fire": 0.2272387217847769,
+        "congestion": 0.5545847870158348,
+        "drone_confidence": 0.06381725610417532
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S003",
+      "observations": {
+        "sos_signal": 0.7580877400853738,
+        "building_collapse": 0.35452596812986836,
+        "human_activity": 0.9706980243949033,
+        "smoke": 0.8931211213221977,
+        "road_damage": 0.7783834970737619,
+        "fire": 0.19463870785196757,
+        "congestion": 0.4667210037270342,
+        "drone_confidence": 0.04380376578722878
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S004",
+      "observations": {
+        "sos_signal": 0.7447621559078171,
+        "building_collapse": 0.96750973243421,
+        "human_activity": 0.32582535813815194,
+        "smoke": 0.3704597060348689,
+        "road_damage": 0.4695558112758079,
+        "fire": 0.1894713590842857,
+        "congestion": 0.12992150533547164,
+        "drone_confidence": 0.47570492622593374
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S005",
+      "observations": {
+        "sos_signal": 0.43715191887233074,
+        "building_collapse": 0.8326781960578374,
+        "human_activity": 0.7002651020022491,
+        "smoke": 0.31236664138204107,
+        "road_damage": 0.8322598013952011,
+        "fire": 0.8047643574968019,
+        "congestion": 0.38747837903017446,
+        "drone_confidence": 0.2883281039302441
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S006",
+      "observations": {
+        "sos_signal": 0.19990820247510832,
+        "building_collapse": 0.007362269751005512,
+        "human_activity": 0.7869243775021384,
+        "smoke": 0.6648508565920321,
+        "road_damage": 0.7051653786263351,
+        "fire": 0.7807290310219679,
+        "congestion": 0.45891577553833995,
+        "drone_confidence": 0.5687411959528937
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S007",
+      "observations": {
+        "sos_signal": 0.6684029617904717,
+        "building_collapse": 0.4710962061431325,
+        "human_activity": 0.5652361064811888,
+        "smoke": 0.7649988574160256,
+        "road_damage": 0.6347183200005908,
+        "fire": 0.5535794006579958,
+        "congestion": 0.5592071607454135,
+        "drone_confidence": 0.3039500980626122
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S008",
+      "observations": {
+        "sos_signal": 0.2145846728195292,
+        "building_collapse": 0.40852864372463615,
+        "human_activity": 0.8534030732681661,
+        "smoke": 0.23393948586534075,
+        "road_damage": 0.05830274168906602,
+        "fire": 0.28138389202199654,
+        "congestion": 0.2935937577666836,
+        "drone_confidence": 0.6619165147268951
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S009",
+      "observations": {
+        "sos_signal": 0.6643135403273875,
+        "building_collapse": 0.4063868614400705,
+        "human_activity": 0.8140203846660347,
+        "smoke": 0.1669729199077039,
+        "road_damage": 0.022712073133860478,
+        "fire": 0.09004786077564175,
+        "congestion": 0.7223593505964503,
+        "drone_confidence": 0.4618772302513874
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S010",
+      "observations": {
+        "sos_signal": 0.15231210271316842,
+        "building_collapse": 0.696320375077736,
+        "human_activity": 0.4461562755740307,
+        "smoke": 0.3810212260964825,
+        "road_damage": 0.3015120891478765,
+        "fire": 0.6302825931188885,
+        "congestion": 0.3618126105533904,
+        "drone_confidence": 0.087649919316101
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S011",
+      "observations": {
+        "sos_signal": 0.908580690707607,
+        "building_collapse": 0.6997071338107496,
+        "human_activity": 0.2658699614595196,
+        "smoke": 0.9691763773477239,
+        "road_damage": 0.7787509039657946,
+        "fire": 0.7168901891589956,
+        "congestion": 0.44936150214378867,
+        "drone_confidence": 0.272241561845159
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S012",
+      "observations": {
+        "sos_signal": 0.45577628983361107,
+        "building_collapse": 0.20236336479523032,
+        "human_activity": 0.3059566241506525,
+        "smoke": 0.579219568941896,
+        "road_damage": 0.1767727829392317,
+        "fire": 0.8566142840923755,
+        "congestion": 0.7585195298352101,
+        "drone_confidence": 0.7194629559509368
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S013",
+      "observations": {
+        "sos_signal": 0.5840979689127356,
+        "building_collapse": 0.64984660155482,
+        "human_activity": 0.08444432113988909,
+        "smoke": 0.41580740217060963,
+        "road_damage": 0.04161417386189248,
+        "fire": 0.49399081924451893,
+        "congestion": 0.3298612123327853,
+        "drone_confidence": 0.1445241888660469
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S014",
+      "observations": {
+        "sos_signal": 0.1705929685368861,
+        "building_collapse": 0.9251201183767972,
+        "human_activity": 0.581061139700395,
+        "smoke": 0.34686980453483707,
+        "road_damage": 0.5909154914814168,
+        "fire": 0.022803871029697498,
+        "congestion": 0.9585592132414453,
+        "drone_confidence": 0.48230343694290023
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S015",
+      "observations": {
+        "sos_signal": 0.48665833083816035,
+        "building_collapse": 0.4907069943545209,
+        "human_activity": 0.9378264549749828,
+        "smoke": 0.5717280523760754,
+        "road_damage": 0.4734894010569538,
+        "fire": 0.2669756630918936,
+        "congestion": 0.3315689973425522,
+        "drone_confidence": 0.5206724024715378
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S016",
+      "observations": {
+        "sos_signal": 0.8262919241943578,
+        "building_collapse": 0.8961607718397667,
+        "human_activity": 0.14024908899861077,
+        "smoke": 0.5540361435390494,
+        "road_damage": 0.10857574113544355,
+        "fire": 0.6722400930398117,
+        "congestion": 0.2812337838390083,
+        "drone_confidence": 0.6594226346919018
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S017",
+      "observations": {
+        "sos_signal": 0.10774094595589656,
+        "building_collapse": 0.9160118451376079,
+        "human_activity": 0.23021399089488082,
+        "smoke": 0.03741255617617978,
+        "road_damage": 0.5548524693914834,
+        "fire": 0.37092228386243875,
+        "congestion": 0.8297897431324132,
+        "drone_confidence": 0.8082514720643018
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S018",
+      "observations": {
+        "sos_signal": 0.2909178381401186,
+        "building_collapse": 0.5150571292317145,
+        "human_activity": 0.25596509056760275,
+        "smoke": 0.9360435700489633,
+        "road_damage": 0.16460781758201815,
+        "fire": 0.04491061939232899,
+        "congestion": 0.43509706000303794,
+        "drone_confidence": 0.992375564055837
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S019",
+      "observations": {
+        "sos_signal": 0.8907924908785249,
+        "building_collapse": 0.8934466396978632,
+        "human_activity": 0.5188583603864491,
+        "smoke": 0.315929051830793,
+        "road_damage": 0.772012432110988,
+        "fire": 0.6616612631677611,
+        "congestion": 0.37365772887371007,
+        "drone_confidence": 0.09446666806151527
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S020",
+      "observations": {
+        "sos_signal": 0.9368131505337792,
+        "building_collapse": 0.24097057500568475,
+        "human_activity": 0.12275793241148603,
+        "smoke": 0.8311126721249061,
+        "road_damage": 0.15328431662449404,
+        "fire": 0.1792683081577391,
+        "congestion": 0.5993827915208435,
+        "drone_confidence": 0.8745620408374645
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S021",
+      "observations": {
+        "sos_signal": 0.7774048382411776,
+        "building_collapse": 0.9718264260609674,
+        "human_activity": 0.5007411862023423,
+        "smoke": 0.14389750255125078,
+        "road_damage": 0.013936287708201545,
+        "fire": 0.22965602999885526,
+        "congestion": 0.13182221778652103,
+        "drone_confidence": 0.6776586736128575
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S022",
+      "observations": {
+        "sos_signal": 0.6942624356428865,
+        "building_collapse": 0.5811166092209024,
+        "human_activity": 0.19977565166005762,
+        "smoke": 0.8041245261822627,
+        "road_damage": 0.7154071296158017,
+        "fire": 0.7389840039155418,
+        "congestion": 0.13105775155731325,
+        "drone_confidence": 0.12375380365034461
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S023",
+      "observations": {
+        "sos_signal": 0.30094869178093975,
+        "building_collapse": 0.4885840453515333,
+        "human_activity": 0.6628642127635824,
+        "smoke": 0.9556232570469699,
+        "road_damage": 0.286446226882055,
+        "fire": 0.9248084293120271,
+        "congestion": 0.024859491386256316,
+        "drone_confidence": 0.5551980423268247
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S024",
+      "observations": {
+        "sos_signal": 0.14033959706391264,
+        "building_collapse": 0.41911431931630383,
+        "human_activity": 0.9662319121431817,
+        "smoke": 0.5960425532343728,
+        "road_damage": 0.9330232216002112,
+        "fire": 0.8043609156129707,
+        "congestion": 0.4673816015552915,
+        "drone_confidence": 0.7847634492521874
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S025",
+      "observations": {
+        "sos_signal": 0.8294286148827363,
+        "building_collapse": 0.7968170883251617,
+        "human_activity": 0.2326407419664337,
+        "smoke": 0.5307695905990535,
+        "road_damage": 0.6060158207000109,
+        "fire": 0.8677389537760112,
+        "congestion": 0.6031071573387257,
+        "drone_confidence": 0.4125715692736803
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S026",
+      "observations": {
+        "sos_signal": 0.6519310255799742,
+        "building_collapse": 0.8674906317523249,
+        "human_activity": 0.45389688207629975,
+        "smoke": 0.24783956295135812,
+        "road_damage": 0.23666236299758114,
+        "fire": 0.7460142802434464,
+        "congestion": 0.8165687634239104,
+        "drone_confidence": 0.10527807985412496
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S027",
+      "observations": {
+        "sos_signal": 0.14617324419269828,
+        "building_collapse": 0.8246641904563413,
+        "human_activity": 0.31033467392407443,
+        "smoke": 0.14387193297114265,
+        "road_damage": 0.9209704724874502,
+        "fire": 0.16553172273527816,
+        "congestion": 0.28472008233793555,
+        "drone_confidence": 0.15361339519205863
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S028",
+      "observations": {
+        "sos_signal": 0.05539540916426011,
+        "building_collapse": 0.1746414709358527,
+        "human_activity": 0.05338193262717539,
+        "smoke": 0.5911438161109712,
+        "road_damage": 0.6807145267995064,
+        "fire": 0.39363045683202824,
+        "congestion": 0.3179910969520494,
+        "drone_confidence": 0.5045262370222301
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S029",
+      "observations": {
+        "sos_signal": 0.04347506201279194,
+        "building_collapse": 0.18149840959652408,
+        "human_activity": 0.23674487110439602,
+        "smoke": 0.24938757583221183,
+        "road_damage": 0.5712326517427727,
+        "fire": 0.4162624257031923,
+        "congestion": 0.04925411992759399,
+        "drone_confidence": 0.3736141384595716
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S030",
+      "observations": {
+        "sos_signal": 0.8334585537885597,
+        "building_collapse": 0.051961866465104256,
+        "human_activity": 0.9248418690180621,
+        "smoke": 0.0991131415798755,
+        "road_damage": 0.8435749515977528,
+        "fire": 0.9026531439276171,
+        "congestion": 0.9795706805865927,
+        "drone_confidence": 0.8020258802735936
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S031",
+      "observations": {
+        "sos_signal": 0.778996354578129,
+        "building_collapse": 0.13455220841314708,
+        "human_activity": 0.5360680359476373,
+        "smoke": 0.5142228701904145,
+        "road_damage": 0.8575721441225576,
+        "fire": 0.46279936559351587,
+        "congestion": 0.3850894961003535,
+        "drone_confidence": 0.6395632712371101
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S032",
+      "observations": {
+        "sos_signal": 0.4778772740237458,
+        "building_collapse": 0.416889368594885,
+        "human_activity": 0.2325699405288737,
+        "smoke": 0.367511810115128,
+        "road_damage": 0.3663924498262474,
+        "fire": 0.32749556441254546,
+        "congestion": 0.37946407972692897,
+        "drone_confidence": 0.6857433454559454
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S033",
+      "observations": {
+        "sos_signal": 0.9163480195381779,
+        "building_collapse": 0.4809104283000786,
+        "human_activity": 0.3283612050046888,
+        "smoke": 0.5354347898300031,
+        "road_damage": 0.8485604887736246,
+        "fire": 0.652587340560102,
+        "congestion": 0.8043918279470774,
+        "drone_confidence": 0.5327222760657402
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S034",
+      "observations": {
+        "sos_signal": 0.7348931623102908,
+        "building_collapse": 0.20240459312571835,
+        "human_activity": 0.6947981288184982,
+        "smoke": 0.8607190683258941,
+        "road_damage": 0.13210283730154393,
+        "fire": 0.6143797405419198,
+        "congestion": 0.0950957482299346,
+        "drone_confidence": 0.7257156282714269
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S035",
+      "observations": {
+        "sos_signal": 0.13740793003780216,
+        "building_collapse": 0.9588802459090804,
+        "human_activity": 0.8008841760850967,
+        "smoke": 0.5936820044663541,
+        "road_damage": 0.7826241046295469,
+        "fire": 0.7951148389830859,
+        "congestion": 0.9460270628173303,
+        "drone_confidence": 0.2533833538391872
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S036",
+      "observations": {
+        "sos_signal": 0.6161657000241213,
+        "building_collapse": 0.1712913040927888,
+        "human_activity": 0.5649506114724419,
+        "smoke": 0.5724305140338497,
+        "road_damage": 0.46598515298122734,
+        "fire": 0.5226317755131228,
+        "congestion": 0.7639233900065879,
+        "drone_confidence": 0.7992447165120666
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S037",
+      "observations": {
+        "sos_signal": 0.9312362356901018,
+        "building_collapse": 0.11973358850112281,
+        "human_activity": 0.1171035659001105,
+        "smoke": 0.08770901191076841,
+        "road_damage": 0.6578632850405278,
+        "fire": 0.4186083007903795,
+        "congestion": 0.7743214161418432,
+        "drone_confidence": 0.6712314133085926
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S038",
+      "observations": {
+        "sos_signal": 0.7625321470706523,
+        "building_collapse": 0.2705349409101757,
+        "human_activity": 0.364192017772054,
+        "smoke": 0.3144399802042629,
+        "road_damage": 0.15761164862499966,
+        "fire": 0.14778337254219165,
+        "congestion": 0.936127463375744,
+        "drone_confidence": 0.43790403719875326
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S039",
+      "observations": {
+        "sos_signal": 0.5529930652528999,
+        "building_collapse": 0.9361399868384622,
+        "human_activity": 0.7803014939093922,
+        "smoke": 0.47936956412454035,
+        "road_damage": 0.3763594734808262,
+        "fire": 0.986631544924322,
+        "congestion": 0.7177602360036435,
+        "drone_confidence": 0.9511946600038411
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S040",
+      "observations": {
+        "sos_signal": 0.6370738839912076,
+        "building_collapse": 0.12192167833511258,
+        "human_activity": 0.5882579999692207,
+        "smoke": 0.6860963651054488,
+        "road_damage": 0.012302685888602838,
+        "fire": 0.45431796184174655,
+        "congestion": 0.8253995111963212,
+        "drone_confidence": 0.29535902534408986
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S041",
+      "observations": {
+        "sos_signal": 0.3019273914424916,
+        "building_collapse": 0.9184418955155542,
+        "human_activity": 0.7812940354315159,
+        "smoke": 0.1105884109961105,
+        "road_damage": 0.9970346578375731,
+        "fire": 0.8792000243077452,
+        "congestion": 0.28390843786403896,
+        "drone_confidence": 0.8368965796609382
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S042",
+      "observations": {
+        "sos_signal": 0.6656847361065369,
+        "building_collapse": 0.650125015558797,
+        "human_activity": 0.09044072698413275,
+        "smoke": 0.8970333988966253,
+        "road_damage": 0.028999503204469423,
+        "fire": 0.24082805804114704,
+        "congestion": 0.143021875166635,
+        "drone_confidence": 0.7767679406922186
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S043",
+      "observations": {
+        "sos_signal": 0.6562690393274901,
+        "building_collapse": 0.036162710494696215,
+        "human_activity": 0.0054298341287004614,
+        "smoke": 0.051657917014398924,
+        "road_damage": 0.6059251776477277,
+        "fire": 0.8014818108594153,
+        "congestion": 0.23855282062738847,
+        "drone_confidence": 0.849408842923073
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S044",
+      "observations": {
+        "sos_signal": 0.9277954301722804,
+        "building_collapse": 0.7721083991043806,
+        "human_activity": 0.6981207839786372,
+        "smoke": 0.8379802186553831,
+        "road_damage": 0.04015129954706642,
+        "fire": 0.20178211071905539,
+        "congestion": 0.12492367930564308,
+        "drone_confidence": 0.5045309901929865
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S045",
+      "observations": {
+        "sos_signal": 0.851131099761935,
+        "building_collapse": 0.15521299244109088,
+        "human_activity": 0.7346210919351616,
+        "smoke": 0.1930414908689041,
+        "road_damage": 0.27075875131780025,
+        "fire": 0.7099046972813039,
+        "congestion": 0.9802047848986818,
+        "drone_confidence": 0.6115436059770696
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S046",
+      "observations": {
+        "sos_signal": 0.042350551580167095,
+        "building_collapse": 0.8841457113668172,
+        "human_activity": 0.7095782851006207,
+        "smoke": 0.17312784642250323,
+        "road_damage": 0.09172100582419807,
+        "fire": 0.18353322888031898,
+        "congestion": 0.9800271795541925,
+        "drone_confidence": 0.4585606424584898
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S047",
+      "observations": {
+        "sos_signal": 0.5724131499586373,
+        "building_collapse": 0.1451302546650497,
+        "human_activity": 0.9460244535580951,
+        "smoke": 0.30134263251471793,
+        "road_damage": 0.5780172158075422,
+        "fire": 0.6997759445890661,
+        "congestion": 0.6492331552453089,
+        "drone_confidence": 0.9405944096955184
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S048",
+      "observations": {
+        "sos_signal": 0.40403439074076597,
+        "building_collapse": 0.4741687294826181,
+        "human_activity": 0.11921752619774462,
+        "smoke": 0.13409460987276534,
+        "road_damage": 0.27807554578125737,
+        "fire": 0.3047046037608313,
+        "congestion": 0.42790321368135,
+        "drone_confidence": 0.6109875470366283
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S049",
+      "observations": {
+        "sos_signal": 0.4087831094286971,
+        "building_collapse": 0.21762852669696198,
+        "human_activity": 0.5883062484090082,
+        "smoke": 0.3170409113172379,
+        "road_damage": 0.0360598342773637,
+        "fire": 0.4184000441568604,
+        "congestion": 0.4741326750901703,
+        "drone_confidence": 0.22559286820421098
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S050",
+      "observations": {
+        "sos_signal": 0.7020021811103714,
+        "building_collapse": 0.64794848220121,
+        "human_activity": 0.6524330565210316,
+        "smoke": 0.3162141518240431,
+        "road_damage": 0.7874322219859539,
+        "fire": 0.5491443835996794,
+        "congestion": 0.4314181951798901,
+        "drone_confidence": 0.6260124809410571
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S051",
+      "observations": {
+        "sos_signal": 0.7367056884822203,
+        "building_collapse": 0.8864028867237077,
+        "human_activity": 0.9210571972951916,
+        "smoke": 0.5036329251830992,
+        "road_damage": 0.5202751147405691,
+        "fire": 0.7998704107638365,
+        "congestion": 0.31445069174420126,
+        "drone_confidence": 0.8373823623450686
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S052",
+      "observations": {
+        "sos_signal": 0.0720591470729437,
+        "building_collapse": 0.8419932110394631,
+        "human_activity": 0.0555679169068779,
+        "smoke": 0.2806114361336559,
+        "road_damage": 0.3341300405015458,
+        "fire": 0.1729944451915938,
+        "congestion": 0.31389336980198923,
+        "drone_confidence": 0.7426925667250857
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S053",
+      "observations": {
+        "sos_signal": 0.8565480235745582,
+        "building_collapse": 0.3722615731915482,
+        "human_activity": 0.1536128990606348,
+        "smoke": 0.6008404079450809,
+        "road_damage": 0.11967255586489434,
+        "fire": 0.3649193610782525,
+        "congestion": 0.9584291809009724,
+        "drone_confidence": 0.9954644725836371
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S054",
+      "observations": {
+        "sos_signal": 0.6876650491660925,
+        "building_collapse": 0.7054063654840127,
+        "human_activity": 0.38784169516364975,
+        "smoke": 0.6408886345861594,
+        "road_damage": 0.010727644975676243,
+        "fire": 0.20905765860224146,
+        "congestion": 0.5250883029672612,
+        "drone_confidence": 0.16375130425829587
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S055",
+      "observations": {
+        "sos_signal": 0.9891330026836055,
+        "building_collapse": 0.5559694280284484,
+        "human_activity": 0.8390697308817134,
+        "smoke": 0.9903216643262726,
+        "road_damage": 0.1415958885687747,
+        "fire": 0.4482456132543511,
+        "congestion": 0.3925727158419199,
+        "drone_confidence": 0.08004928364618502
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S056",
+      "observations": {
+        "sos_signal": 0.4693269341904013,
+        "building_collapse": 0.15067297381324019,
+        "human_activity": 0.18092665223086812,
+        "smoke": 0.907103622156215,
+        "road_damage": 0.04464908897427888,
+        "fire": 0.23285228494370624,
+        "congestion": 0.29205933031452835,
+        "drone_confidence": 0.4901975424015864
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S057",
+      "observations": {
+        "sos_signal": 0.08411533455688203,
+        "building_collapse": 0.24366745405571355,
+        "human_activity": 0.8435883847625412,
+        "smoke": 0.6375887004784591,
+        "road_damage": 0.6491490501342744,
+        "fire": 0.6702032553513549,
+        "congestion": 0.7629030190395291,
+        "drone_confidence": 0.058108481721447336
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S058",
+      "observations": {
+        "sos_signal": 0.338456483297326,
+        "building_collapse": 0.8444788732871865,
+        "human_activity": 0.48257250858729395,
+        "smoke": 0.7686275894593791,
+        "road_damage": 0.852015516881169,
+        "fire": 0.5047914829034981,
+        "congestion": 0.9095522438713499,
+        "drone_confidence": 0.5871239405369806
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S059",
+      "observations": {
+        "sos_signal": 0.4988169585314852,
+        "building_collapse": 0.5314110410045777,
+        "human_activity": 0.10497971589607058,
+        "smoke": 0.39855250670154063,
+        "road_damage": 0.9173376725516761,
+        "fire": 0.6308322403647424,
+        "congestion": 0.17750658243696749,
+        "drone_confidence": 0.33885563560960497
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S060",
+      "observations": {
+        "sos_signal": 0.9274604585040267,
+        "building_collapse": 0.4482073282568715,
+        "human_activity": 0.30753507242078615,
+        "smoke": 0.5984771915577366,
+        "road_damage": 0.0073144562930156365,
+        "fire": 0.27802210660081383,
+        "congestion": 0.7030334656988926,
+        "drone_confidence": 0.633769773069263
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S061",
+      "observations": {
+        "sos_signal": 0.4775058736277328,
+        "building_collapse": 0.7614325631840076,
+        "human_activity": 0.9033278719640531,
+        "smoke": 0.7206959467183516,
+        "road_damage": 0.9632112235493796,
+        "fire": 0.7820051707381772,
+        "congestion": 0.8668014382619265,
+        "drone_confidence": 0.11410407118363719
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S062",
+      "observations": {
+        "sos_signal": 0.5531038024112752,
+        "building_collapse": 0.6541024094823568,
+        "human_activity": 0.9698151167055694,
+        "smoke": 0.9845780814316246,
+        "road_damage": 0.28822824548790527,
+        "fire": 0.7337534974379162,
+        "congestion": 0.7499835379352686,
+        "drone_confidence": 0.3464928613130488
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S063",
+      "observations": {
+        "sos_signal": 0.7773431275291786,
+        "building_collapse": 0.4896997418169059,
+        "human_activity": 0.9855401694949262,
+        "smoke": 0.46497345619365305,
+        "road_damage": 0.9779169790738402,
+        "fire": 0.4115760021940599,
+        "congestion": 0.7936821505599726,
+        "drone_confidence": 0.08481927231183206
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S064",
+      "observations": {
+        "sos_signal": 0.9247016672198887,
+        "building_collapse": 0.8225830906174316,
+        "human_activity": 0.036970727201174225,
+        "smoke": 0.3727023413067342,
+        "road_damage": 0.04869847231385127,
+        "fire": 0.109282291114558,
+        "congestion": 0.6753056286674841,
+        "drone_confidence": 0.7132581963116982
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S065",
+      "observations": {
+        "sos_signal": 0.7394314684765099,
+        "building_collapse": 0.8008715921066321,
+        "human_activity": 0.048963709823279244,
+        "smoke": 0.23453515044129858,
+        "road_damage": 0.6218977733752458,
+        "fire": 0.8581253046248232,
+        "congestion": 0.0045001249396591225,
+        "drone_confidence": 0.5146293421163498
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S066",
+      "observations": {
+        "sos_signal": 0.4013555575533879,
+        "building_collapse": 0.8956348813836968,
+        "human_activity": 0.6716128088558587,
+        "smoke": 0.2376583633605973,
+        "road_damage": 0.8527811296319127,
+        "fire": 0.3480314234095143,
+        "congestion": 0.8533446711440594,
+        "drone_confidence": 0.29894365111890553
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S067",
+      "observations": {
+        "sos_signal": 0.274825050755067,
+        "building_collapse": 0.8865575621718692,
+        "human_activity": 0.18759368193949133,
+        "smoke": 0.0848115912357631,
+        "road_damage": 0.34192693854566036,
+        "fire": 0.7176391476415676,
+        "congestion": 0.8074316059762817,
+        "drone_confidence": 0.9987433700667648
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S068",
+      "observations": {
+        "sos_signal": 0.1368212780296263,
+        "building_collapse": 0.5748719296230336,
+        "human_activity": 0.9975800372629172,
+        "smoke": 0.7008810101206585,
+        "road_damage": 0.5952128404133717,
+        "fire": 0.392369092921794,
+        "congestion": 0.9152987602855548,
+        "drone_confidence": 0.49691659613034944
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S069",
+      "observations": {
+        "sos_signal": 0.0671666688477669,
+        "building_collapse": 0.20197903768878156,
+        "human_activity": 0.017668780999912204,
+        "smoke": 0.4532799165001634,
+        "road_damage": 0.6345402649517972,
+        "fire": 0.34329246237890776,
+        "congestion": 0.4203817715052771,
+        "drone_confidence": 0.9592092728445759
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S070",
+      "observations": {
+        "sos_signal": 0.28454087511182524,
+        "building_collapse": 0.8969967987729952,
+        "human_activity": 0.23509711688065948,
+        "smoke": 0.32534273051667706,
+        "road_damage": 0.9090648144229485,
+        "fire": 0.5295420552850724,
+        "congestion": 0.7423179494179767,
+        "drone_confidence": 0.5907447941637661
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S071",
+      "observations": {
+        "sos_signal": 0.24137206162666291,
+        "building_collapse": 0.32249234716866526,
+        "human_activity": 0.15544156408342247,
+        "smoke": 0.8743143652908074,
+        "road_damage": 0.2832469332501141,
+        "fire": 0.5614893944143846,
+        "congestion": 0.7919744251413741,
+        "drone_confidence": 0.7838241093757136
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S072",
+      "observations": {
+        "sos_signal": 0.9947017489350248,
+        "building_collapse": 0.6745974769790241,
+        "human_activity": 0.8146384431178827,
+        "smoke": 0.9025539692192319,
+        "road_damage": 0.7875898362293392,
+        "fire": 0.18517934495356758,
+        "congestion": 0.5621707337375722,
+        "drone_confidence": 0.10189415731454488
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S073",
+      "observations": {
+        "sos_signal": 0.5127320643001113,
+        "building_collapse": 0.4329724928677672,
+        "human_activity": 0.03584275141816318,
+        "smoke": 0.9597745223292203,
+        "road_damage": 0.10300268413015878,
+        "fire": 0.041079093304846936,
+        "congestion": 0.24606661150493847,
+        "drone_confidence": 0.06553043391838242
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S074",
+      "observations": {
+        "sos_signal": 0.3125699490285839,
+        "building_collapse": 0.05096048257488606,
+        "human_activity": 0.1116003682492267,
+        "smoke": 0.3845043779899281,
+        "road_damage": 0.06052845082653613,
+        "fire": 0.6981897256099134,
+        "congestion": 0.20702054152481197,
+        "drone_confidence": 0.3020715687836385
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S075",
+      "observations": {
+        "sos_signal": 0.0016607076748005323,
+        "building_collapse": 0.11207037099869754,
+        "human_activity": 0.8627645637408781,
+        "smoke": 0.001233062511908134,
+        "road_damage": 0.5081673558128751,
+        "fire": 0.4895020065072081,
+        "congestion": 0.3330941610106378,
+        "drone_confidence": 0.43132702014644964
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S076",
+      "observations": {
+        "sos_signal": 0.26034854341525004,
+        "building_collapse": 0.32249044096772983,
+        "human_activity": 0.24248285302833272,
+        "smoke": 0.47986340055106513,
+        "road_damage": 0.6832583576588129,
+        "fire": 0.22825287546342055,
+        "congestion": 0.33073574205486667,
+        "drone_confidence": 0.9303846175891505
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S077",
+      "observations": {
+        "sos_signal": 0.7115580415967778,
+        "building_collapse": 0.15045401155747407,
+        "human_activity": 0.047374020005481854,
+        "smoke": 0.13820537163853075,
+        "road_damage": 0.9188231935306829,
+        "fire": 0.009259781821123414,
+        "congestion": 0.18832197481135182,
+        "drone_confidence": 0.03128351290164455
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S078",
+      "observations": {
+        "sos_signal": 0.24163890873908578,
+        "building_collapse": 0.5692120504306768,
+        "human_activity": 0.5901953827661262,
+        "smoke": 0.849435333089779,
+        "road_damage": 0.004741392911873921,
+        "fire": 0.8533694593423667,
+        "congestion": 0.619119086426974,
+        "drone_confidence": 0.1627434861049576
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S079",
+      "observations": {
+        "sos_signal": 0.2542634837541573,
+        "building_collapse": 0.9187936809026809,
+        "human_activity": 0.4544574302986578,
+        "smoke": 0.6034244543333215,
+        "road_damage": 0.9846495336176436,
+        "fire": 0.36153607863919934,
+        "congestion": 0.8131593458201128,
+        "drone_confidence": 0.31839911782845964
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S080",
+      "observations": {
+        "sos_signal": 0.21635569522540143,
+        "building_collapse": 0.4140260937892364,
+        "human_activity": 0.3176356343635617,
+        "smoke": 0.07810839308036388,
+        "road_damage": 0.029834770099697483,
+        "fire": 0.3464786554071809,
+        "congestion": 0.01903414781748658,
+        "drone_confidence": 0.16548775758177503
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S081",
+      "observations": {
+        "sos_signal": 0.7385803864573827,
+        "building_collapse": 0.31715317112997876,
+        "human_activity": 0.8900194571176955,
+        "smoke": 0.5938305480284476,
+        "road_damage": 0.12602634174662652,
+        "fire": 0.14371866145553414,
+        "congestion": 0.6930954269297015,
+        "drone_confidence": 0.17294393644207806
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S082",
+      "observations": {
+        "sos_signal": 0.004007604733339498,
+        "building_collapse": 0.016579801897556923,
+        "human_activity": 0.9930845819305065,
+        "smoke": 0.5846388341341655,
+        "road_damage": 0.12690997551851313,
+        "fire": 0.8973021997540936,
+        "congestion": 0.8803803001276922,
+        "drone_confidence": 0.5362004131113752
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S083",
+      "observations": {
+        "sos_signal": 0.05051969637200515,
+        "building_collapse": 0.5945676088908644,
+        "human_activity": 0.294755193202763,
+        "smoke": 0.6636210466603519,
+        "road_damage": 0.8362451768426012,
+        "fire": 0.018160543914364058,
+        "congestion": 0.5957137746857274,
+        "drone_confidence": 0.23128053968685225
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S084",
+      "observations": {
+        "sos_signal": 0.6107701332354183,
+        "building_collapse": 0.5535408400896115,
+        "human_activity": 0.3961665000592489,
+        "smoke": 0.6776207635997941,
+        "road_damage": 0.7257696347154339,
+        "fire": 0.5669377953193868,
+        "congestion": 0.7584222371847541,
+        "drone_confidence": 0.9834170759929376
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S085",
+      "observations": {
+        "sos_signal": 0.012469877941213237,
+        "building_collapse": 0.7960285563103784,
+        "human_activity": 0.5202300670459938,
+        "smoke": 0.4079614303605652,
+        "road_damage": 0.0940719630893958,
+        "fire": 0.8896564216753973,
+        "congestion": 0.39500724004055643,
+        "drone_confidence": 0.6825815982092204
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S086",
+      "observations": {
+        "sos_signal": 0.1784417618218309,
+        "building_collapse": 0.19954199289949037,
+        "human_activity": 0.8589828605577138,
+        "smoke": 0.9125827441419312,
+        "road_damage": 0.2121474075233014,
+        "fire": 0.4698008881748279,
+        "congestion": 0.7334949045628298,
+        "drone_confidence": 0.8783657338108016
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S087",
+      "observations": {
+        "sos_signal": 0.7417164105197349,
+        "building_collapse": 0.7311359766527954,
+        "human_activity": 0.7829601300260849,
+        "smoke": 0.5699338186415264,
+        "road_damage": 0.10461509680477521,
+        "fire": 0.90397329087804,
+        "congestion": 0.8655725393210282,
+        "drone_confidence": 0.798097435818333
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S088",
+      "observations": {
+        "sos_signal": 0.7436003651076519,
+        "building_collapse": 0.023140094581946435,
+        "human_activity": 0.9792246337072796,
+        "smoke": 0.3771446803556807,
+        "road_damage": 0.7193125336908236,
+        "fire": 0.8875710884880433,
+        "congestion": 0.39462988815008226,
+        "drone_confidence": 0.31913248859966603
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S089",
+      "observations": {
+        "sos_signal": 0.40913997762479715,
+        "building_collapse": 0.6017747558677085,
+        "human_activity": 0.9353813695664948,
+        "smoke": 0.4676402566265965,
+        "road_damage": 0.19674218075063132,
+        "fire": 0.3772059828830039,
+        "congestion": 0.3941069825931186,
+        "drone_confidence": 0.13110869302621986
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S090",
+      "observations": {
+        "sos_signal": 0.3394777542089027,
+        "building_collapse": 0.9548983918558076,
+        "human_activity": 0.24359674535860742,
+        "smoke": 0.09892450510482231,
+        "road_damage": 0.7535045630002579,
+        "fire": 0.88103605191787,
+        "congestion": 0.27811335687148786,
+        "drone_confidence": 0.20208810164547797
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S091",
+      "observations": {
+        "sos_signal": 0.46841664124677096,
+        "building_collapse": 0.2594398398545342,
+        "human_activity": 0.04517311698942639,
+        "smoke": 0.4814913403262807,
+        "road_damage": 0.9593323476356084,
+        "fire": 0.6525192007526632,
+        "congestion": 0.4955065566286184,
+        "drone_confidence": 0.11069207402961612
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S092",
+      "observations": {
+        "sos_signal": 0.7648035526072343,
+        "building_collapse": 0.8767107972646193,
+        "human_activity": 0.9016418535664384,
+        "smoke": 0.9845686082507541,
+        "road_damage": 0.9823666831045325,
+        "fire": 0.9529991327679814,
+        "congestion": 0.07182214050288438,
+        "drone_confidence": 0.1377935359278052
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S093",
+      "observations": {
+        "sos_signal": 0.0969778887054793,
+        "building_collapse": 0.8457969578021425,
+        "human_activity": 0.6167561790773091,
+        "smoke": 0.542364402302205,
+        "road_damage": 0.16531132336729115,
+        "fire": 0.25325547440019736,
+        "congestion": 0.16031202498225805,
+        "drone_confidence": 0.8519331577947986
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S094",
+      "observations": {
+        "sos_signal": 0.29603286291002573,
+        "building_collapse": 0.37125263708827716,
+        "human_activity": 0.4048549644265338,
+        "smoke": 0.7600149717440349,
+        "road_damage": 0.7723529876745681,
+        "fire": 0.2068135275140317,
+        "congestion": 0.941538856738099,
+        "drone_confidence": 0.1206553374436864
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S095",
+      "observations": {
+        "sos_signal": 0.2645398111513111,
+        "building_collapse": 0.846478536067957,
+        "human_activity": 0.17949207234608744,
+        "smoke": 0.4135679313099698,
+        "road_damage": 0.4498592999441262,
+        "fire": 0.24525897302320965,
+        "congestion": 0.7102452013359866,
+        "drone_confidence": 0.8513346494022038
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S096",
+      "observations": {
+        "sos_signal": 0.5308503942878144,
+        "building_collapse": 0.2484064038656515,
+        "human_activity": 0.24479650155014543,
+        "smoke": 0.16125406285192412,
+        "road_damage": 0.9400190108075147,
+        "fire": 0.8879888286055799,
+        "congestion": 0.7773587133276922,
+        "drone_confidence": 0.517661521287729
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S097",
+      "observations": {
+        "sos_signal": 0.5365680135770893,
+        "building_collapse": 0.43456308469769034,
+        "human_activity": 0.13175483289206746,
+        "smoke": 0.12566385286853599,
+        "road_damage": 0.9522497158456833,
+        "fire": 0.48203075958635055,
+        "congestion": 0.953205524905189,
+        "drone_confidence": 0.16357687771010998
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S098",
+      "observations": {
+        "sos_signal": 0.25318460612660154,
+        "building_collapse": 0.030054578761178785,
+        "human_activity": 0.11895331074021132,
+        "smoke": 0.9168484076291957,
+        "road_damage": 0.3215329914823317,
+        "fire": 0.6081292119145916,
+        "congestion": 0.465014131989273,
+        "drone_confidence": 0.4004512452452783
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S099",
+      "observations": {
+        "sos_signal": 0.9886038985195765,
+        "building_collapse": 0.818307868703863,
+        "human_activity": 0.7416146327315153,
+        "smoke": 0.46875929701395247,
+        "road_damage": 0.15287712212633597,
+        "fire": 0.9206658582735678,
+        "congestion": 0.34138706738172764,
+        "drone_confidence": 0.05010668969693377
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S100",
+      "observations": {
+        "sos_signal": 0.6227087449882082,
+        "building_collapse": 0.7508385847448596,
+        "human_activity": 0.7936353838623774,
+        "smoke": 0.2119546110805426,
+        "road_damage": 0.9237833160931802,
+        "fire": 0.4379896029203726,
+        "congestion": 0.6390136492641646,
+        "drone_confidence": 0.002308772586742003
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S101",
+      "observations": {
+        "sos_signal": 0.06206310654015523,
+        "building_collapse": 0.45826204153651395,
+        "human_activity": 0.12903005718204175,
+        "smoke": 0.1523267101575757,
+        "road_damage": 0.6322828130302102,
+        "fire": 0.39292739157023326,
+        "congestion": 0.9218524501549951,
+        "drone_confidence": 0.31915649460807005
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S102",
+      "observations": {
+        "sos_signal": 0.6599513011292788,
+        "building_collapse": 0.5996953567159904,
+        "human_activity": 0.4727839727589982,
+        "smoke": 0.9500610946244371,
+        "road_damage": 0.34271364275495586,
+        "fire": 0.17723550124927256,
+        "congestion": 0.6780940608798283,
+        "drone_confidence": 0.8460075613079088
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S103",
+      "observations": {
+        "sos_signal": 0.8924876896873263,
+        "building_collapse": 0.7496186189228675,
+        "human_activity": 0.9918077164976282,
+        "smoke": 0.5314138115972438,
+        "road_damage": 0.6599957188011513,
+        "fire": 0.30248028113792813,
+        "congestion": 0.9475355996659923,
+        "drone_confidence": 0.3663354885565363
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S104",
+      "observations": {
+        "sos_signal": 0.5618189300629993,
+        "building_collapse": 0.7197825350215462,
+        "human_activity": 0.5089341517513543,
+        "smoke": 0.9070863269095085,
+        "road_damage": 0.41930098792781023,
+        "fire": 0.6470717981433252,
+        "congestion": 0.3423624333000541,
+        "drone_confidence": 0.40815666823101304
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S105",
+      "observations": {
+        "sos_signal": 0.09172367905900669,
+        "building_collapse": 0.6674899231467579,
+        "human_activity": 0.6555177383430523,
+        "smoke": 0.6629097142100953,
+        "road_damage": 0.019766445342691674,
+        "fire": 0.3265468426717799,
+        "congestion": 0.19780984725919692,
+        "drone_confidence": 0.7781514225440124
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S106",
+      "observations": {
+        "sos_signal": 0.6678491588479863,
+        "building_collapse": 0.12936280345827444,
+        "human_activity": 0.2751525256017133,
+        "smoke": 0.13865449623341952,
+        "road_damage": 0.2835207665992292,
+        "fire": 0.6747365473492779,
+        "congestion": 0.9103269101852525,
+        "drone_confidence": 0.20252240792418597
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S107",
+      "observations": {
+        "sos_signal": 0.9529224684855657,
+        "building_collapse": 0.6100604828871738,
+        "human_activity": 0.2551069310273807,
+        "smoke": 0.6254781569139363,
+        "road_damage": 0.32049116167801617,
+        "fire": 0.9761283906917078,
+        "congestion": 0.39967613516363687,
+        "drone_confidence": 0.6854277207610142
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S108",
+      "observations": {
+        "sos_signal": 0.8751076133225116,
+        "building_collapse": 0.6102274444332458,
+        "human_activity": 0.44394288639597634,
+        "smoke": 0.9359374994357259,
+        "road_damage": 0.8539843761472291,
+        "fire": 0.32221567382293825,
+        "congestion": 0.5445484020413396,
+        "drone_confidence": 0.4898242560924627
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S109",
+      "observations": {
+        "sos_signal": 0.24420500076588825,
+        "building_collapse": 0.9126718352555361,
+        "human_activity": 0.9238744994985063,
+        "smoke": 0.843322885761979,
+        "road_damage": 0.9782044307645613,
+        "fire": 0.7449915257796885,
+        "congestion": 0.7646672285619996,
+        "drone_confidence": 0.7625900919626407
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S110",
+      "observations": {
+        "sos_signal": 0.24022627614900316,
+        "building_collapse": 0.6448191943592905,
+        "human_activity": 0.28932013610233454,
+        "smoke": 0.2578084097023544,
+        "road_damage": 0.5859613740960548,
+        "fire": 0.4099823882250432,
+        "congestion": 0.2188566087946322,
+        "drone_confidence": 0.8160560167528311
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S111",
+      "observations": {
+        "sos_signal": 0.007507032799999869,
+        "building_collapse": 0.3361299685293737,
+        "human_activity": 0.7975108356807525,
+        "smoke": 0.8391738662343244,
+        "road_damage": 0.13832907011604922,
+        "fire": 0.7743359011830512,
+        "congestion": 0.11570416730942945,
+        "drone_confidence": 0.3900625901565292
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S112",
+      "observations": {
+        "sos_signal": 0.15396358257762643,
+        "building_collapse": 0.4228003325467935,
+        "human_activity": 0.6196685259698614,
+        "smoke": 0.9329007824132532,
+        "road_damage": 0.9808211455330342,
+        "fire": 0.06964063659139463,
+        "congestion": 0.13799751734790533,
+        "drone_confidence": 0.7907379738959939
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S113",
+      "observations": {
+        "sos_signal": 0.6634532572290868,
+        "building_collapse": 0.11184480238067718,
+        "human_activity": 0.8325292849240071,
+        "smoke": 0.17635638000807585,
+        "road_damage": 0.4234953946796538,
+        "fire": 0.55218492855933,
+        "congestion": 0.5007661490802783,
+        "drone_confidence": 0.6861629156151504
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S114",
+      "observations": {
+        "sos_signal": 0.9994219092241878,
+        "building_collapse": 0.5164594026356409,
+        "human_activity": 0.09519908696086399,
+        "smoke": 0.7278432989687184,
+        "road_damage": 0.9766640782165892,
+        "fire": 0.3183263876290203,
+        "congestion": 0.4612088858375738,
+        "drone_confidence": 0.4247769248154559
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S115",
+      "observations": {
+        "sos_signal": 0.3533376950684678,
+        "building_collapse": 0.7874638746315022,
+        "human_activity": 0.8321200752819861,
+        "smoke": 0.8212307865978454,
+        "road_damage": 0.41666599803988014,
+        "fire": 0.3215456822408995,
+        "congestion": 0.7488207796670548,
+        "drone_confidence": 0.801389433842723
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S116",
+      "observations": {
+        "sos_signal": 0.14390869607855827,
+        "building_collapse": 0.8790687796589601,
+        "human_activity": 0.09609523297188127,
+        "smoke": 0.1535255220546139,
+        "road_damage": 0.5338400132739604,
+        "fire": 0.06751848018741502,
+        "congestion": 0.05280710140011036,
+        "drone_confidence": 0.0005187441657055203
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S117",
+      "observations": {
+        "sos_signal": 0.034838350279915664,
+        "building_collapse": 0.6522576064658554,
+        "human_activity": 0.8231273174161865,
+        "smoke": 0.16800084857787112,
+        "road_damage": 0.14686373482140425,
+        "fire": 0.8608009736205361,
+        "congestion": 0.8231246099500947,
+        "drone_confidence": 0.5389417662641869
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S118",
+      "observations": {
+        "sos_signal": 0.3944815179387544,
+        "building_collapse": 0.7377975561063729,
+        "human_activity": 0.25745195932396336,
+        "smoke": 0.7523289144335528,
+        "road_damage": 0.5041786043908139,
+        "fire": 0.7502659879482331,
+        "congestion": 0.4646796378573296,
+        "drone_confidence": 0.3679043402218176
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S119",
+      "observations": {
+        "sos_signal": 0.751490810571396,
+        "building_collapse": 0.1189103480339605,
+        "human_activity": 0.08598235011094513,
+        "smoke": 0.17629136502213016,
+        "road_damage": 0.17534651145392188,
+        "fire": 0.8231076228068998,
+        "congestion": 0.3985066234742124,
+        "drone_confidence": 0.9903884573604824
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S120",
+      "observations": {
+        "sos_signal": 0.4487295072012506,
+        "building_collapse": 0.39291817669707396,
+        "human_activity": 0.8750841990540823,
+        "smoke": 0.9755956458283996,
+        "road_damage": 0.8728589587741787,
+        "fire": 0.19230067903513304,
+        "congestion": 0.22079792120893404,
+        "drone_confidence": 0.6560738790950633
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S121",
+      "observations": {
+        "sos_signal": 0.5664206508096447,
+        "building_collapse": 0.5509087684904029,
+        "human_activity": 0.8285469248387858,
+        "smoke": 0.7105327717426778,
+        "road_damage": 0.026577764997291697,
+        "fire": 0.049459137146015686,
+        "congestion": 0.6015584524560157,
+        "drone_confidence": 0.4861920756222755
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S122",
+      "observations": {
+        "sos_signal": 0.7579103187328605,
+        "building_collapse": 0.82661148465793,
+        "human_activity": 0.5612230678900442,
+        "smoke": 0.385369480857103,
+        "road_damage": 0.270696761495107,
+        "fire": 0.5219184707692535,
+        "congestion": 0.314749618564381,
+        "drone_confidence": 0.5640951370472229
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S123",
+      "observations": {
+        "sos_signal": 0.0010674650227472382,
+        "building_collapse": 0.21227713884074295,
+        "human_activity": 0.894511497718781,
+        "smoke": 0.6462907632285592,
+        "road_damage": 0.17196035193702286,
+        "fire": 0.8902639618236188,
+        "congestion": 0.46995594028734,
+        "drone_confidence": 0.47609175667866066
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S124",
+      "observations": {
+        "sos_signal": 0.21517827462871852,
+        "building_collapse": 0.5857713251547224,
+        "human_activity": 0.1954865095820041,
+        "smoke": 0.6795270092089578,
+        "road_damage": 0.2140922893367202,
+        "fire": 0.09915697059881434,
+        "congestion": 0.20698515964083974,
+        "drone_confidence": 0.42273403427206224
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S125",
+      "observations": {
+        "sos_signal": 0.8602818862189409,
+        "building_collapse": 0.32039720359730783,
+        "human_activity": 0.3607586865182536,
+        "smoke": 0.055270409501227635,
+        "road_damage": 0.35736962350205415,
+        "fire": 0.26480717732157966,
+        "congestion": 0.6104850673417885,
+        "drone_confidence": 0.20539029767240669
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S126",
+      "observations": {
+        "sos_signal": 0.0998310571767902,
+        "building_collapse": 0.10740295628857721,
+        "human_activity": 0.11532643811098797,
+        "smoke": 0.619569256310312,
+        "road_damage": 0.12196896420962289,
+        "fire": 0.8523823179302663,
+        "congestion": 0.7542715149378925,
+        "drone_confidence": 0.8198088582380241
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S127",
+      "observations": {
+        "sos_signal": 0.04417510294416127,
+        "building_collapse": 0.40126496418611335,
+        "human_activity": 0.3239366689376362,
+        "smoke": 0.948645498712641,
+        "road_damage": 0.5768609584975929,
+        "fire": 0.8061909654447252,
+        "congestion": 0.17034119365851885,
+        "drone_confidence": 0.9786341439004389
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S128",
+      "observations": {
+        "sos_signal": 0.9708847285457378,
+        "building_collapse": 0.38073236121714504,
+        "human_activity": 0.39752502455499295,
+        "smoke": 0.5847527028049366,
+        "road_damage": 0.12805261054778694,
+        "fire": 0.3210856264118549,
+        "congestion": 0.19320832244513053,
+        "drone_confidence": 0.1032834791070496
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S129",
+      "observations": {
+        "sos_signal": 0.3586727915279112,
+        "building_collapse": 0.4086693773667128,
+        "human_activity": 0.43151900368735463,
+        "smoke": 0.6331491821447094,
+        "road_damage": 0.9267693914889933,
+        "fire": 0.9327796196569825,
+        "congestion": 0.3914919795306634,
+        "drone_confidence": 0.32926245959776956
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S130",
+      "observations": {
+        "sos_signal": 0.46181791144974826,
+        "building_collapse": 0.6587534098167009,
+        "human_activity": 0.5543990233797637,
+        "smoke": 0.3207155466940761,
+        "road_damage": 0.3457308057626326,
+        "fire": 0.3785927875597309,
+        "congestion": 0.09463976824938869,
+        "drone_confidence": 0.16606263241397312
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S131",
+      "observations": {
+        "sos_signal": 0.21453897256014365,
+        "building_collapse": 0.5626724105748573,
+        "human_activity": 0.7555395424734273,
+        "smoke": 0.2574223623453714,
+        "road_damage": 0.8267898819237445,
+        "fire": 0.9275048596250496,
+        "congestion": 0.5973945290738407,
+        "drone_confidence": 0.6689476589915796
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S132",
+      "observations": {
+        "sos_signal": 0.3924847342649438,
+        "building_collapse": 0.9239004005454299,
+        "human_activity": 0.5789775247502426,
+        "smoke": 0.0046187988433276095,
+        "road_damage": 0.038541999323435716,
+        "fire": 0.680418805669922,
+        "congestion": 0.5626680138319331,
+        "drone_confidence": 0.026532437206074344
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S133",
+      "observations": {
+        "sos_signal": 0.4964174824393083,
+        "building_collapse": 0.46575744035725497,
+        "human_activity": 0.0054731088346274825,
+        "smoke": 0.7866497124935993,
+        "road_damage": 0.33071606674610543,
+        "fire": 0.8787636197825396,
+        "congestion": 0.37306058755805305,
+        "drone_confidence": 0.5650779106307056
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S134",
+      "observations": {
+        "sos_signal": 0.774907903381328,
+        "building_collapse": 0.4965904788462816,
+        "human_activity": 0.5364879237522507,
+        "smoke": 0.9654159534817355,
+        "road_damage": 0.9635799122221537,
+        "fire": 0.8556421217024035,
+        "congestion": 0.18760929276503358,
+        "drone_confidence": 0.5942726943015799
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S135",
+      "observations": {
+        "sos_signal": 0.10110616593558497,
+        "building_collapse": 0.8109629022399218,
+        "human_activity": 0.48176355136217164,
+        "smoke": 0.5643926803591786,
+        "road_damage": 0.9821442963178444,
+        "fire": 0.6072114304940721,
+        "congestion": 0.4249793856661014,
+        "drone_confidence": 0.3699843678471978
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S136",
+      "observations": {
+        "sos_signal": 0.7947505584175718,
+        "building_collapse": 0.8377168581870411,
+        "human_activity": 0.28439713457340887,
+        "smoke": 0.3037966184099441,
+        "road_damage": 0.8743342563348132,
+        "fire": 0.023970355527955456,
+        "congestion": 0.5204574437672277,
+        "drone_confidence": 0.46367571468150104
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S137",
+      "observations": {
+        "sos_signal": 0.6683307407951538,
+        "building_collapse": 0.37673400787487643,
+        "human_activity": 0.618714778169642,
+        "smoke": 0.04009500987277592,
+        "road_damage": 0.4617271971845094,
+        "fire": 0.5222508939823721,
+        "congestion": 0.2143264028549866,
+        "drone_confidence": 0.1396236541791207
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S138",
+      "observations": {
+        "sos_signal": 0.09681014930497145,
+        "building_collapse": 0.9473197957296045,
+        "human_activity": 0.4049940614958173,
+        "smoke": 0.808969602506749,
+        "road_damage": 0.9744171231088467,
+        "fire": 0.08073528000273911,
+        "congestion": 0.651669467934994,
+        "drone_confidence": 0.871409086741214
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S139",
+      "observations": {
+        "sos_signal": 0.4310763576379383,
+        "building_collapse": 0.03589888600735891,
+        "human_activity": 0.5346007512892753,
+        "smoke": 0.9935429967868474,
+        "road_damage": 0.9587075259719341,
+        "fire": 0.04039922884216318,
+        "congestion": 0.7057970036294882,
+        "drone_confidence": 0.3017648666969308
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S140",
+      "observations": {
+        "sos_signal": 0.9358741020110806,
+        "building_collapse": 0.8374757437877769,
+        "human_activity": 0.11750438225260151,
+        "smoke": 0.05982433731729919,
+        "road_damage": 0.8347076643269359,
+        "fire": 0.15575767097457938,
+        "congestion": 0.5348981529758705,
+        "drone_confidence": 0.9157448578787095
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S141",
+      "observations": {
+        "sos_signal": 0.4450160548539922,
+        "building_collapse": 0.06311717070387102,
+        "human_activity": 0.9687523213615988,
+        "smoke": 0.3106541850810828,
+        "road_damage": 0.18936349167285382,
+        "fire": 0.2860473018403953,
+        "congestion": 0.9643731948914789,
+        "drone_confidence": 0.094286053488007
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S142",
+      "observations": {
+        "sos_signal": 0.8300191791590281,
+        "building_collapse": 0.9758975403678963,
+        "human_activity": 0.8421546555168719,
+        "smoke": 0.9433823512778529,
+        "road_damage": 0.12693525679091977,
+        "fire": 0.79578856516697,
+        "congestion": 0.5456756940810478,
+        "drone_confidence": 0.5434955950798607
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S143",
+      "observations": {
+        "sos_signal": 0.704838323043181,
+        "building_collapse": 0.4829383894717839,
+        "human_activity": 0.45640385790184534,
+        "smoke": 0.3863414572231818,
+        "road_damage": 0.36159902957266266,
+        "fire": 0.3915068416844314,
+        "congestion": 0.08975323525119527,
+        "drone_confidence": 0.07743608526043821
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S144",
+      "observations": {
+        "sos_signal": 0.9306844885446205,
+        "building_collapse": 0.6122210085939525,
+        "human_activity": 0.03517598218441975,
+        "smoke": 0.15752334131747947,
+        "road_damage": 0.20581979301300757,
+        "fire": 0.9757360243896606,
+        "congestion": 0.21870422615163487,
+        "drone_confidence": 0.5157556762880513
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S145",
+      "observations": {
+        "sos_signal": 0.23636043538354456,
+        "building_collapse": 0.04911764375004013,
+        "human_activity": 0.1536018325377585,
+        "smoke": 0.06332847870255809,
+        "road_damage": 0.1951242410923364,
+        "fire": 0.5685697147037354,
+        "congestion": 0.9124487962956418,
+        "drone_confidence": 0.53721888369434
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S146",
+      "observations": {
+        "sos_signal": 0.8005836206738501,
+        "building_collapse": 0.6177889085055832,
+        "human_activity": 0.8641368291927248,
+        "smoke": 0.9488431070057841,
+        "road_damage": 0.3479007757565923,
+        "fire": 0.09057905853543935,
+        "congestion": 0.22592895791678247,
+        "drone_confidence": 0.4378415656758372
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S147",
+      "observations": {
+        "sos_signal": 0.77077321366537,
+        "building_collapse": 0.540476692170755,
+        "human_activity": 0.18280877043097654,
+        "smoke": 0.3207341189534516,
+        "road_damage": 0.6531918850228187,
+        "fire": 0.6728533946848935,
+        "congestion": 0.43475974680904617,
+        "drone_confidence": 0.22864560266211464
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S148",
+      "observations": {
+        "sos_signal": 0.9366696918651266,
+        "building_collapse": 0.1879035790364767,
+        "human_activity": 0.10731236283252044,
+        "smoke": 0.4976477023653788,
+        "road_damage": 0.519549598109694,
+        "fire": 0.5081929147782448,
+        "congestion": 0.4366674893388395,
+        "drone_confidence": 0.9948148928296083
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S149",
+      "observations": {
+        "sos_signal": 0.4217660627145613,
+        "building_collapse": 0.0668257547014629,
+        "human_activity": 0.592956631149616,
+        "smoke": 0.22796777222318243,
+        "road_damage": 0.6376089802290499,
+        "fire": 0.050833461948477154,
+        "congestion": 0.9813871012530017,
+        "drone_confidence": 0.4690050790126722
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S150",
+      "observations": {
+        "sos_signal": 0.060330818574221734,
+        "building_collapse": 0.8222135460938069,
+        "human_activity": 0.6481837296671343,
+        "smoke": 0.7817570475739452,
+        "road_damage": 0.4281698635088733,
+        "fire": 0.6379367442466449,
+        "congestion": 0.8562290037966075,
+        "drone_confidence": 0.6310654428718875
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S151",
+      "observations": {
+        "sos_signal": 0.6718541886140673,
+        "building_collapse": 0.960586962506625,
+        "human_activity": 0.3709123215416692,
+        "smoke": 0.4250817675141312,
+        "road_damage": 0.8121229611870592,
+        "fire": 0.5057623147427412,
+        "congestion": 0.736573093115733,
+        "drone_confidence": 0.45970946445359206
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S152",
+      "observations": {
+        "sos_signal": 0.13115516918470993,
+        "building_collapse": 0.19858366353130807,
+        "human_activity": 0.6268249827842086,
+        "smoke": 0.7472698001920698,
+        "road_damage": 0.894687886867815,
+        "fire": 0.2725864974158917,
+        "congestion": 0.11072425860055435,
+        "drone_confidence": 0.9560466595226291
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S153",
+      "observations": {
+        "sos_signal": 0.29132945355846573,
+        "building_collapse": 0.5293913540262875,
+        "human_activity": 0.882825566034078,
+        "smoke": 0.7605460227298669,
+        "road_damage": 0.7081575538426351,
+        "fire": 0.17518056785600367,
+        "congestion": 0.35768263152597424,
+        "drone_confidence": 0.47840492608667795
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S154",
+      "observations": {
+        "sos_signal": 0.30833320395284425,
+        "building_collapse": 0.12727619832903925,
+        "human_activity": 0.5502396919082576,
+        "smoke": 0.7050281965241929,
+        "road_damage": 0.06993163147686121,
+        "fire": 0.48112310176314976,
+        "congestion": 0.782211195267795,
+        "drone_confidence": 0.7479901289524469
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S155",
+      "observations": {
+        "sos_signal": 0.8205570826398607,
+        "building_collapse": 0.24075307121426948,
+        "human_activity": 0.36081056141751533,
+        "smoke": 0.1763555764178013,
+        "road_damage": 0.4674845394285718,
+        "fire": 0.39206002241544324,
+        "congestion": 0.2409271164143122,
+        "drone_confidence": 0.7517807092307816
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S156",
+      "observations": {
+        "sos_signal": 0.13089033085049506,
+        "building_collapse": 0.4388217018019487,
+        "human_activity": 0.302964628837302,
+        "smoke": 0.3692728413409686,
+        "road_damage": 0.23599726262055265,
+        "fire": 0.7631554898199004,
+        "congestion": 0.9300033473547173,
+        "drone_confidence": 0.49793185278888763
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S157",
+      "observations": {
+        "sos_signal": 0.9988296373336586,
+        "building_collapse": 0.6135164847298321,
+        "human_activity": 0.8897794665398687,
+        "smoke": 0.908608246555642,
+        "road_damage": 0.7914514878076223,
+        "fire": 0.4609313910731102,
+        "congestion": 0.08115400042389931,
+        "drone_confidence": 0.015805555440133845
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S158",
+      "observations": {
+        "sos_signal": 0.4073623878629723,
+        "building_collapse": 0.5681673512913645,
+        "human_activity": 0.5521627033044271,
+        "smoke": 0.836613041032693,
+        "road_damage": 0.10865710326226241,
+        "fire": 0.22517766610554546,
+        "congestion": 0.7930049789596304,
+        "drone_confidence": 0.8478368672236546
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S159",
+      "observations": {
+        "sos_signal": 0.889899007072331,
+        "building_collapse": 0.31434794262990484,
+        "human_activity": 0.4016616340093764,
+        "smoke": 0.26808510482055103,
+        "road_damage": 0.6062993981927156,
+        "fire": 0.9388053542070384,
+        "congestion": 0.34464088651161773,
+        "drone_confidence": 0.5570017818814502
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S160",
+      "observations": {
+        "sos_signal": 0.19518552981865567,
+        "building_collapse": 0.05794534453812994,
+        "human_activity": 0.9492935230092574,
+        "smoke": 0.4028796085076296,
+        "road_damage": 0.8341208920021081,
+        "fire": 0.6813294726896911,
+        "congestion": 0.1919211614110854,
+        "drone_confidence": 0.17546224657908782
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S161",
+      "observations": {
+        "sos_signal": 0.9132851837019758,
+        "building_collapse": 0.14005540468949063,
+        "human_activity": 0.6777086144544695,
+        "smoke": 0.8144738760309339,
+        "road_damage": 0.235256388415645,
+        "fire": 0.27620736345656605,
+        "congestion": 0.9645188861392017,
+        "drone_confidence": 0.2645976053461583
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S162",
+      "observations": {
+        "sos_signal": 0.25303474992968356,
+        "building_collapse": 0.7757910864370905,
+        "human_activity": 0.7718493432291552,
+        "smoke": 0.37831801422378564,
+        "road_damage": 0.8351257910807337,
+        "fire": 0.21307493439900238,
+        "congestion": 0.004305775667678646,
+        "drone_confidence": 0.571167362055741
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S163",
+      "observations": {
+        "sos_signal": 0.20799807370846057,
+        "building_collapse": 0.5189146424870842,
+        "human_activity": 0.8099407364448706,
+        "smoke": 0.08904200507505322,
+        "road_damage": 0.3952346537588943,
+        "fire": 0.7470758006298863,
+        "congestion": 0.37154320840636157,
+        "drone_confidence": 0.18883642047563898
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S164",
+      "observations": {
+        "sos_signal": 0.47941707480589113,
+        "building_collapse": 0.861814417816014,
+        "human_activity": 0.6422524185679935,
+        "smoke": 0.6904019545155015,
+        "road_damage": 0.982987171535907,
+        "fire": 0.41184344030097375,
+        "congestion": 0.4033544032491283,
+        "drone_confidence": 0.9233469677258123
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S165",
+      "observations": {
+        "sos_signal": 0.7545731382181347,
+        "building_collapse": 0.09778799744544309,
+        "human_activity": 0.468231405693584,
+        "smoke": 0.20056247132155403,
+        "road_damage": 0.18537527280248567,
+        "fire": 0.4638281104628762,
+        "congestion": 0.28942970750806496,
+        "drone_confidence": 0.7960604476258709
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S166",
+      "observations": {
+        "sos_signal": 0.26603087262166525,
+        "building_collapse": 0.27413439368860837,
+        "human_activity": 0.2547283501174674,
+        "smoke": 0.13503809605623607,
+        "road_damage": 0.9437983681037112,
+        "fire": 0.40204779815706937,
+        "congestion": 0.22468947454587374,
+        "drone_confidence": 0.8466710505082435
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S167",
+      "observations": {
+        "sos_signal": 0.16194157024963118,
+        "building_collapse": 0.63925034035617,
+        "human_activity": 0.782905274171724,
+        "smoke": 0.21093438848871293,
+        "road_damage": 0.9173955892661422,
+        "fire": 0.8509971200521644,
+        "congestion": 0.8483807540610809,
+        "drone_confidence": 0.22766114679921412
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S168",
+      "observations": {
+        "sos_signal": 0.3058002287385674,
+        "building_collapse": 0.6189163811735259,
+        "human_activity": 0.7599668837007301,
+        "smoke": 0.12829325851112017,
+        "road_damage": 0.7808383545190479,
+        "fire": 0.9385114589610658,
+        "congestion": 0.728374965746409,
+        "drone_confidence": 0.4412227484805581
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S169",
+      "observations": {
+        "sos_signal": 0.7447709278167541,
+        "building_collapse": 0.8205059438586041,
+        "human_activity": 0.749352861699006,
+        "smoke": 0.28785487604815396,
+        "road_damage": 0.11784390090583108,
+        "fire": 0.23833852936206013,
+        "congestion": 0.5028749369803532,
+        "drone_confidence": 0.5052769222930958
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S170",
+      "observations": {
+        "sos_signal": 0.7868913814500277,
+        "building_collapse": 0.9131537503472078,
+        "human_activity": 0.24672505347947127,
+        "smoke": 0.736523217701888,
+        "road_damage": 0.6779718525450447,
+        "fire": 0.523090499279315,
+        "congestion": 0.18853023387416024,
+        "drone_confidence": 0.7952322585827095
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S171",
+      "observations": {
+        "sos_signal": 0.917859996625734,
+        "building_collapse": 0.9841852649479997,
+        "human_activity": 0.3520506742392382,
+        "smoke": 0.6382235529263369,
+        "road_damage": 0.47393273763807797,
+        "fire": 0.9866287468632301,
+        "congestion": 0.09380782400772492,
+        "drone_confidence": 0.4123749142972246
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S172",
+      "observations": {
+        "sos_signal": 0.7877928506388727,
+        "building_collapse": 0.3827831627802557,
+        "human_activity": 0.9799785398901583,
+        "smoke": 0.8835298364237075,
+        "road_damage": 0.30132035766261533,
+        "fire": 0.7701931135378551,
+        "congestion": 0.3368565438332687,
+        "drone_confidence": 0.6063628402155351
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S173",
+      "observations": {
+        "sos_signal": 0.02445084088201488,
+        "building_collapse": 0.22015789115229967,
+        "human_activity": 0.7119178105885787,
+        "smoke": 0.5635232369695373,
+        "road_damage": 0.4956050782011431,
+        "fire": 0.055209956707980457,
+        "congestion": 0.3482758834614562,
+        "drone_confidence": 0.8651002319106483
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S174",
+      "observations": {
+        "sos_signal": 0.9451482876707726,
+        "building_collapse": 0.05088073454501463,
+        "human_activity": 0.7497057510446368,
+        "smoke": 0.25761261618203646,
+        "road_damage": 0.8666088321536725,
+        "fire": 0.746067978959365,
+        "congestion": 0.8857051708583629,
+        "drone_confidence": 0.215924790431266
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S175",
+      "observations": {
+        "sos_signal": 0.24569974299498099,
+        "building_collapse": 0.23074630526721696,
+        "human_activity": 0.027182133497585026,
+        "smoke": 0.9585152939754523,
+        "road_damage": 0.7100168800546234,
+        "fire": 0.6355603540101848,
+        "congestion": 0.7439947226949909,
+        "drone_confidence": 0.5316129186954394
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S176",
+      "observations": {
+        "sos_signal": 0.6404392121036413,
+        "building_collapse": 0.2015349753923832,
+        "human_activity": 0.8880586950148697,
+        "smoke": 0.8117523712192651,
+        "road_damage": 0.34956361145203385,
+        "fire": 0.5786092968125244,
+        "congestion": 0.14102729995001462,
+        "drone_confidence": 0.972346247933598
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S177",
+      "observations": {
+        "sos_signal": 0.3321630477034516,
+        "building_collapse": 0.16913470738285574,
+        "human_activity": 0.21177216346631034,
+        "smoke": 0.09000139104508986,
+        "road_damage": 0.12011063010138434,
+        "fire": 0.07130453418484539,
+        "congestion": 0.9898230692048735,
+        "drone_confidence": 0.07405768336907359
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S178",
+      "observations": {
+        "sos_signal": 0.5802402167429431,
+        "building_collapse": 0.7744172045693324,
+        "human_activity": 0.630912007772655,
+        "smoke": 0.882175070328948,
+        "road_damage": 0.6384675277647406,
+        "fire": 0.5221250929031509,
+        "congestion": 0.7127496937612997,
+        "drone_confidence": 0.44739275179210947
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S179",
+      "observations": {
+        "sos_signal": 0.16971410509856066,
+        "building_collapse": 0.7965717298026914,
+        "human_activity": 0.26070378133594463,
+        "smoke": 0.15353154633704746,
+        "road_damage": 0.2463522417832268,
+        "fire": 0.8420701517722398,
+        "congestion": 0.33020129559773137,
+        "drone_confidence": 0.6860498695059002
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S180",
+      "observations": {
+        "sos_signal": 0.7650244051780429,
+        "building_collapse": 0.30766546637903003,
+        "human_activity": 0.21662236418404268,
+        "smoke": 0.6889014524529722,
+        "road_damage": 0.9097966227332338,
+        "fire": 0.2950192087123954,
+        "congestion": 0.568833805384319,
+        "drone_confidence": 0.28983411384949154
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S181",
+      "observations": {
+        "sos_signal": 0.6103353887901798,
+        "building_collapse": 0.6235463696427459,
+        "human_activity": 0.1350797922175241,
+        "smoke": 0.6935404695867196,
+        "road_damage": 0.6747503563802233,
+        "fire": 0.6825881222168831,
+        "congestion": 0.07407055273870633,
+        "drone_confidence": 0.4468388424141526
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S182",
+      "observations": {
+        "sos_signal": 0.2223679278968107,
+        "building_collapse": 0.44096263179803674,
+        "human_activity": 0.7429063098580823,
+        "smoke": 0.2370620769846632,
+        "road_damage": 0.8297499101249115,
+        "fire": 0.5457982857394634,
+        "congestion": 0.7604216851846175,
+        "drone_confidence": 0.4725559833368571
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S183",
+      "observations": {
+        "sos_signal": 0.9279706081658242,
+        "building_collapse": 0.49181258141290995,
+        "human_activity": 0.528657538108291,
+        "smoke": 0.6019969635275295,
+        "road_damage": 0.7375151372977258,
+        "fire": 0.07185033548623432,
+        "congestion": 0.5156874385219721,
+        "drone_confidence": 0.4815915892060435
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S184",
+      "observations": {
+        "sos_signal": 0.468320534694331,
+        "building_collapse": 0.962199988534702,
+        "human_activity": 0.45057646360088155,
+        "smoke": 0.18088443032209034,
+        "road_damage": 0.21691612280578831,
+        "fire": 0.09518753833697413,
+        "congestion": 0.0005681292589444498,
+        "drone_confidence": 0.43194566100048193
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S185",
+      "observations": {
+        "sos_signal": 0.032149087802850196,
+        "building_collapse": 0.5699829035940329,
+        "human_activity": 0.154283125413476,
+        "smoke": 0.9410762847646973,
+        "road_damage": 0.16736499964417928,
+        "fire": 0.6266392176974815,
+        "congestion": 0.32623836216405677,
+        "drone_confidence": 0.6415613259643522
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S186",
+      "observations": {
+        "sos_signal": 0.23067912532785784,
+        "building_collapse": 0.9057918529142601,
+        "human_activity": 0.5002096493133521,
+        "smoke": 0.7560931477128529,
+        "road_damage": 0.8497301914012271,
+        "fire": 0.9988286109548049,
+        "congestion": 0.22394566559395823,
+        "drone_confidence": 0.28689241356345485
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S187",
+      "observations": {
+        "sos_signal": 0.5824447415393774,
+        "building_collapse": 0.993522523145843,
+        "human_activity": 0.9902780870927544,
+        "smoke": 0.5267732313623077,
+        "road_damage": 0.6390272102646738,
+        "fire": 0.859970543701606,
+        "congestion": 0.9329334584535052,
+        "drone_confidence": 0.2038606273295439
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S188",
+      "observations": {
+        "sos_signal": 0.30320207663459164,
+        "building_collapse": 0.4398090424804667,
+        "human_activity": 0.985621101512008,
+        "smoke": 0.985046696720871,
+        "road_damage": 0.9061068107651816,
+        "fire": 0.7984483448280576,
+        "congestion": 0.26913050072280575,
+        "drone_confidence": 0.32085007406718746
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S189",
+      "observations": {
+        "sos_signal": 0.505502819357067,
+        "building_collapse": 0.6366702799163061,
+        "human_activity": 0.4083230226329888,
+        "smoke": 0.7491741573155329,
+        "road_damage": 0.33354992647835535,
+        "fire": 0.33067699694635255,
+        "congestion": 0.127225961891828,
+        "drone_confidence": 0.18871221002891925
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S190",
+      "observations": {
+        "sos_signal": 0.2278677865528338,
+        "building_collapse": 0.7593411000223874,
+        "human_activity": 0.5539811258168594,
+        "smoke": 0.021156011423293486,
+        "road_damage": 0.31636145733671517,
+        "fire": 0.17700141112134105,
+        "congestion": 0.6558728609828406,
+        "drone_confidence": 0.27503104063025285
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S191",
+      "observations": {
+        "sos_signal": 0.5817272979587149,
+        "building_collapse": 0.021723455704089623,
+        "human_activity": 0.8487921131360887,
+        "smoke": 0.15539711925727562,
+        "road_damage": 0.6065663351954298,
+        "fire": 0.4446880280107457,
+        "congestion": 0.4428515212319025,
+        "drone_confidence": 0.07179714236004586
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S192",
+      "observations": {
+        "sos_signal": 0.011016667384228462,
+        "building_collapse": 0.17860417569711773,
+        "human_activity": 0.9039041887954788,
+        "smoke": 0.5494936128000582,
+        "road_damage": 0.15003957824821013,
+        "fire": 0.20279045260915884,
+        "congestion": 0.6599862442371142,
+        "drone_confidence": 0.724816822246873
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S193",
+      "observations": {
+        "sos_signal": 0.49406360366177704,
+        "building_collapse": 0.3002719121425267,
+        "human_activity": 0.4772329099757965,
+        "smoke": 0.35966629366661096,
+        "road_damage": 0.2244158926746863,
+        "fire": 0.04596324934014007,
+        "congestion": 0.3522124935651242,
+        "drone_confidence": 0.7114093477097423
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S194",
+      "observations": {
+        "sos_signal": 0.6440094014498684,
+        "building_collapse": 0.6104041091743072,
+        "human_activity": 0.7766484358887159,
+        "smoke": 0.8105197156597975,
+        "road_damage": 0.7117058209193878,
+        "fire": 0.10279769614474943,
+        "congestion": 0.47502244400436067,
+        "drone_confidence": 0.6034059574876086
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S195",
+      "observations": {
+        "sos_signal": 0.2235903208760469,
+        "building_collapse": 0.45489440173263884,
+        "human_activity": 0.41393031905460087,
+        "smoke": 0.17666698132716163,
+        "road_damage": 0.8244155426834928,
+        "fire": 0.9256866687367246,
+        "congestion": 0.20134831905271522,
+        "drone_confidence": 0.9295729155672217
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S196",
+      "observations": {
+        "sos_signal": 0.9519287900809079,
+        "building_collapse": 0.012051863015925202,
+        "human_activity": 0.7630192967767481,
+        "smoke": 0.9702015725698434,
+        "road_damage": 0.9059022188177783,
+        "fire": 0.970710161196213,
+        "congestion": 0.5503235056976393,
+        "drone_confidence": 0.07815613988538828
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S197",
+      "observations": {
+        "sos_signal": 0.614736744188289,
+        "building_collapse": 0.4172536098586862,
+        "human_activity": 0.5718419765211091,
+        "smoke": 0.15357977908611453,
+        "road_damage": 0.7397700265661503,
+        "fire": 0.07501730735154233,
+        "congestion": 0.729780767043792,
+        "drone_confidence": 0.848978422624854
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S198",
+      "observations": {
+        "sos_signal": 0.31221427292207826,
+        "building_collapse": 0.9694585837255876,
+        "human_activity": 0.7331244745595453,
+        "smoke": 0.36898855330034497,
+        "road_damage": 0.17480738623300507,
+        "fire": 0.21957959220209133,
+        "congestion": 0.46392228611005004,
+        "drone_confidence": 0.9425684003143379
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S199",
+      "observations": {
+        "sos_signal": 0.8595611334188981,
+        "building_collapse": 0.3782005230096811,
+        "human_activity": 0.8517221827525187,
+        "smoke": 0.24169959798113094,
+        "road_damage": 0.6186606119363176,
+        "fire": 0.9266704880812819,
+        "congestion": 0.25789400914779415,
+        "drone_confidence": 0.6929265905858549
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S200",
+      "observations": {
+        "sos_signal": 0.0884022907006744,
+        "building_collapse": 0.6741951924448162,
+        "human_activity": 0.3397359477490304,
+        "smoke": 0.07124447736659112,
+        "road_damage": 0.47530561788360415,
+        "fire": 0.7537706796439557,
+        "congestion": 0.28512240041518877,
+        "drone_confidence": 0.33504687750513473
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S201",
+      "observations": {
+        "sos_signal": 0.842731968806472,
+        "building_collapse": 0.4463894921437095,
+        "human_activity": 0.9529751615601034,
+        "smoke": 0.6507945897177367,
+        "road_damage": 0.11589886531924942,
+        "fire": 0.8850929882268007,
+        "congestion": 0.4892651908307978,
+        "drone_confidence": 0.14163896797290498
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S202",
+      "observations": {
+        "sos_signal": 0.04737250672948978,
+        "building_collapse": 0.2865937649138133,
+        "human_activity": 0.1397875904698681,
+        "smoke": 0.44107742961728424,
+        "road_damage": 0.4143537719943613,
+        "fire": 0.5218764346888559,
+        "congestion": 0.2796363291025302,
+        "drone_confidence": 0.032043589378177195
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S203",
+      "observations": {
+        "sos_signal": 0.6513349987400464,
+        "building_collapse": 0.10866697080426846,
+        "human_activity": 0.01377735529405033,
+        "smoke": 0.24829424788529275,
+        "road_damage": 0.4565473229940522,
+        "fire": 0.3940719741684673,
+        "congestion": 0.8103025552734664,
+        "drone_confidence": 0.37783764419282395
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S204",
+      "observations": {
+        "sos_signal": 0.021831391645811604,
+        "building_collapse": 0.515133376846189,
+        "human_activity": 0.34483125939883785,
+        "smoke": 0.4212801276832546,
+        "road_damage": 0.10028739849525026,
+        "fire": 0.7828205656486452,
+        "congestion": 0.9424042508085225,
+        "drone_confidence": 0.022268820629600006
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S205",
+      "observations": {
+        "sos_signal": 0.2848075886498894,
+        "building_collapse": 0.7875555848632168,
+        "human_activity": 0.6323550507663013,
+        "smoke": 0.92916263227107,
+        "road_damage": 0.9810048113537728,
+        "fire": 0.042346113998704804,
+        "congestion": 0.4449377610270062,
+        "drone_confidence": 0.5469877875782182
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S206",
+      "observations": {
+        "sos_signal": 0.9876474477564617,
+        "building_collapse": 0.016230456342471444,
+        "human_activity": 0.45250793152438407,
+        "smoke": 0.8426546217181962,
+        "road_damage": 0.32390126271928843,
+        "fire": 0.47979850275515334,
+        "congestion": 0.97804574578798,
+        "drone_confidence": 0.4748768364757039
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S207",
+      "observations": {
+        "sos_signal": 0.9454165724399485,
+        "building_collapse": 0.2658094132750657,
+        "human_activity": 0.5040639065645509,
+        "smoke": 0.0907017660899686,
+        "road_damage": 0.42365512055060506,
+        "fire": 0.9301055192501241,
+        "congestion": 0.5024129936309384,
+        "drone_confidence": 0.9711351518023279
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S208",
+      "observations": {
+        "sos_signal": 0.8595307918093252,
+        "building_collapse": 0.4482523545537438,
+        "human_activity": 0.2794873735701896,
+        "smoke": 0.8554753634178817,
+        "road_damage": 0.389889468872609,
+        "fire": 0.5307232910602341,
+        "congestion": 0.9765270664151456,
+        "drone_confidence": 0.1864832947558639
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S209",
+      "observations": {
+        "sos_signal": 0.39183770991005273,
+        "building_collapse": 0.20018343058485955,
+        "human_activity": 0.6800349354078914,
+        "smoke": 0.18132145876585237,
+        "road_damage": 0.6748127524058697,
+        "fire": 0.2634754281893177,
+        "congestion": 0.3552178341211998,
+        "drone_confidence": 0.3488606520463975
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S210",
+      "observations": {
+        "sos_signal": 0.36129889885268307,
+        "building_collapse": 0.8526227190394499,
+        "human_activity": 0.5719506256412027,
+        "smoke": 0.2138308212779978,
+        "road_damage": 0.9000912781436826,
+        "fire": 0.3426502960336406,
+        "congestion": 0.03897937753732039,
+        "drone_confidence": 0.4946002239744529
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S211",
+      "observations": {
+        "sos_signal": 0.747110872687411,
+        "building_collapse": 0.13075181337631858,
+        "human_activity": 0.8069442243540357,
+        "smoke": 0.9369072881309537,
+        "road_damage": 0.6065321004079447,
+        "fire": 0.7103591920228293,
+        "congestion": 0.7135866099074174,
+        "drone_confidence": 0.9928079572704449
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S212",
+      "observations": {
+        "sos_signal": 0.5191672349143215,
+        "building_collapse": 0.5332498098317082,
+        "human_activity": 0.17791248829614448,
+        "smoke": 0.6131094189941395,
+        "road_damage": 0.01412473347682397,
+        "fire": 0.9276684024542216,
+        "congestion": 0.26457427782126164,
+        "drone_confidence": 0.03956020839019181
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S213",
+      "observations": {
+        "sos_signal": 0.2739061686060452,
+        "building_collapse": 0.03280999949772867,
+        "human_activity": 0.27935481219372915,
+        "smoke": 0.19294173649348212,
+        "road_damage": 0.3786209274345186,
+        "fire": 0.3851677373559692,
+        "congestion": 0.3390077406028791,
+        "drone_confidence": 0.327923883530704
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S214",
+      "observations": {
+        "sos_signal": 0.2021143001564666,
+        "building_collapse": 0.7566494274166153,
+        "human_activity": 0.9908097655511221,
+        "smoke": 0.928526175057329,
+        "road_damage": 0.5042193555377686,
+        "fire": 0.5318238557779342,
+        "congestion": 0.31458156903584256,
+        "drone_confidence": 0.7739394386376562
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S215",
+      "observations": {
+        "sos_signal": 0.8955045771968844,
+        "building_collapse": 0.43434924822529575,
+        "human_activity": 0.7668755681071976,
+        "smoke": 0.8063987287958786,
+        "road_damage": 0.30845962249775016,
+        "fire": 0.92924224400615,
+        "congestion": 0.09434150263965546,
+        "drone_confidence": 0.9942691791632828
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S216",
+      "observations": {
+        "sos_signal": 0.6562296481050006,
+        "building_collapse": 0.03417941092826016,
+        "human_activity": 0.7701869494441829,
+        "smoke": 0.7992229216590553,
+        "road_damage": 0.6024102530914477,
+        "fire": 0.8568603919165705,
+        "congestion": 0.0978832802148597,
+        "drone_confidence": 0.2759238420408132
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S217",
+      "observations": {
+        "sos_signal": 0.44821608757116616,
+        "building_collapse": 0.26521345611256597,
+        "human_activity": 0.392735012101753,
+        "smoke": 0.42510263199230647,
+        "road_damage": 0.8794117334876851,
+        "fire": 0.27034097052763906,
+        "congestion": 0.893743128716272,
+        "drone_confidence": 0.42597096481284924
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S218",
+      "observations": {
+        "sos_signal": 0.41774328636283964,
+        "building_collapse": 0.2573723130551461,
+        "human_activity": 0.5026793247960669,
+        "smoke": 0.15180173307883127,
+        "road_damage": 0.3519299430229661,
+        "fire": 0.5657902193740906,
+        "congestion": 0.41340824438985857,
+        "drone_confidence": 0.8239123610507965
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S219",
+      "observations": {
+        "sos_signal": 0.7847220208513513,
+        "building_collapse": 0.9675930259974722,
+        "human_activity": 0.8381365548303041,
+        "smoke": 0.14210392585164267,
+        "road_damage": 0.5264600906350138,
+        "fire": 0.16997852119578571,
+        "congestion": 0.8182273526272573,
+        "drone_confidence": 0.5841621491832959
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S220",
+      "observations": {
+        "sos_signal": 0.11518605331426068,
+        "building_collapse": 0.563862403471314,
+        "human_activity": 0.7210405546667255,
+        "smoke": 0.05884853733243178,
+        "road_damage": 0.5978560332062036,
+        "fire": 0.8159012154630941,
+        "congestion": 0.06752731441805337,
+        "drone_confidence": 0.5122429711066271
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S221",
+      "observations": {
+        "sos_signal": 0.11867736707884491,
+        "building_collapse": 0.9370514306705069,
+        "human_activity": 0.8947285817147318,
+        "smoke": 0.18597441987570917,
+        "road_damage": 0.3232658843651046,
+        "fire": 0.587634974653043,
+        "congestion": 0.7180623366342505,
+        "drone_confidence": 0.4426560151602582
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S222",
+      "observations": {
+        "sos_signal": 0.9997653369143439,
+        "building_collapse": 0.45535212144348725,
+        "human_activity": 0.8725317491484982,
+        "smoke": 0.48237600462911445,
+        "road_damage": 0.9223576385460033,
+        "fire": 0.0877593827715506,
+        "congestion": 0.11401919133455096,
+        "drone_confidence": 0.9296321877242243
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S223",
+      "observations": {
+        "sos_signal": 0.35516488699387183,
+        "building_collapse": 0.452450234834758,
+        "human_activity": 0.4161616800672908,
+        "smoke": 0.19004521595959667,
+        "road_damage": 0.8983753839393745,
+        "fire": 0.25330760070564373,
+        "congestion": 0.7052724094776516,
+        "drone_confidence": 0.06715567773497289
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S224",
+      "observations": {
+        "sos_signal": 0.33901585757326036,
+        "building_collapse": 0.6554593927200013,
+        "human_activity": 0.09402120216883036,
+        "smoke": 0.9498513799158633,
+        "road_damage": 0.7485144668930954,
+        "fire": 0.8762672330257992,
+        "congestion": 0.13647055404451092,
+        "drone_confidence": 0.3201609688928694
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S225",
+      "observations": {
+        "sos_signal": 0.2968684855074143,
+        "building_collapse": 0.06063074218940512,
+        "human_activity": 0.3688783807374707,
+        "smoke": 0.25454931462728214,
+        "road_damage": 0.38592129146321485,
+        "fire": 0.19695954262002624,
+        "congestion": 0.26189637456473547,
+        "drone_confidence": 0.6269523404322688
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S226",
+      "observations": {
+        "sos_signal": 0.5339056327223729,
+        "building_collapse": 0.7718605408439257,
+        "human_activity": 0.3788679563479572,
+        "smoke": 0.5875194925558406,
+        "road_damage": 0.9662026253681762,
+        "fire": 0.5219801141180507,
+        "congestion": 0.9097975765175444,
+        "drone_confidence": 0.7936726242564269
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S227",
+      "observations": {
+        "sos_signal": 0.6983184078685881,
+        "building_collapse": 0.9867119124481999,
+        "human_activity": 0.4583762911615126,
+        "smoke": 0.09278545412673944,
+        "road_damage": 0.5620091747128678,
+        "fire": 0.1265637921239603,
+        "congestion": 0.7515195602793934,
+        "drone_confidence": 0.5076769974617779
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S228",
+      "observations": {
+        "sos_signal": 0.6289480171627772,
+        "building_collapse": 0.6124393292531816,
+        "human_activity": 0.7545702954396313,
+        "smoke": 0.8424550014526674,
+        "road_damage": 0.8690537862770027,
+        "fire": 0.036430195682883304,
+        "congestion": 0.5561902967977893,
+        "drone_confidence": 0.21626930979755143
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S229",
+      "observations": {
+        "sos_signal": 0.42022247903243815,
+        "building_collapse": 0.1881042281213513,
+        "human_activity": 0.3390236259198265,
+        "smoke": 0.7037776945402245,
+        "road_damage": 0.2043595452116388,
+        "fire": 0.09358294533837275,
+        "congestion": 0.888028758227551,
+        "drone_confidence": 0.7642103495801168
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S230",
+      "observations": {
+        "sos_signal": 0.9720701771308857,
+        "building_collapse": 0.7081844867591174,
+        "human_activity": 0.6105220042138247,
+        "smoke": 0.30762848542413035,
+        "road_damage": 0.29912514416652225,
+        "fire": 0.039523618690230466,
+        "congestion": 0.7284818669019314,
+        "drone_confidence": 0.043175225056884536
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S231",
+      "observations": {
+        "sos_signal": 0.9488737571491254,
+        "building_collapse": 0.7565030477273105,
+        "human_activity": 0.4716401906243787,
+        "smoke": 0.486045249560873,
+        "road_damage": 0.43613642264910535,
+        "fire": 0.32464366711033366,
+        "congestion": 0.5217142141858402,
+        "drone_confidence": 0.43115095714111507
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S232",
+      "observations": {
+        "sos_signal": 0.9950094173238103,
+        "building_collapse": 0.07874328988291712,
+        "human_activity": 0.3846834726613414,
+        "smoke": 0.18070619576680946,
+        "road_damage": 0.3521204739255337,
+        "fire": 0.287473018548423,
+        "congestion": 0.1745371316267883,
+        "drone_confidence": 0.7640760534212905
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S233",
+      "observations": {
+        "sos_signal": 0.03259244324701449,
+        "building_collapse": 0.06697801313198992,
+        "human_activity": 0.4032735829303441,
+        "smoke": 0.08027732040403712,
+        "road_damage": 0.2627295964148335,
+        "fire": 0.9860297430766236,
+        "congestion": 0.20895960748461406,
+        "drone_confidence": 0.1981177414120907
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S234",
+      "observations": {
+        "sos_signal": 0.5804382972028448,
+        "building_collapse": 0.3767352782085467,
+        "human_activity": 0.8267623598949471,
+        "smoke": 0.13858055144246284,
+        "road_damage": 0.42839264584146564,
+        "fire": 0.6897618484440871,
+        "congestion": 0.8682364402828997,
+        "drone_confidence": 0.3695716063567577
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S235",
+      "observations": {
+        "sos_signal": 0.17031908811182894,
+        "building_collapse": 0.06913816246611448,
+        "human_activity": 0.7278808919985219,
+        "smoke": 0.2880599687221407,
+        "road_damage": 0.7237452901918378,
+        "fire": 0.06639827904327456,
+        "congestion": 0.8625478004083255,
+        "drone_confidence": 0.8355301981110916
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S236",
+      "observations": {
+        "sos_signal": 0.056288812981991176,
+        "building_collapse": 0.853630173146734,
+        "human_activity": 0.23470348905189575,
+        "smoke": 0.5482733178581887,
+        "road_damage": 0.42624420318005674,
+        "fire": 0.7955255262286021,
+        "congestion": 0.4888983014706706,
+        "drone_confidence": 0.5006608406612697
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S237",
+      "observations": {
+        "sos_signal": 0.8307039387459314,
+        "building_collapse": 0.05174974560388479,
+        "human_activity": 0.47764876957297075,
+        "smoke": 0.8863348239330235,
+        "road_damage": 0.6652139656041213,
+        "fire": 0.6852146193661329,
+        "congestion": 0.26331728225648554,
+        "drone_confidence": 0.41857479136145426
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S238",
+      "observations": {
+        "sos_signal": 0.46222793014366814,
+        "building_collapse": 0.32689835187698935,
+        "human_activity": 0.3054806123711701,
+        "smoke": 0.25085289165512215,
+        "road_damage": 0.3650472468847584,
+        "fire": 0.14994147793406065,
+        "congestion": 0.8721043020035738,
+        "drone_confidence": 0.6021193918334273
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S239",
+      "observations": {
+        "sos_signal": 0.8476664679979732,
+        "building_collapse": 0.2375356720522589,
+        "human_activity": 0.15060059433726392,
+        "smoke": 0.008617257133752054,
+        "road_damage": 0.04725033885648511,
+        "fire": 0.7622513483035116,
+        "congestion": 0.9871863320416938,
+        "drone_confidence": 0.0448803224762766
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S240",
+      "observations": {
+        "sos_signal": 0.5921328249036668,
+        "building_collapse": 0.7560752824282378,
+        "human_activity": 0.3592043972677377,
+        "smoke": 0.010934721110663737,
+        "road_damage": 0.5951893521254259,
+        "fire": 0.9912446281400278,
+        "congestion": 0.25761742283849576,
+        "drone_confidence": 0.1894912771872158
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S241",
+      "observations": {
+        "sos_signal": 0.5964450993602733,
+        "building_collapse": 0.7922708371704024,
+        "human_activity": 0.7530732736205097,
+        "smoke": 0.8925414947950872,
+        "road_damage": 0.8057726983423014,
+        "fire": 0.24726708307944445,
+        "congestion": 0.5558774048757611,
+        "drone_confidence": 0.29741195909358
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S242",
+      "observations": {
+        "sos_signal": 0.6818959050670735,
+        "building_collapse": 0.9745904132511058,
+        "human_activity": 0.4169125367187445,
+        "smoke": 0.5374375733539766,
+        "road_damage": 0.4871154199164217,
+        "fire": 0.10728705752372691,
+        "congestion": 0.23670199452660334,
+        "drone_confidence": 0.5276363606044822
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S243",
+      "observations": {
+        "sos_signal": 0.12384368194337081,
+        "building_collapse": 0.1979807464169071,
+        "human_activity": 0.7653212239386366,
+        "smoke": 0.09693454178931371,
+        "road_damage": 0.9002780996154094,
+        "fire": 0.7257009707225356,
+        "congestion": 0.0686208571088589,
+        "drone_confidence": 0.6918470612856529
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S244",
+      "observations": {
+        "sos_signal": 0.8281978524893359,
+        "building_collapse": 0.718350563173155,
+        "human_activity": 0.5861762952709719,
+        "smoke": 0.3224633185817777,
+        "road_damage": 0.6972736618299291,
+        "fire": 0.9569715846307795,
+        "congestion": 0.5875217805288743,
+        "drone_confidence": 0.6643448684342539
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S245",
+      "observations": {
+        "sos_signal": 0.9976673923386359,
+        "building_collapse": 0.1603893240677361,
+        "human_activity": 0.2024052795037623,
+        "smoke": 0.5394377586643895,
+        "road_damage": 0.48137539726165823,
+        "fire": 0.5715697845067188,
+        "congestion": 0.04907404772427304,
+        "drone_confidence": 0.40427645633044895
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S246",
+      "observations": {
+        "sos_signal": 0.6573339617683736,
+        "building_collapse": 0.7202160290026638,
+        "human_activity": 0.6415472033408566,
+        "smoke": 0.790243155389435,
+        "road_damage": 0.6247606346845916,
+        "fire": 0.5375076625372045,
+        "congestion": 0.6061964288878109,
+        "drone_confidence": 0.10119336675333235
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S247",
+      "observations": {
+        "sos_signal": 0.8729872154017071,
+        "building_collapse": 0.6790515562879931,
+        "human_activity": 0.09040807847189758,
+        "smoke": 0.5922749504444044,
+        "road_damage": 0.22173798763709895,
+        "fire": 0.7340165597887229,
+        "congestion": 0.8274408525087472,
+        "drone_confidence": 0.5934562725899734
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S248",
+      "observations": {
+        "sos_signal": 0.4462500211613094,
+        "building_collapse": 0.8641083538153455,
+        "human_activity": 0.7233203309671565,
+        "smoke": 0.5197536596958431,
+        "road_damage": 0.36823238624837096,
+        "fire": 0.050379738288554354,
+        "congestion": 0.14300740132638512,
+        "drone_confidence": 0.19302518953937065
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S249",
+      "observations": {
+        "sos_signal": 0.5051533948587487,
+        "building_collapse": 0.23484016325923107,
+        "human_activity": 0.10575013746151407,
+        "smoke": 0.33830552460296404,
+        "road_damage": 0.8157306355510568,
+        "fire": 0.3833427934105079,
+        "congestion": 0.7725058060224135,
+        "drone_confidence": 0.8027049761268789
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S250",
+      "observations": {
+        "sos_signal": 0.9590960633711108,
+        "building_collapse": 0.4021380749035539,
+        "human_activity": 0.050944089003022275,
+        "smoke": 0.9233026902578786,
+        "road_damage": 0.883666281572483,
+        "fire": 0.5221414472090018,
+        "congestion": 0.5522531203440096,
+        "drone_confidence": 0.2117411027761249
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S251",
+      "observations": {
+        "sos_signal": 0.03387779514255651,
+        "building_collapse": 0.6830149564489978,
+        "human_activity": 0.9504962698027061,
+        "smoke": 0.8291504903457503,
+        "road_damage": 0.2771981402105398,
+        "fire": 0.05332508493334065,
+        "congestion": 0.9403514125381806,
+        "drone_confidence": 0.9370627248797014
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S252",
+      "observations": {
+        "sos_signal": 0.4626000607108083,
+        "building_collapse": 0.41976536709875867,
+        "human_activity": 0.11944843592870036,
+        "smoke": 0.09675289836109602,
+        "road_damage": 0.23273214667618747,
+        "fire": 0.8366407464065443,
+        "congestion": 0.14583230073568,
+        "drone_confidence": 0.22669865191471072
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S253",
+      "observations": {
+        "sos_signal": 0.1632066847177871,
+        "building_collapse": 0.5633162416979622,
+        "human_activity": 0.3680932709966155,
+        "smoke": 0.6261592858404692,
+        "road_damage": 0.9122053404086763,
+        "fire": 0.15099313143506765,
+        "congestion": 0.9134336598130639,
+        "drone_confidence": 0.9024899674229186
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S254",
+      "observations": {
+        "sos_signal": 0.6201466574655474,
+        "building_collapse": 0.6392126599365016,
+        "human_activity": 0.6904955512178131,
+        "smoke": 0.016482200596157015,
+        "road_damage": 0.9580925791606497,
+        "fire": 0.5856037614655798,
+        "congestion": 0.7814658394024216,
+        "drone_confidence": 0.37728183906136314
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S255",
+      "observations": {
+        "sos_signal": 0.5071901193159289,
+        "building_collapse": 0.4369892883114518,
+        "human_activity": 0.33971705416207676,
+        "smoke": 0.24982608780972204,
+        "road_damage": 0.5275448744971828,
+        "fire": 0.3752781396934941,
+        "congestion": 0.9699318830498087,
+        "drone_confidence": 0.17292730776693144
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S256",
+      "observations": {
+        "sos_signal": 0.543309176235957,
+        "building_collapse": 0.4992802569741479,
+        "human_activity": 0.6437404654242731,
+        "smoke": 0.9500017705742079,
+        "road_damage": 0.2852210854938674,
+        "fire": 0.6927715692549965,
+        "congestion": 0.025040203005183614,
+        "drone_confidence": 0.26238847273362453
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S257",
+      "observations": {
+        "sos_signal": 0.6176694605536389,
+        "building_collapse": 0.6783106084017082,
+        "human_activity": 0.7467317148380467,
+        "smoke": 0.5165745048430123,
+        "road_damage": 0.6039446649786266,
+        "fire": 0.39606525127848724,
+        "congestion": 0.04125303250656254,
+        "drone_confidence": 0.09995185577451304
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S258",
+      "observations": {
+        "sos_signal": 0.01580323916329618,
+        "building_collapse": 0.5575834968263828,
+        "human_activity": 0.7510087528825579,
+        "smoke": 0.8267748280138787,
+        "road_damage": 0.5452049012226401,
+        "fire": 0.6199159801841051,
+        "congestion": 0.6967249452745534,
+        "drone_confidence": 0.8589662496934306
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S259",
+      "observations": {
+        "sos_signal": 0.026017403551570006,
+        "building_collapse": 0.8361997509577753,
+        "human_activity": 0.07674042655969726,
+        "smoke": 0.19462821160492227,
+        "road_damage": 0.0038941463811326127,
+        "fire": 0.4452567055360407,
+        "congestion": 0.33435922671739227,
+        "drone_confidence": 0.16599291148702733
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S260",
+      "observations": {
+        "sos_signal": 0.7676610326987415,
+        "building_collapse": 0.8931303060700324,
+        "human_activity": 0.6525672517670819,
+        "smoke": 0.12441038872652388,
+        "road_damage": 0.29539079470985063,
+        "fire": 0.9133182968322798,
+        "congestion": 0.08873449300788916,
+        "drone_confidence": 0.4068558393908265
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S261",
+      "observations": {
+        "sos_signal": 0.4112031770488924,
+        "building_collapse": 0.6673968880987974,
+        "human_activity": 0.45674559835399897,
+        "smoke": 0.7534605394363417,
+        "road_damage": 0.03158133069299851,
+        "fire": 0.14415714892135845,
+        "congestion": 0.6141988035435992,
+        "drone_confidence": 0.2325522624430636
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S262",
+      "observations": {
+        "sos_signal": 0.8866455581278214,
+        "building_collapse": 0.8192593855599865,
+        "human_activity": 0.4928378000687822,
+        "smoke": 0.7728950870948578,
+        "road_damage": 0.2711378862350904,
+        "fire": 0.4942597768118626,
+        "congestion": 0.19748205186327816,
+        "drone_confidence": 0.8608861685209939
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S263",
+      "observations": {
+        "sos_signal": 0.8774769812242594,
+        "building_collapse": 0.9595962620594948,
+        "human_activity": 0.22833623163192596,
+        "smoke": 0.9318242907953155,
+        "road_damage": 0.5712131913519977,
+        "fire": 0.42249508391815216,
+        "congestion": 0.560373895967873,
+        "drone_confidence": 0.34260235665027783
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S264",
+      "observations": {
+        "sos_signal": 0.08242798945712682,
+        "building_collapse": 0.49656489714718743,
+        "human_activity": 0.8877616757138874,
+        "smoke": 0.6301519692743847,
+        "road_damage": 0.5209756327557735,
+        "fire": 0.4285929182509165,
+        "congestion": 0.46440162631719195,
+        "drone_confidence": 0.20927734757195093
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S265",
+      "observations": {
+        "sos_signal": 0.716622756727313,
+        "building_collapse": 0.7599850114961526,
+        "human_activity": 0.5748690420277343,
+        "smoke": 0.8629263749548285,
+        "road_damage": 0.29105035245065003,
+        "fire": 0.8816172212428632,
+        "congestion": 0.7294104595993042,
+        "drone_confidence": 0.7987498277617607
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S266",
+      "observations": {
+        "sos_signal": 0.9930988627176359,
+        "building_collapse": 0.42016285452463864,
+        "human_activity": 0.8139156837095703,
+        "smoke": 0.7445797595180336,
+        "road_damage": 0.452870165712018,
+        "fire": 0.926948999732512,
+        "congestion": 0.3944259295725947,
+        "drone_confidence": 0.5654659162762375
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S267",
+      "observations": {
+        "sos_signal": 0.8406961705337607,
+        "building_collapse": 0.39655272282884735,
+        "human_activity": 0.3940840894152582,
+        "smoke": 0.24598101819062024,
+        "road_damage": 0.4916103342974544,
+        "fire": 0.8058169613506224,
+        "congestion": 0.8951641177737396,
+        "drone_confidence": 0.07011443204418388
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S268",
+      "observations": {
+        "sos_signal": 0.6142818504715784,
+        "building_collapse": 0.44727568690826913,
+        "human_activity": 0.3986448208534151,
+        "smoke": 0.47188071242948937,
+        "road_damage": 0.5819991287564141,
+        "fire": 0.5009832110317768,
+        "congestion": 0.47214445102064617,
+        "drone_confidence": 0.8178353099580807
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S269",
+      "observations": {
+        "sos_signal": 0.8005771175153205,
+        "building_collapse": 0.8536506690045002,
+        "human_activity": 0.1534922053741905,
+        "smoke": 0.5826824617307588,
+        "road_damage": 0.2853119935992138,
+        "fire": 0.7391723219267226,
+        "congestion": 0.23878532935868324,
+        "drone_confidence": 0.6714035241730318
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S270",
+      "observations": {
+        "sos_signal": 0.9486464679161921,
+        "building_collapse": 0.3813075384564345,
+        "human_activity": 0.8757384859632077,
+        "smoke": 0.9869445812038946,
+        "road_damage": 0.8748508488051633,
+        "fire": 0.16586602972334286,
+        "congestion": 0.819658219535163,
+        "drone_confidence": 0.03214939510056125
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S271",
+      "observations": {
+        "sos_signal": 0.6887522127599198,
+        "building_collapse": 0.5327404273378781,
+        "human_activity": 0.3878640250826205,
+        "smoke": 0.812296946470286,
+        "road_damage": 0.7095584039482209,
+        "fire": 0.46840531961567333,
+        "congestion": 0.8924843372096598,
+        "drone_confidence": 0.2299480178186324
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S272",
+      "observations": {
+        "sos_signal": 0.9719943427017703,
+        "building_collapse": 0.2472565733067703,
+        "human_activity": 0.2496703789338265,
+        "smoke": 0.13949884796218992,
+        "road_damage": 0.8605635552736322,
+        "fire": 0.2263975404113341,
+        "congestion": 0.5031785267248878,
+        "drone_confidence": 0.9908724780022046
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S273",
+      "observations": {
+        "sos_signal": 0.5122890427049458,
+        "building_collapse": 0.8074473764101547,
+        "human_activity": 0.35528153955277697,
+        "smoke": 0.41034135889904155,
+        "road_damage": 0.16793798059886367,
+        "fire": 0.7408152316357867,
+        "congestion": 0.7847089091881483,
+        "drone_confidence": 0.13666332077883026
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S274",
+      "observations": {
+        "sos_signal": 0.0027072736757871585,
+        "building_collapse": 0.2987590706226323,
+        "human_activity": 0.5550422850525477,
+        "smoke": 0.3340938596599533,
+        "road_damage": 0.2720451891776694,
+        "fire": 0.4600374849032126,
+        "congestion": 0.18152310810969374,
+        "drone_confidence": 0.5296252409594838
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S275",
+      "observations": {
+        "sos_signal": 0.0931093308585309,
+        "building_collapse": 0.8444086141655732,
+        "human_activity": 0.17497783748748819,
+        "smoke": 0.7648120006111286,
+        "road_damage": 0.3605651107758504,
+        "fire": 0.7827613480561023,
+        "congestion": 0.20627290340534576,
+        "drone_confidence": 0.1866621036954298
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S276",
+      "observations": {
+        "sos_signal": 0.22529733878233338,
+        "building_collapse": 0.7240122521843483,
+        "human_activity": 0.8373834783054255,
+        "smoke": 0.08078536393781044,
+        "road_damage": 0.8820777094381044,
+        "fire": 0.797517204053179,
+        "congestion": 0.8696842957069654,
+        "drone_confidence": 0.6984285545788399
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S277",
+      "observations": {
+        "sos_signal": 0.652787224491315,
+        "building_collapse": 0.9191096645666051,
+        "human_activity": 0.10052200141670842,
+        "smoke": 0.3157644778460912,
+        "road_damage": 0.07245497359587183,
+        "fire": 0.9448051719440385,
+        "congestion": 0.445265465999388,
+        "drone_confidence": 0.6753444706761884
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S278",
+      "observations": {
+        "sos_signal": 0.16178245779226574,
+        "building_collapse": 0.7995126057182287,
+        "human_activity": 0.8874228981367364,
+        "smoke": 0.04887537685087562,
+        "road_damage": 0.7540905601855734,
+        "fire": 0.3547253211965503,
+        "congestion": 0.648596791470432,
+        "drone_confidence": 0.5140481960388648
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S279",
+      "observations": {
+        "sos_signal": 0.11694723308920829,
+        "building_collapse": 0.1033228577084917,
+        "human_activity": 0.6377900401345777,
+        "smoke": 0.3514108513995381,
+        "road_damage": 0.21663343820587244,
+        "fire": 0.691885092705903,
+        "congestion": 0.6868495657664668,
+        "drone_confidence": 0.5391682923569977
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S280",
+      "observations": {
+        "sos_signal": 0.835862971269293,
+        "building_collapse": 0.07513940793219631,
+        "human_activity": 0.7398310940385044,
+        "smoke": 0.98844741383193,
+        "road_damage": 0.8465982162878168,
+        "fire": 0.5796647193100594,
+        "congestion": 0.6267660643271606,
+        "drone_confidence": 0.3532895494369468
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S281",
+      "observations": {
+        "sos_signal": 0.9982284811178539,
+        "building_collapse": 0.492462917000433,
+        "human_activity": 0.06130406577344227,
+        "smoke": 0.5958579507309852,
+        "road_damage": 0.11902414998216859,
+        "fire": 0.24476504355611006,
+        "congestion": 0.32877991130573725,
+        "drone_confidence": 0.7310298731484106
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S282",
+      "observations": {
+        "sos_signal": 0.04496424249882747,
+        "building_collapse": 0.8732399363538809,
+        "human_activity": 0.6935054243560607,
+        "smoke": 0.03994646561762649,
+        "road_damage": 0.02829230563811458,
+        "fire": 0.5586742964750561,
+        "congestion": 0.28253440128671103,
+        "drone_confidence": 0.5967263504319288
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S283",
+      "observations": {
+        "sos_signal": 0.2878090149613679,
+        "building_collapse": 0.6791453684388935,
+        "human_activity": 0.05405431161859919,
+        "smoke": 0.9558605341889254,
+        "road_damage": 0.9807574679083522,
+        "fire": 0.7390746290164124,
+        "congestion": 0.46521247156357315,
+        "drone_confidence": 0.21999343932726134
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S284",
+      "observations": {
+        "sos_signal": 0.22195403956094906,
+        "building_collapse": 0.4512152941572657,
+        "human_activity": 0.46279893781678505,
+        "smoke": 0.8264105499727091,
+        "road_damage": 0.6838446843340765,
+        "fire": 0.6431675435400551,
+        "congestion": 0.6498274225632784,
+        "drone_confidence": 0.2704700793824789
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S285",
+      "observations": {
+        "sos_signal": 0.7869411358121238,
+        "building_collapse": 0.43299821516981385,
+        "human_activity": 0.4382383570875735,
+        "smoke": 0.24535626493362672,
+        "road_damage": 0.2094272814594289,
+        "fire": 0.5878219295690292,
+        "congestion": 0.23255301520367577,
+        "drone_confidence": 0.06420885156546441
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S286",
+      "observations": {
+        "sos_signal": 0.38023558389930445,
+        "building_collapse": 0.4313182815157913,
+        "human_activity": 0.8150448234080938,
+        "smoke": 0.3208368959398171,
+        "road_damage": 0.758036211257836,
+        "fire": 0.9395448407795433,
+        "congestion": 0.6608681959247994,
+        "drone_confidence": 0.43168108117702464
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S287",
+      "observations": {
+        "sos_signal": 0.4144272711081408,
+        "building_collapse": 0.5252831635726832,
+        "human_activity": 0.3177223348092938,
+        "smoke": 0.1042502162800012,
+        "road_damage": 0.4148520055261652,
+        "fire": 0.12385688112930193,
+        "congestion": 0.4104414735554467,
+        "drone_confidence": 0.5569337212134503
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S288",
+      "observations": {
+        "sos_signal": 0.6214584065019442,
+        "building_collapse": 0.4577351866500773,
+        "human_activity": 0.020261128204139167,
+        "smoke": 0.24954817593872036,
+        "road_damage": 0.11848525235480156,
+        "fire": 0.21679414573144473,
+        "congestion": 0.2745702434609182,
+        "drone_confidence": 0.4013063353821963
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S289",
+      "observations": {
+        "sos_signal": 0.1618693606287408,
+        "building_collapse": 0.0935663856088007,
+        "human_activity": 0.5496733992627437,
+        "smoke": 0.3290748704012698,
+        "road_damage": 0.5483977360347181,
+        "fire": 0.22182330217467783,
+        "congestion": 0.024229354087584865,
+        "drone_confidence": 0.9413669012702468
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S290",
+      "observations": {
+        "sos_signal": 0.1465468265101405,
+        "building_collapse": 0.9812765239932727,
+        "human_activity": 0.6176602401699961,
+        "smoke": 0.6102899517038506,
+        "road_damage": 0.9866982015185296,
+        "fire": 0.08843876927465477,
+        "congestion": 0.9745008925422891,
+        "drone_confidence": 0.2040131465540409
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S291",
+      "observations": {
+        "sos_signal": 0.3839518134771782,
+        "building_collapse": 0.9312433284794626,
+        "human_activity": 0.14922772844025645,
+        "smoke": 0.9970690110762436,
+        "road_damage": 0.37912506109154853,
+        "fire": 0.6487749038885544,
+        "congestion": 0.9679067314833601,
+        "drone_confidence": 0.05760105037897478
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S292",
+      "observations": {
+        "sos_signal": 0.7043968789774523,
+        "building_collapse": 0.14918418388634835,
+        "human_activity": 0.5333874308310322,
+        "smoke": 0.6735137147252437,
+        "road_damage": 0.4562473073876818,
+        "fire": 0.15498517810605672,
+        "congestion": 0.24411907508557662,
+        "drone_confidence": 0.8543927909934985
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S293",
+      "observations": {
+        "sos_signal": 0.9993900365145268,
+        "building_collapse": 0.007482996106766615,
+        "human_activity": 0.16104568281993992,
+        "smoke": 0.6741443008931345,
+        "road_damage": 0.05999083458534826,
+        "fire": 0.5897899838558589,
+        "congestion": 0.6840001035610561,
+        "drone_confidence": 0.5881463481140702
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S294",
+      "observations": {
+        "sos_signal": 0.5942944280138205,
+        "building_collapse": 0.20763717209391974,
+        "human_activity": 0.5631355435851098,
+        "smoke": 0.8819072171389275,
+        "road_damage": 0.66683328569045,
+        "fire": 0.4717915073938471,
+        "congestion": 0.32158410286945116,
+        "drone_confidence": 0.08588620943757286
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S295",
+      "observations": {
+        "sos_signal": 0.9866259175249644,
+        "building_collapse": 0.22248225212873995,
+        "human_activity": 0.8148759426853727,
+        "smoke": 0.1686448818049786,
+        "road_damage": 0.2836011496055739,
+        "fire": 0.41827731922836675,
+        "congestion": 0.3244056641416051,
+        "drone_confidence": 0.7983508127598611
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S296",
+      "observations": {
+        "sos_signal": 0.15357786694775655,
+        "building_collapse": 0.7766886763492903,
+        "human_activity": 0.14794691330471144,
+        "smoke": 0.9133811065621014,
+        "road_damage": 0.5178785756685784,
+        "fire": 0.33638108805670675,
+        "congestion": 0.1570254973341928,
+        "drone_confidence": 0.011809088179004612
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S297",
+      "observations": {
+        "sos_signal": 0.7972621922722275,
+        "building_collapse": 0.9697937077507195,
+        "human_activity": 0.10076152112137304,
+        "smoke": 0.5921787435056695,
+        "road_damage": 0.2571504740307766,
+        "fire": 0.5429417057724074,
+        "congestion": 0.32045488556345514,
+        "drone_confidence": 0.2834655502433575
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S298",
+      "observations": {
+        "sos_signal": 0.46913343697211685,
+        "building_collapse": 0.6508122650440348,
+        "human_activity": 0.12818207318280406,
+        "smoke": 0.930594270876904,
+        "road_damage": 0.5057246994541248,
+        "fire": 0.8195279718843422,
+        "congestion": 0.6539054306210633,
+        "drone_confidence": 0.7100009412225455
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 0
+    },
+    {
+      "sample_id": "S299",
+      "observations": {
+        "sos_signal": 0.6136054350469241,
+        "building_collapse": 0.2782171517213896,
+        "human_activity": 0.09950964286545716,
+        "smoke": 0.6062506194501415,
+        "road_damage": 0.06635280377058106,
+        "fire": 0.2412934516895302,
+        "congestion": 0.06070718460191171,
+        "drone_confidence": 0.5488875890065671
+      },
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "sample_id": "S300",
+      "observations": {
+        "sos_signal": 0.7908651308632676,
+        "building_collapse": 0.8218807207718624,
+        "human_activity": 0.30954350813762743,
+        "smoke": 0.548954532694496,
+        "road_damage": 0.563010760086359,
+        "fire": 0.4728871821541666,
+        "congestion": 0.6551138914247648,
+        "drone_confidence": 0.21008712382353356
+      },
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    }
+  ]
+}

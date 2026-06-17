@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/ai-emergency-commander/scenario.schema.json",
+  "title": "AI Emergency Commander Scenario",
+  "type": "object",
+  "required": ["scenario_id", "command_center", "config", "zones", "roads", "units", "events"],
+  "properties": {
+    "scenario_id": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "mode": {"enum": ["fixed", "learned"]},
+    "run_mode": {"enum": ["fixed", "learned"]},
+    "command_center": {"$ref": "#/$defs/nodeReference"},
+    "hospital": {"$ref": "#/$defs/nodeReference"},
+    "nodes": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/coordinates"}
+    },
+    "config": {
+      "type": "object",
+      "required": ["weights", "thresholds"],
+      "properties": {
+        "weights": {
+          "type": "object",
+          "required": ["trapped", "passability", "life_risk", "priority", "utility", "astar_risk"],
+          "properties": {
+            "trapped": {"$ref": "#/$defs/trappedWeights"},
+            "passability": {"$ref": "#/$defs/passabilityWeights"},
+            "life_risk": {"$ref": "#/$defs/lifeRiskWeights"},
+            "priority": {"$ref": "#/$defs/priorityWeights"},
+            "utility": {"$ref": "#/$defs/utilityWeights"},
+            "astar_risk": {"$ref": "#/$defs/astarWeights"}
+          },
+          "additionalProperties": false
+        },
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "car_min_passability": {"$ref": "#/$defs/probability"},
+            "drone_recon_priority_risk": {"$ref": "#/$defs/probability"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "zones": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/zone"}},
+    "roads": {"type": "array", "items": {"$ref": "#/$defs/road"}},
+    "air_routes": {"type": "array", "items": {"$ref": "#/$defs/road"}},
+    "units": {"type": "array", "items": {"$ref": "#/$defs/unit"}},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "nodeReference": {
+      "type": "object",
+      "required": ["node_id"],
+      "properties": {"node_id": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "coordinates": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "trappedWeights": {
+      "type": "object",
+      "required": ["sos", "collapse", "human_activity", "smoke"],
+      "properties": {
+        "sos": {"type": "number", "minimum": 0},
+        "collapse": {"type": "number", "minimum": 0},
+        "human_activity": {"type": "number", "minimum": 0},
+        "smoke": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "passabilityWeights": {
+      "type": "object",
+      "required": ["road_damage", "fire_risk", "congestion", "drone_confidence"],
+      "properties": {
+        "road_damage": {"type": "number", "minimum": 0},
+        "fire_risk": {"type": "number", "minimum": 0},
+        "congestion": {"type": "number", "minimum": 0},
+        "drone_confidence": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "lifeRiskWeights": {
+      "type": "object",
+      "required": ["fire", "trapped_prob", "time_urgency"],
+      "properties": {
+        "fire": {"type": "number", "minimum": 0},
+        "trapped_prob": {"type": "number", "minimum": 0},
+        "time_urgency": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "priorityWeights": {
+      "type": "object",
+      "required": ["trapped_prob", "life_risk", "time_urgency", "accessibility"],
+      "properties": {
+        "trapped_prob": {"type": "number", "minimum": 0},
+        "life_risk": {"type": "number", "minimum": 0},
+        "time_urgency": {"type": "number", "minimum": 0},
+        "accessibility": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "utilityWeights": {
+      "type": "object",
+      "required": ["alpha", "beta", "gamma", "delta", "epsilon"],
+      "properties": {
+        "alpha": {"type": "number", "minimum": 0},
+        "beta": {"type": "number", "minimum": 0},
+        "gamma": {"type": "number", "minimum": 0},
+        "delta": {"type": "number", "minimum": 0},
+        "epsilon": {"type": "number", "minimum": 0},
+        "zeta": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "astarWeights": {
+      "type": "object",
+      "required": ["fire", "damage", "congestion", "secondary"],
+      "properties": {
+        "fire": {"type": "number", "minimum": 0},
+        "damage": {"type": "number", "minimum": 0},
+        "congestion": {"type": "number", "minimum": 0},
+        "secondary": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "observations": {
+      "type": "object",
+      "required": ["sos_signal", "building_collapse", "smoke", "fire", "road_damage", "human_activity", "congestion", "time_urgency", "drone_confidence"],
+      "properties": {
+        "sos_signal": {"$ref": "#/$defs/probability"},
+        "building_collapse": {"$ref": "#/$defs/probability"},
+        "smoke": {"$ref": "#/$defs/probability"},
+        "fire": {"$ref": "#/$defs/probability"},
+        "road_damage": {"$ref": "#/$defs/probability"},
+        "human_activity": {"$ref": "#/$defs/probability"},
+        "congestion": {"$ref": "#/$defs/probability"},
+        "time_urgency": {"$ref": "#/$defs/probability"},
+        "drone_confidence": {"$ref": "#/$defs/probability"}
+        ,"hazard_intensity": {"$ref": "#/$defs/probability"}
+        ,"drone_road_report": {"enum": ["blocked", "uncertain", "open"]}
+      },
+      "additionalProperties": false
+    },
+    "zone": {
+      "type": "object",
+      "required": ["zone_id", "node_id", "observations"],
+      "properties": {
+        "zone_id": {"type": "string", "minLength": 1},
+        "node_id": {"type": "string", "minLength": 1},
+        "observations": {"$ref": "#/$defs/observations"},
+        "labels": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "roadRisk": {
+      "type": "object",
+      "required": ["fire", "damage", "congestion", "secondary_disaster"],
+      "properties": {
+        "fire": {"$ref": "#/$defs/probability"},
+        "damage": {"$ref": "#/$defs/probability"},
+        "congestion": {"$ref": "#/$defs/probability"},
+        "secondary_disaster": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    },
+    "road": {
+      "type": "object",
+      "required": ["road_id", "from", "to", "distance", "travel_time_base", "status", "risk"],
+      "properties": {
+        "road_id": {"type": "string", "minLength": 1},
+        "from": {"type": "string", "minLength": 1},
+        "to": {"type": "string", "minLength": 1},
+        "distance": {"type": "number", "exclusiveMinimum": 0},
+        "travel_time_base": {"type": "number", "exclusiveMinimum": 0},
+        "status": {"enum": ["open", "blocked"]},
+        "bidirectional": {"type": "boolean", "default": true},
+        "risk": {"$ref": "#/$defs/roadRisk"},
+        "labels": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "unit": {
+      "type": "object",
+      "required": ["unit_id", "type", "start_node", "speed", "can_transport", "constraints"],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["rescue_car", "drone"]},
+        "start_node": {"type": "string", "minLength": 1},
+        "speed": {"type": "number", "exclusiveMinimum": 0},
+        "can_transport": {"type": "boolean"},
+        "capacity": {"type": "integer", "minimum": 0},
+        "service_time": {"type": "number", "minimum": 0},
+        "resource_cost": {"$ref": "#/$defs/probability"},
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "max_fire_risk": {"$ref": "#/$defs/probability"},
+            "min_passability": {"$ref": "#/$defs/probability"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["event_id", "event_type", "target_id", "changes"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "event_type": {"enum": ["road_collapse", "drone_update", "new_sos", "fire_spread"]},
+        "trigger_step": {"type": "integer", "minimum": 0},
+        "elapsed_minutes": {"type": "number", "minimum": 0},
+        "target_id": {"type": "string", "minLength": 1},
+        "changes": {"type": "object", "minProperties": 1},
+        "description": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

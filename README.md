@@ -1,150 +1,79 @@
-# AI Emergency Commander B 分工 Demo
+# AI Emergency Commander
 
-这是 B 分工的 Streamlit 系统与可视化控制台，负责把灾情场景、概率推理、任务分配、路径规划、动态重规划和救援报告串成一个可演示闭环。
+面向灾害救援的可解释决策 Demo。同一条流水线支持两种概率模型：
 
-当前主流程按“稳定演示优先”设计：默认使用预设 24×24 俯视像素灾区地图；自然语言灾情变化由千问解析成 `update_json`；系统把更新应用到当前地图后自动重新推理、分配任务并规划路线。Qwen-VL 图片识别保留为可选实验功能，不作为课堂演示的必要依赖。
+- `fixed`：专家设计的完整离散贝叶斯网络 CPT。
+- `learned`：在相同网络结构上，用 USGS 灾害强度锚定的混合数据学习 CPT。
 
-## 运行方式
+统一流程：`随机/JSON 场景 -> 贝叶斯推理 -> 风险/优先级 -> 风险感知 A* -> 期望效用 -> 约束分配 -> 状态机执行 -> 动态重规划 -> 结果报告`。
 
-```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\streamlit.exe run app.py
+## 本机运行
+
+适配 Apple Silicon Mac（已在 M3 / 16GB 上验证）：
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -e '.[dev]'
+.venv/bin/pytest -q
+.venv/bin/streamlit run app.py
 ```
 
-如果依赖下载很慢，可以先运行兜底 HTML 版：
+浏览器打开 `http://localhost:8501`，点击一次“随机生成并启动”即可生成可复现随机地图并自动运行算法。左侧实时显示道路、路线和移动单位，右侧同步演示输入校验、贝叶斯推理、风险排序、风险感知 A*、期望效用、全局分配、状态机执行、动态重规划和结果汇总。
 
-```powershell
-py -3.13 web_demo.py
+运行中可以随时点击“道路坍塌”“火势蔓延”“新增求救”或“无人机情报”。系统默认选择影响最大的目标，也支持高级手动选择；事件会从当前单位位置和任务状态触发重规划。仿真结束后可下载完整 JSON 和 Markdown 报告。
+
+期望效用同时考虑被困概率、生命风险、任务适配度、到达时间、路径风险和单位资源消耗。每个候选方案都会输出六项加权贡献、可行性原因和可复核的中文解释。
+
+## 复现实验
+
+```bash
+.venv/bin/emergency-commander download-public \
+  --config config/experiment.yaml \
+  --output data/public/usgs_earthquakes.csv \
+  --metadata artifacts/full_bayesian_experiment/public_data_metadata.json
+
+.venv/bin/emergency-commander run-experiment \
+  --config config/experiment.yaml \
+  --public-data data/public/usgs_earthquakes.csv \
+  --output-dir artifacts/full_bayesian_experiment
 ```
 
-然后打开：
+默认实验使用 2,000 条 USGS 记录锚定 `hazard_intensity`，生成 50,000 条带来源标记的贝叶斯祖先仿真样本并做 5 折交叉验证。USGS 不提供被困人员或道路通行标签，这两类标签明确属于仿真数据，不冒充真实救援真值。
 
-```text
-http://127.0.0.1:8502/demo.html
-```
+## 已验证结果
 
-## 千问 API
+| 目标 | 模型 | Brier | Accuracy | F1 | ROC-AUC |
+|---|---|---:|---:|---:|---:|
+| 被困人员 | 专家 CPT | 0.1771 | 0.7324 | 0.3354 | 0.7415 |
+| 被困人员 | 学习 CPT | 0.1769 | 0.7361 | 0.4041 | 0.7405 |
+| 道路可通 | 专家 CPT | 0.1544 | 0.7768 | 0.8640 | 0.7740 |
+| 道路可通 | 学习 CPT | 0.1532 | 0.7777 | 0.8626 | 0.7766 |
 
-不要把 API Key 写进代码。推荐在当前 PowerShell 里设置环境变量：
+M3 / 16GB 实测：50,000 样本、5 折训练与评估耗时 `92.566s`，Python `tracemalloc` 峰值 `121.632MB`。
 
-```powershell
-$env:DASHSCOPE_API_KEY="你的千问API Key"
-.\.venv\Scripts\streamlit.exe run app.py
-```
+## 数据契约
 
-也可以在网页左侧“千问 API 设置”里临时粘贴 Key，该方式只保存在本次页面会话中。
+- 输入示例：`examples/scenario_input.json`
+- 固定版输出：`examples/decision_output_fixed_v2.json`
+- 学习版输出：`examples/decision_output_learned_v2.json`
+- 输入/输出 Schema：`schemas/`
+- 学习网络：`artifacts/full_bayesian_experiment/learned_network.json`
+- 实验报告：`artifacts/full_bayesian_experiment/experiment_report.md`
+- 实时仿真内核：`src/emergency_commander/live_simulation.py`
+- 随机场景生成器：`src/emergency_commander/random_scenario.py`
 
-当前接入：
+入口和出口都会运行 JSON Schema 校验。地面车辆只使用 `roads`，无人机只使用 `air_routes`；候选效用矩阵、单位状态、事件时间线和每一步场景状态都包含在统一输出中。
 
-- `qwen-max`：默认用于自然语言灾情解析和中文救援报告生成。
-- `qwen-vl-max`：默认用于可选图片识别，把标准网格图或真实灾区图片抽象成 24×24 场景 JSON。
-- 页面左侧可以切换回 `qwen-plus` / `qwen-vl-plus` 作为备用。
+## 可信边界
 
-## 文本模型来源
+完整网络和 CPT 学习是可解释参数学习，不学习任务分配策略、不学习 A* 搜索策略，也不做在线增量学习。更详细的设计和执行记录见 `docs/superpowers/` 与 `HANDOFF.md`。
 
-左侧“模型接入设置”可以选择自然语言和报告生成使用哪个文本模型后端：
+## 网页验收
 
-- `千问 API`：调用 DashScope 兼容接口，适合直接联网演示。
-- `本地 Qwen 7B`：调用本机或组员机器上部署的 OpenAI-compatible 接口，例如 `http://127.0.0.1:8000/v1/chat/completions`。
+1. 点击“随机生成并启动”，确认地图、随机种子和算法轨道出现，且无需第二次点击。
+2. 观察仿真时钟、单位位置和算法日志自动变化。
+3. 暂停或保持运行，点击任意突发事件；确认事件数增加并进入 `REPLAN`。
+4. 恢复运行，确认重规划数增加且时钟继续推进。
+5. 进入“最终结果”，确认结束原因、救援人数、事件记录以及 JSON/Markdown 下载按钮存在。
 
-注意：普通 Qwen 7B 只能处理文字，适合“自然语言灾情更新”和“救援报告生成”；图片识别仍然需要 Qwen-VL 或其他视觉模型。如果选择本地 Qwen 7B，页面会额外保留一个可选的 `DASHSCOPE_API_KEY` 输入框，仅用于 Qwen-VL 图片识别。
-
-## 算法引擎来源
-
-左侧“算法引擎设置”可以在两种模式之间切换：
-
-- `B 演示引擎`：使用本项目内置的临时推理、分配和 A* 逻辑，保证课堂演示稳定。
-- `A 同学算法适配`：保留 B 端 24×24 区块地图、坍塌、断路、火灾、拥堵、建筑、水域等图层，把当前网格临时转换为 graph，再调用 A 同学仓库里的贝叶斯推理、期望效用任务分配和风险感知 A*。
-
-当前适配层位于 `core/a_engine_adapter.py`。它不会替换前端地图，只把算法输出转回 B 端的概率表、任务表、路线和路线代价；A 引擎原本的无人机直线航线会重新投影到 B 端 24×24 空中格网，并继续调用 A 的风险感知 A*。救援车使用地面道路图，无人机使用 8 邻接空中图，可飞越建筑、断路、水域，但会对火灾、塌方和拥堵增加代价。如果 A 引擎不可用，页面会提示并回退到 `B 演示引擎`，避免演示中断。
-
-## 推荐演示流程
-
-1. 点击“加载初始灾区场景”。
-2. 页面自动完成概率推理、任务分配和路线规划。
-3. 在“自然语言灾情更新”里输入变化，例如：`无人机发现 C 区北侧道路可以通行，但 C 区火势扩大，SOS 信号增强。`
-4. 点击“应用灾情更新并重新规划”。
-5. 查看地图、概率表、任务分配和路线摘要是否刷新。
-6. 点击“模拟道路塌方”，展示动态重规划。
-7. 点击“生成救援报告”，有 Key 时优先调用千问，失败或无 Key 时使用模板 fallback。
-
-## 场景模式
-
-- 预设场景用于稳定课堂演示，地图、灾区指标和路线变化都可控，适合第一次完整讲解系统流程。
-- 随机场景用于证明算法不是写死的。左侧“场景初始化”里可以填写随机种子后点击“随机生成灾区场景”；同一个 seed 会生成同一张 24×24 地图，方便课堂复现。
-- 随机场景会先生成道路骨架，确保救援中心、医院和 A/B/C 灾区之间至少部分连通，再叠加建筑、水域、公园、火灾、拥堵、塌方和断路图层。
-- 随机场景生成后会自动执行概率推理、任务分配、路线规划和报告模板更新，并经过可达性校验；如果 100 次内无法生成至少两条有效救援路线，则回退到预设 `data/scenario.json`，避免出现完全不可规划的地图。
-
-## 场景 JSON 导出
-
-左侧“场景 JSON 导出”可以下载当前地图 JSON。当前先使用临时格式，结构与 `data/scenario.json` 完全一致，方便算法同学先读取：
-
-- `zones`：A/B/C 区灾情指标。
-- `units`：救援车和无人机起点。
-- `map`：24×24 地图、救援中心、医院、目标区、道路、建筑、水域、公园、火灾、拥堵、塌方、断路等图层。
-
-页面每次加载、随机生成、图片识别、自然语言更新或道路塌方重规划后，都会自动保存一份当前场景到 `exports/current_scenario.json`。等算法组给出正式 schema 后，只需要把导出函数改成对应字段映射。
-
-## 路径代价模型
-
-路径规划不是只比较路线长度，也会比较地形代价：
-
-- 救援车走道路：单格代价 `1.0`
-- 救援车走草地/空地/绿地：单格代价 `1.8`
-- 拥堵：救援车额外 `+3.5`，无人机额外 `+0.8`
-- 火灾：救援车额外 `+5.0`
-- 塌方风险：救援车额外 `+4.0`
-- 建筑、水域、断路：救援车不可通行
-- 无人机基础代价 `1.0`，可以飞越障碍，但火灾、塌方等风险会增加代价
-
-页面“路线摘要”会同时显示路线长度和路线代价，因此可以解释为什么系统有时宁愿绕远路，也不直接穿越高风险区域。
-
-切换到 `A 同学算法适配` 后，路线表中的“路线代价 / 路径风险 / ETA / A*扩展节点”来自 A 同学的风险感知 A* 输出；地图区块仍然按 B 端像素化俯视图展示。
-
-## update_json 结构
-
-自然语言更新会被转换成下面这种结构，再由 `core/demo_engine.py` 应用到当前场景。当前地图坐标范围是 `x=0..23, y=0..23`：
-
-```json
-{
-  "updates": [
-    {
-      "type": "target_update",
-      "target": "C",
-      "fields": {
-        "sos_signal": 0.95,
-        "fire": 0.9,
-        "road_damage": 0.35
-      }
-    },
-    {
-      "type": "remove_blocked_cells",
-      "cells": [[5, 4]]
-    }
-  ]
-}
-```
-
-支持的更新类型：
-
-- `target_update`
-- `add_blocked_cells` / `remove_blocked_cells`
-- `add_fire_cells` / `remove_fire_cells`
-- `add_congestion_cells` / `remove_congestion_cells`
-- `add_collapse_cells` / `remove_collapse_cells`
-
-## 文件说明
-
-- `app.py`：Streamlit 主控台。
-- `core/demo_engine.py`：B 版本临时推理、任务分配、A* 路径规划、场景更新逻辑和随机场景生成。
-- `core/qwen_client.py`：DashScope/Qwen API 调用、自然语言更新解析、图片识别和报告生成。
-- `data/scenario.json`：预设 24×24 灾区场景，包含道路、建筑、水域、公园、火灾、塌方和断路等图层。
-- `assets/disaster_grid_input.png`：可选 Qwen-VL 识别用标准网格图。
-- `assets/real_disaster_scene_input.png`：可选 Qwen-VL 真实图片抽象测试图。
-
-## 后续对接
-
-- A 同学的正式概率模型、任务分配和路径规划已通过 `core/a_engine_adapter.py` 做了第一版接入；后续如果组员给出正式 schema，只需要调整这个适配层的字段映射。
-- C 同学的正式报告模块可以替换 `generate_qwen_report` 或模板 `generate_report`。
-- B 分工主要保持 `app.py` 的可视化和交互结构稳定。
+浏览器验收截图位于 `output/playwright/live-simulation-*.png`。

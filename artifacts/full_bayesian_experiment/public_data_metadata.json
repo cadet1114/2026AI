@@ -1,0 +1,15 @@
+{
+  "source": "USGS Earthquake Catalog API",
+  "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2024-01-01&endtime=2025-12-31&minmagnitude=4.5&orderby=time&limit=2000",
+  "license_note": "USGS-authored data are generally public domain; retain source attribution.",
+  "downloaded_rows": 2000,
+  "sha256": "6513b02986ce13fbc35c5701fa17cf3f950658cd763f80bf4a6961da3e9955c4",
+  "query": {
+    "format": "csv",
+    "starttime": "2024-01-01",
+    "endtime": "2025-12-31",
+    "minmagnitude": 4.5,
+    "orderby": "time",
+    "limit": 2000
+  }
+}

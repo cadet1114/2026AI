@@ -1,0 +1,14 @@
+{
+  "trapped": {
+    "sos": 0.54861389,
+    "collapse": 0.12252484,
+    "human_activity": 0.28427073,
+    "smoke": 0.04459054
+  },
+  "passability": {
+    "road_damage": 0.15490846,
+    "fire_risk": 0.57039994,
+    "congestion": 0.1474071,
+    "drone_confidence": 0.1272845
+  }
+}

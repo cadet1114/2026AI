@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "source": "manually_reviewed_project_scenarios",
+    "case_count": 6,
+    "purpose": "fixed versus learned probability comparison"
+  },
+  "samples": [
+    {
+      "case_id": "SHOWCASE_01",
+      "description": "强SOS但建筑倒塌较轻，专家确认有人被困且道路可通",
+      "observations": {"sos_signal": 1.0, "building_collapse": 0.1, "human_activity": 0.7, "smoke": 0.1, "road_damage": 0.1, "fire": 0.1, "congestion": 0.1, "drone_confidence": 0.8},
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "case_id": "SHOWCASE_02",
+      "description": "建筑受损但没有SOS和活动迹象，人工复核无人被困",
+      "observations": {"sos_signal": 0.0, "building_collapse": 0.9, "human_activity": 0.0, "smoke": 0.1, "road_damage": 0.2, "fire": 0.1, "congestion": 0.2, "drone_confidence": 0.6},
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "case_id": "SHOWCASE_03",
+      "description": "火势严重导致道路不可通，损毁程度本身不高",
+      "observations": {"sos_signal": 0.7, "building_collapse": 0.5, "human_activity": 0.5, "smoke": 0.9, "road_damage": 0.1, "fire": 1.0, "congestion": 0.2, "drone_confidence": 0.0},
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 0
+    },
+    {
+      "case_id": "SHOWCASE_04",
+      "description": "道路表面受损但无人机确认仍可缓慢通行",
+      "observations": {"sos_signal": 0.4, "building_collapse": 0.3, "human_activity": 0.4, "smoke": 0.2, "road_damage": 0.7, "fire": 0.1, "congestion": 0.1, "drone_confidence": 1.0},
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    },
+    {
+      "case_id": "SHOWCASE_05",
+      "description": "人群活动迹象显著但SOS设备失效",
+      "observations": {"sos_signal": 0.1, "building_collapse": 0.4, "human_activity": 1.0, "smoke": 0.2, "road_damage": 0.2, "fire": 0.2, "congestion": 0.2, "drone_confidence": 0.5},
+      "trapped_ground_truth": 1,
+      "passable_ground_truth": 1
+    },
+    {
+      "case_id": "SHOWCASE_06",
+      "description": "多项证据均低，区域低风险且道路畅通",
+      "observations": {"sos_signal": 0.1, "building_collapse": 0.1, "human_activity": 0.1, "smoke": 0.1, "road_damage": 0.0, "fire": 0.0, "congestion": 0.1, "drone_confidence": 0.7},
+      "trapped_ground_truth": 0,
+      "passable_ground_truth": 1
+    }
+  ]
+}

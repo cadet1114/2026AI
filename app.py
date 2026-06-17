@@ -1,1811 +1,830 @@
 from __future__ import annotations
 
+import html
 import json
-import os
-import copy
-import random
+import secrets
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
 
-from core.demo_engine import (
-    ROUTE_COLORS,
-    apply_road_collapse,
-    apply_update_json_to_scenario,
-    assign_tasks,
-    calculate_route_cost,
-    compute_zone_scores,
-    generate_random_scenario,
-    generate_report,
-    load_scenario,
-    plan_routes,
-    summarize_update_json,
-)
-from core.a_engine_adapter import AEngineUnavailable, run_a_engine_on_grid
-from core.qwen_client import (
-    QwenApiError,
-    generate_qwen_report,
-    merge_recognition_into_scenario,
-    parse_disaster_update_with_qwen,
-    recognize_disaster_image,
-)
+from emergency_commander.bayesian_network import DiscreteBayesianNetwork
+from emergency_commander.live_simulation import LiveSimulation
+from emergency_commander.random_scenario import generate_random_scenario
+from emergency_commander.visualization import build_map_figure
 
 
-BASE_DIR = Path(__file__).resolve().parent
-SCENARIO_PATH = BASE_DIR / "data" / "scenario.json"
-DEFAULT_IMAGE_PATH = BASE_DIR / "assets" / "disaster_grid_input.png"
-EXPORT_DIR = BASE_DIR / "exports"
-CURRENT_SCENARIO_EXPORT_PATH = EXPORT_DIR / "current_scenario.json"
-MAP_RENDER_SCALE = 3
-COST_MODEL_VERSION = "terrain-cost-v5-air-grid"
-SCENARIO_VERSION = "scenario-v4-expanded-buildings"
-ENGINE_DEMO = "B 演示引擎"
-ENGINE_A_ADAPTER = "A 同学算法适配"
-PIXEL_TILE_COLORS = [
-    "#c8d7a0",
-    "#b9cc91",
-    "#d8e0b0",
-    "#6f7880",
-    "#808991",
-    "#59616a",
-    "#9aa4ad",
-    "#7d8791",
-    "#b2bac1",
-    "#f2d16b",
-    "#e5bf55",
-    "#f28a2e",
-    "#f05f22",
-    "#ffd166",
-    "#202124",
-    "#3a3a3a",
-    "#7b3140",
-    "#a1444e",
-    "#5ca8c8",
-    "#75bdd8",
-    "#7dae68",
-    "#91bd76",
-]
-TILE_VARIANTS = {
-    0: (0, 1, 2),
-    1: (3, 4, 5),
-    2: (6, 7, 8),
-    3: (9, 10),
-    4: (11, 12, 13),
-    5: (14, 15),
-    6: (16, 17),
-    7: (18, 19),
-    8: (20, 21),
+ROOT = Path(__file__).resolve().parent
+EVENTS = (
+    ("road_collapse", "道路坍塌", "切断活动路线"),
+    ("fire_spread", "火势蔓延", "提高区域风险"),
+    ("new_sos", "新增求救", "注入高置信 SOS"),
+)
+PHASE_LABELS = {
+    "validate": ("01", "输入校验", "JSON Schema + 归一化"),
+    "infer": ("02", "贝叶斯推理", "精确枚举后验概率"),
+    "prioritize": ("03", "风险排序", "加权生命风险与优先级"),
+    "route": ("04", "候选路线", "风险感知 A*"),
+    "utility": ("05", "效用计算", "六项期望效用分解"),
+    "allocate": ("06", "全局分配", "组合枚举最大总效用"),
+    "execute": ("07", "任务执行", "多单位有限状态机"),
+    "replan": ("08", "动态重规划", "事件驱动增量规划"),
+    "complete": ("09", "结果汇总", "救援交付与审计"),
 }
-TILE_CATEGORY_META = {
-    0: {
-        "name": "地面/空地",
-        "description": "救援车可通行，单格代价 1.8；无人机按空中格网飞越。",
-        "color": "#c8d7a0",
-    },
-    1: {
-        "name": "道路",
-        "description": "救援车优先通行，单格代价 1.0。",
-        "color": "#6f7880",
-    },
-    2: {
-        "name": "建筑",
-        "description": "救援车不可通行；无人机可飞越，空中障碍代价 +0.3。",
-        "color": "#9aa4ad",
-    },
-    3: {
-        "name": "拥堵",
-        "description": "救援车额外代价 +3.5；无人机空中代价 +0.35。",
-        "color": "#f2d16b",
-    },
-    4: {
-        "name": "火灾风险",
-        "description": "救援车额外代价 +5.0；无人机空中代价 +2.4。",
-        "color": "#f28a2e",
-    },
-    5: {
-        "name": "断路",
-        "description": "不可通行道路，救援车不能穿过。",
-        "color": "#202124",
-    },
-    6: {
-        "name": "塌方风险",
-        "description": "救援车额外代价 +4.0；无人机空中代价 +1.1；模拟塌方后转为断路。",
-        "color": "#7b3140",
-    },
-    7: {
-        "name": "水域",
-        "description": "救援车不可通行；无人机可飞越，空中障碍代价 +0.3。",
-        "color": "#5ca8c8",
-    },
-    8: {
-        "name": "公园/绿地",
-        "description": "救援车可绕行，单格代价 1.8；无人机按空中格网飞越。",
-        "color": "#7dae68",
-    },
-}
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@st.cache_resource
+def load_learned_network() -> DiscreteBayesianNetwork:
+    payload = read_json(
+        ROOT / "artifacts" / "full_bayesian_experiment" / "learned_network.json"
+    )
+    return DiscreteBayesianNetwork.from_dict(payload)
+
+
+def _network_for(session: LiveSimulation) -> DiscreteBayesianNetwork | None:
+    return load_learned_network() if session.model_name == "learned_cpt" else None
+
+
+@st.cache_data
+def learned_advantage_metrics() -> dict[str, float]:
+    aggregate = read_json(
+        ROOT / "artifacts" / "full_bayesian_experiment" / "experiment_metrics.json"
+    )["aggregate"]
+    expert_trapped = aggregate["expert_cpt"]["trapped_people"]
+    learned_trapped = aggregate["learned_cpt"]["trapped_people"]
+    expert_road = aggregate["expert_cpt"]["road_passable"]
+    learned_road = aggregate["learned_cpt"]["road_passable"]
+    return {
+        "trapped_f1_delta": learned_trapped["f1"] - expert_trapped["f1"],
+        "trapped_accuracy_delta": learned_trapped["accuracy"] - expert_trapped["accuracy"],
+        "road_auc_delta": learned_road["roc_auc"] - expert_road["roc_auc"],
+        "learned_trapped_f1": learned_trapped["f1"],
+        "expert_trapped_f1": expert_trapped["f1"],
+    }
+
+
+def _render_learned_advantage_panel() -> None:
+    metrics = learned_advantage_metrics()
+    st.markdown(
+        "<div class='learned-advantage'><b>学习 CPT 优势</b>"
+        f"<span>被困 F1 {metrics['learned_trapped_f1']:.3f} vs "
+        f"{metrics['expert_trapped_f1']:.3f}</span>"
+        f"<small>被困 F1 +{metrics['trapped_f1_delta']:.3f} · "
+        f"Accuracy +{metrics['trapped_accuracy_delta']:.3f} · "
+        f"道路 ROC-AUC +{metrics['road_auc_delta']:.3f}</small></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _load_session() -> LiveSimulation | None:
+    payload = st.session_state.get("live_simulation")
+    return LiveSimulation.from_dict(payload) if payload else None
+
+
+def _save_session(session: LiveSimulation) -> None:
+    st.session_state["live_simulation"] = session.to_dict()
+    st.session_state["history_index"] = len(session.calculation_history) - 1
+
+
+def _event_target_key(event_type: str) -> str:
+    return f"event_target_{event_type}"
+
+
+def start_random_session() -> None:
+    seed = secrets.randbelow(900_000_000) + 100_000_000
+    learned = st.session_state.get("model_selector") == "学习 CPT"
+    session = LiveSimulation.create(
+        generate_random_scenario(seed, mode="learned" if learned else "fixed"),
+        seed=seed,
+        model_name="learned_cpt" if learned else "expert_cpt",
+    )
+    _save_session(session)
+    st.session_state["event_notice"] = f"复杂救援地图已生成 · SEED {seed}"
+
+
+def advance_phase() -> None:
+    session = _load_session()
+    if session is None or session.status != "running":
+        return
+    session.step(network=_network_for(session))
+    _save_session(session)
+
+
+def advance_execution(*, to_transition: bool = False) -> None:
+    session = _load_session()
+    if session is None or session.phase != "execute" or session.status != "running":
+        return
+    session.step(
+        network=_network_for(session),
+        execution_minutes=None if to_transition else 1.0,
+        to_next_transition=to_transition,
+    )
+    _save_session(session)
+
+
+def inject_event(event_type: str) -> None:
+    session = _load_session()
+    if session is None or not session.initial_plan or session.status != "running":
+        return
+    targets = session.available_event_targets(event_type)
+    selected = st.session_state.get(_event_target_key(event_type))
+    target_id = selected if selected in targets else None
+    event = session.inject_event(event_type, target_id=target_id)
+    _save_session(session)
+    st.session_state["event_notice"] = event["description"]
+
+
+def move_history(delta: int) -> None:
+    session = _load_session()
+    if session is None or not session.calculation_history:
+        return
+    current = int(st.session_state.get("history_index", len(session.calculation_history) - 1))
+    st.session_state["history_index"] = max(
+        0, min(len(session.calculation_history) - 1, current + delta)
+    )
+
+
+def result_markdown(result: dict[str, Any]) -> str:
+    completed = ", ".join(result["completed_zones"]) or "无"
+    incomplete = ", ".join(result["incomplete_zones"]) or "无"
+    rows = [
+        "# AI Emergency Commander 仿真结果",
+        "",
+        f"- 场景：`{result['scenario_id']}`",
+        f"- 随机种子：`{result['seed']}`",
+        f"- 结束原因：`{result['end_reason']}`",
+        f"- 仿真时间：`{result['simulation_clock']:.1f}` 分钟",
+        f"- 已完成区域：{completed}",
+        f"- 未完成区域：{incomplete}",
+        f"- 估计救援人数：`{result['rescued_people']}`",
+        "",
+        "| 单位 | 最终状态 | 完成任务 | 救援人数 | 行驶分钟 |",
+        "| --- | --- | ---: | ---: | ---: |",
+    ]
+    rows.extend(
+        f"| {unit['unit_id']} | {unit['final_status']} | "
+        f"{unit['completed_missions']} | {unit['rescued_people']} | "
+        f"{unit['travel_minutes']:.1f} |"
+        for unit in result["units"]
+    )
+    return "\n".join(rows)
+
+
+def _current_snapshot(session: LiveSimulation) -> dict[str, Any]:
+    if session.timeline:
+        snapshot = dict(session.timeline[-1])
+        snapshot["plan"] = session.current_plan or snapshot.get("plan", {})
+        snapshot["unit_states"] = session.unit_states
+        snapshot["scenario_state"] = session.scenario
+        return snapshot
+    return {
+        "clock_minutes": session.clock_minutes,
+        "event": None,
+        "phase": session.phase,
+        "plan": session.current_plan
+        or {
+            "zone_assessment": session.assessments,
+            "assignments": [],
+            "routes": [],
+            "utility_matrix": session.utility_matrix,
+        },
+        "unit_states": session.unit_states,
+        "scenario_state": session.scenario,
+    }
+
+
+def _selected_record(session: LiveSimulation) -> dict[str, Any] | None:
+    if not session.calculation_history:
+        return None
+    index = int(st.session_state.get("history_index", len(session.calculation_history) - 1))
+    index = max(0, min(len(session.calculation_history) - 1, index))
+    st.session_state["history_index"] = index
+    return session.calculation_history[index]
+
+
+def _compact_frame(rows: list[dict[str, Any]], *, height: int = 190) -> None:
+    if rows:
+        st.dataframe(pd.DataFrame(rows), width="stretch", height=height, hide_index=True)
+
+
+def _render_validation(record: dict[str, Any]) -> None:
+    counts = record["outputs"].get("normalized_counts", {})
+    st.markdown(
+        "".join(
+            f"<span class='count-chip'><b>{value}</b>{html.escape(key)}</span>"
+            for key, value in counts.items()
+        ),
+        unsafe_allow_html=True,
+    )
+    for check in record["operations"].get("checks", []):
+        st.markdown(f"<div class='check-line'>PASS&nbsp;&nbsp;{html.escape(check)}</div>", unsafe_allow_html=True)
+
+
+def _render_inference(record: dict[str, Any]) -> None:
+    zones = record["outputs"].get("zones", [])
+    if not zones:
+        return
+    comparison = record["outputs"].get("model_comparison", {})
+    if comparison:
+        active_model = comparison.get("active_model", "unknown")
+        baseline_model = comparison.get("baseline_model", "expert_cpt")
+        max_priority_delta = comparison.get("max_abs_priority_delta", 0.0)
+        model_note = (
+            "学习 CPT 正在替换贝叶斯条件概率表；优先级/效用权重保持相同，"
+            "因此差异来自后验概率。"
+            if active_model == "learned_cpt"
+            else "当前使用固定专家 CPT；下表作为专家基线自检，delta 应接近 0。"
+        )
+        st.markdown(
+            f"<div class='model-compare'><b>{html.escape(active_model.upper())}</b>"
+            f"<span>vs {html.escape(baseline_model.upper())}</span>"
+            f"<em>MAX |Δ priority| = {max_priority_delta:.3f}</em>"
+            f"<small>{html.escape(model_note)}</small></div>",
+            unsafe_allow_html=True,
+        )
+    selected = st.selectbox(
+        "查看区域",
+        [zone["zone_id"] for zone in zones],
+        key=f"inference_zone_{record['index']}",
+        label_visibility="collapsed",
+    )
+    zone = next(item for item in zones if item["zone_id"] == selected)
+    trapped = zone["trapped_distribution"]["yes"]
+    passable = zone["passability_distribution"]["yes"]
+    st.markdown(
+        f"<div class='formula-box'><b>P(被困 | 证据) = {trapped:.3f}</b>"
+        f"<br><b>P(道路可通 | 证据) = {passable:.3f}</b>"
+        "<small>精确枚举 · 删除单项证据后的后验差值用于解释贡献</small></div>",
+        unsafe_allow_html=True,
+    )
+    evidence_rows = [
+        {"证据节点": name, "离散状态": state}
+        for name, state in zone["evidence"].items()
+    ]
+    _compact_frame(evidence_rows, height=156)
+    contribution_rows = [
+        {
+            "证据": item["evidence"],
+            "状态": item["state"],
+            "后验变化": item["delta"],
+        }
+        for item in zone["trapped_contributions"][:5]
+    ]
+    _compact_frame(contribution_rows, height=150)
+    if comparison:
+        _compact_frame(
+            [
+                {
+                    "区域": row["zone_id"],
+                    "Δ被困": row["trapped_delta"],
+                    "Δ通行": row["passability_delta"],
+                    "Δ优先级": row["priority_delta"],
+                }
+                for row in comparison.get("zones", [])
+            ],
+            height=165,
+        )
+
+
+def _render_priority(record: dict[str, Any]) -> None:
+    ranking = record["outputs"].get("ranking", [])
+    rows = [
+        {
+            "排名": item["rank"],
+            "区域": item["zone_id"],
+            "被困项": item["priority_terms"]["trapped_prob"],
+            "生命项": item["priority_terms"]["life_risk"],
+            "紧迫项": item["priority_terms"]["time_urgency"],
+            "通行项": item["priority_terms"]["accessibility"],
+            "总分": item["priority_score"],
+        }
+        for item in ranking
+    ]
+    st.markdown(
+        "<div class='formula-box'>PRIORITY = 0.40×P(被困) + 0.30×生命风险 + "
+        "0.20×紧迫度 + 0.10×可通行率</div>",
+        unsafe_allow_html=True,
+    )
+    _compact_frame(rows, height=285)
+
+
+def _render_route(record: dict[str, Any]) -> None:
+    candidates = [
+        item for item in record["outputs"].get("candidates", []) if item.get("route")
+    ]
+    if not candidates:
+        st.warning("当前没有可行路线。")
+        return
+    labels = [f"{item['unit_id']} → ZONE {item['target_zone']}" for item in candidates]
+    label = st.selectbox(
+        "候选路线",
+        labels,
+        key=f"route_candidate_{record['index']}",
+        label_visibility="collapsed",
+    )
+    candidate = candidates[labels.index(label)]
+    route = candidate["route"]
+    st.markdown(
+        f"<div class='formula-box'><b>{' → '.join(route['path'])}</b>"
+        f"<br>ETA {route['eta']:.2f} · RISK {route['path_risk']:.3f} · "
+        f"COST {route['total_cost']:.3f}<small>f(n) = g(n) + h(n)</small></div>",
+        unsafe_allow_html=True,
+    )
+    trace_rows = [
+        {
+            "节点": item["node"],
+            "g": item["g"],
+            "h": item["h"],
+            "f": item["f"],
+            "前沿": item["frontier_size"],
+            "松弛": len(item["relaxations"]),
+        }
+        for item in route.get("search_trace", [])
+    ]
+    _compact_frame(trace_rows, height=310)
+
+
+def _render_utility(record: dict[str, Any]) -> None:
+    candidates = [
+        item
+        for item in record["outputs"].get("candidates", [])
+        if item.get("expected_utility") is not None
+    ]
+    if not candidates:
+        st.warning("当前没有可计算效用的候选。")
+        return
+    labels = [f"{item['unit_id']} → ZONE {item['target_zone']}" for item in candidates]
+    label = st.selectbox(
+        "效用候选",
+        labels,
+        key=f"utility_candidate_{record['index']}",
+        label_visibility="collapsed",
+    )
+    candidate = candidates[labels.index(label)]
+    rows = [
+        {"贡献项": name, "加权值": value}
+        for name, value in (candidate.get("breakdown") or {}).items()
+    ]
+    st.markdown(
+        f"<div class='formula-box'><b>EU = {candidate['expected_utility']:.4f}</b>"
+        "<small>正值为救援收益，负值为时间、风险与资源成本</small></div>",
+        unsafe_allow_html=True,
+    )
+    _compact_frame(rows, height=280)
+
+
+def _render_allocation(record: dict[str, Any]) -> None:
+    trace = record["operations"]
+    st.markdown(
+        f"<div class='formula-box'><b>{trace.get('considered', 0):,}</b> 个组合被检查 · "
+        f"<b>{trace.get('duplicate_zone_rejections', 0):,}</b> 个重复区域组合被剔除"
+        f"<small>WINNING TOTAL = {trace.get('winning_total')}</small></div>",
+        unsafe_allow_html=True,
+    )
+    assignments = [
+        {
+            "单位": item["unit_id"],
+            "区域": item["target_zone"],
+            "任务": item["mission_type"],
+            "效用": item["expected_utility"],
+            "ETA": item["route"]["eta"],
+        }
+        for item in record["outputs"].get("assignments", [])
+    ]
+    _compact_frame(assignments, height=230)
+    ranked = trace.get("ranked_combinations", [])[:5]
+    _compact_frame(
+        [
+            {
+                "候选组合": " / ".join(
+                    f"{item['unit_id']}→{item['target_zone']}" for item in row["assignments"]
+                ),
+                "总效用": row["total"],
+            }
+            for row in ranked
+        ],
+        height=180,
+    )
+
+
+def _render_execution(record: dict[str, Any]) -> None:
+    st.markdown(
+        f"<div class='formula-box'><b>Δt = {record['inputs']['elapsed_minutes']:.3f} min</b>"
+        f"<small>{record['inputs']['mode']} · 单次状态机推进</small></div>",
+        unsafe_allow_html=True,
+    )
+    transitions = record["operations"].get("transitions", [])
+    if transitions:
+        _compact_frame(
+            [
+                {"单位": row["unit_id"], "原状态": row["from"], "新状态": row["to"]}
+                for row in transitions
+            ],
+            height=180,
+        )
+    states = record["operations"].get("after", {})
+    _compact_frame(
+        [
+            {
+                "单位": unit_id,
+                "状态": state["status"],
+                "剩余行程": state["remaining_travel"],
+                "剩余服务": state["remaining_service"],
+                "载员": state["onboard"],
+            }
+            for unit_id, state in states.items()
+        ],
+        height=280,
+    )
+
+
+def _render_replan(record: dict[str, Any]) -> None:
+    event = record["inputs"].get("event") or record["inputs"].get("trigger_event")
+    if event:
+        st.markdown(
+            f"<div class='alert-box'><b>{html.escape(event['description'])}</b>"
+            f"<small>TARGET {html.escape(event['target_id'])}</small></div>",
+            unsafe_allow_html=True,
+        )
+        _compact_frame(
+            [
+                {"改变字段": key, "新值": json.dumps(value, ensure_ascii=False)}
+                for key, value in event["changes"].items()
+            ],
+            height=220,
+        )
+    else:
+        st.markdown("<div class='formula-box'>从当前单位位置重新开始推理与规划。</div>", unsafe_allow_html=True)
+
+
+def _render_calculation_inspector(session: LiveSimulation) -> None:
+    record = _selected_record(session)
+    if record is None:
+        st.markdown("<div class='empty-inspector'>", unsafe_allow_html=True)
+        st.markdown("#### 等待第一步计算")
+        st.caption("地图已生成。点击“执行下一算法步骤”，从输入校验开始展示完整证据链。")
+        st.markdown(
+            """
+            1. JSON Schema 与归一化
+            2. 贝叶斯精确枚举
+            3. 加权风险排序
+            4. 风险感知 A*
+            5. 期望效用分解
+            6. 全局组合分配
+            """
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+        return
+
+    index = int(st.session_state.get("history_index", len(session.calculation_history) - 1))
+    number, label, algorithm = PHASE_LABELS.get(record["phase"], ("--", record["phase"], ""))
+    st.markdown(
+        f"<div class='inspector-head'><span>{number}</span><div><small>CALCULATION "
+        f"{index + 1}/{len(session.calculation_history)}</small><b>{html.escape(record['title'])}</b>"
+        f"<em>{html.escape(algorithm)}</em></div></div>",
+        unsafe_allow_html=True,
+    )
+    st.caption(record["summary"])
+
+    renderer = {
+        "validate": _render_validation,
+        "infer": _render_inference,
+        "prioritize": _render_priority,
+        "route": _render_route,
+        "utility": _render_utility,
+        "allocate": _render_allocation,
+        "execute": _render_execution,
+        "replan": _render_replan,
+    }.get(record["phase"])
+    if renderer:
+        renderer(record)
+
+    if session.status == "completed":
+        result = session.build_result()
+        st.success(
+            f"任务结束：{len(result['completed_zones'])}/{len(session.scenario['zones'])} 个区域完成"
+        )
+        d1, d2 = st.columns(2)
+        d1.download_button(
+            "结果 JSON",
+            json.dumps(result, ensure_ascii=False, indent=2),
+            file_name=f"live_result_{session.seed}.json",
+            mime="application/json",
+            width="stretch",
+        )
+        d2.download_button(
+            "结果 Markdown",
+            result_markdown(result),
+            file_name=f"live_result_{session.seed}.md",
+            mime="text/markdown",
+            width="stretch",
+        )
+
+
+def _render_event_dock(session: LiveSimulation | None) -> None:
+    st.markdown("<div class='dock-label'>LIVE EVENTS</div>", unsafe_allow_html=True)
+    enabled = bool(
+        session
+        and session.initial_plan
+        and session.status == "running"
+        and session.available_event_targets("fire_spread")
+    )
+    for event_type, label, hint in EVENTS:
+        targets = session.available_event_targets(event_type) if enabled and session else []
+        default_target = session.select_event_target(event_type) if targets and session else "LOCKED"
+        selected = st.selectbox(
+            f"{label}目标",
+            targets or ["LOCKED"],
+            index=(targets.index(default_target) if targets and default_target in targets else 0),
+            key=_event_target_key(event_type),
+            disabled=not targets,
+            label_visibility="collapsed",
+        )
+        st.button(
+            label,
+            key=f"event_{event_type}",
+            disabled=not targets,
+            width="stretch",
+            on_click=inject_event,
+            args=(event_type,),
+        )
+        st.markdown(
+            f"<div class='event-meta'>{html.escape(hint)}<b>TARGET · {html.escape(selected)}</b></div>",
+            unsafe_allow_html=True,
+        )
+
+
+def _render_footer(session: LiveSimulation) -> None:
+    states = session.unit_states
+    if not states:
+        states = {
+            unit["unit_id"]: {
+                "status": "ready",
+                "remaining_travel": 0.0,
+                "onboard": 0,
+                "capacity": unit.get("capacity", 0),
+                "current_task": None,
+            }
+            for unit in session.scenario["units"]
+        }
+    cards = []
+    for unit_id, state in states.items():
+        task = state.get("current_task") or {}
+        target = task.get("target_zone") or task.get("origin_zone") or "--"
+        cards.append(
+            "<div class='unit-card'>"
+            f"<i class='state-{html.escape(state['status'])}'></i>"
+            f"<b>{html.escape(unit_id)}</b><span>{html.escape(state['status']).upper()}</span>"
+            f"<small>ZONE {html.escape(str(target))} · ETA {state.get('remaining_travel', 0):.1f} · "
+            f"LOAD {state.get('onboard', 0)}/{state.get('capacity', 0)}</small></div>"
+        )
+    st.markdown(
+        "<div class='footer-strip'>" + "".join(cards) + "</div>",
+        unsafe_allow_html=True,
+    )
 
 
 st.set_page_config(
     page_title="AI Emergency Commander",
-    page_icon="AEC",
+    page_icon="EC",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
+st.markdown(
+    """
+<style>
+:root { --shell:#11161b; --panel:#1b2228; --panel2:#242c32; --line:#39434a;
+  --paper:#f3ead5; --ink:#151a1d; --muted:#8c989f; --orange:#ff6332;
+  --cyan:#25c4d8; --amber:#f0b33a; --green:#50c98b; --red:#e94f37; }
+html, body, [data-testid="stAppViewContainer"], .stApp { height:100vh; overflow:hidden; }
+[data-testid="stHeader"], [data-testid="stToolbar"], footer { display:none !important; }
+.stApp { background:var(--shell); color:#f7eedc; }
+.block-container { max-width:none; height:100vh; overflow:hidden; padding:.55rem .8rem .4rem; }
+h1,h2,h3,h4 { font-family:"DIN Condensed","Avenir Next Condensed",sans-serif !important;
+  text-transform:uppercase; letter-spacing:.055em; }
+p,div,button,input,small { font-family:"IBM Plex Mono","Menlo",monospace; }
+h1 { font-size:1.42rem !important; margin:0 !important; line-height:1 !important; color:#fff4df; }
+[data-testid="stVerticalBlock"] { gap:.42rem; }
+[data-testid="stHorizontalBlock"] { gap:.55rem; align-items:center; }
+[data-testid="stSelectbox"] label { display:none; }
+[data-baseweb="select"] > div { background:#20282e; border-color:#45515a; color:#fff4df; border-radius:2px; }
+.command-kicker { color:var(--orange); font-size:.66rem; letter-spacing:.18em; margin-bottom:3px; }
+.command-sub { color:#87939a; font-size:.67rem; margin-top:4px; }
+.phase-chip { border-left:4px solid var(--orange); background:#1b2228; padding:7px 10px;
+  min-height:44px; color:#fff4df; }
+.phase-chip small { color:#839198; display:block; font-size:.58rem; letter-spacing:.12em; }
+.phase-chip b { color:var(--orange); font-size:.82rem; }
+.phase-chip span { color:#c9d1d5; font-size:.67rem; margin-left:8px; }
+.stButton > button, .stDownloadButton > button { min-height:36px; border:1px solid #53616a;
+  border-radius:2px; background:#20282e; color:#f8eedb; font-weight:800; font-size:.72rem; }
+.stButton > button:hover { border-color:var(--orange); color:var(--orange); }
+.stButton > button[kind="primary"] { background:var(--orange); color:#151a1d; border-color:var(--orange); }
+.stButton > button:disabled { opacity:.72; color:#6f7b82; background:#151b20; border-color:#2e383e; }
+[data-testid="stPlotlyChart"] { border:1px solid #3a454c; box-shadow:0 0 0 1px #0b0e10; }
+.map-caption { display:flex; justify-content:space-between; align-items:center; color:#9ba5aa;
+  font-size:.62rem; letter-spacing:.08em; margin:0 2px -2px; }
+.map-caption b { color:#f4e6ca; }
+.dock-label { color:var(--orange); border-bottom:2px solid var(--orange); padding:0 0 7px;
+  font-size:.65rem; letter-spacing:.18em; font-weight:900; }
+.event-meta { color:#7f8b92; font-size:.55rem; line-height:1.35; margin:-3px 1px 9px; }
+.event-meta b { display:block; color:#bac4c8; font-size:.52rem; margin-top:2px; }
+[data-testid="stVerticalBlockBorderWrapper"] { border-color:#39444b !important; border-radius:2px !important;
+  background:linear-gradient(180deg,#1d252b,#171d22); }
+.inspector-head { display:grid; grid-template-columns:54px 1fr; gap:10px; align-items:center;
+  border-bottom:1px solid #3d474e; padding-bottom:9px; }
+.inspector-head > span { font-family:"DIN Condensed",sans-serif; font-size:2.2rem; line-height:1;
+  color:var(--orange); border-right:1px solid #465159; }
+.inspector-head small,.inspector-head em { display:block; color:#7f8b92; font-size:.57rem;
+  letter-spacing:.13em; font-style:normal; }
+.inspector-head b { display:block; color:#fff0d4; font-size:.92rem; margin:2px 0; }
+.formula-box,.alert-box { background:#0f1418; border:1px solid #3b464d; border-left:4px solid var(--cyan);
+  color:#dce4e5; padding:10px 12px; font-size:.68rem; margin:5px 0 8px; line-height:1.55; }
+.formula-box b { color:var(--cyan); }
+.formula-box small,.alert-box small { display:block; color:#7f8b92; margin-top:4px; }
+.alert-box { border-left-color:var(--orange); }
+.alert-box b { color:var(--orange); }
+.model-compare { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:center;
+  background:#18232a; border:1px solid #3d4d55; border-left:4px solid var(--amber);
+  padding:9px 11px; margin:5px 0 8px; }
+.model-compare b { color:var(--amber); font-size:.82rem; }
+.model-compare span { color:#c8d1d4; font-size:.62rem; }
+.model-compare em { color:var(--cyan); font-style:normal; font-size:.65rem; }
+.model-compare small { grid-column:1 / -1; color:#89959b; font-size:.56rem; line-height:1.45; }
+.learned-advantage { margin-top:5px; border:1px solid #51442c; border-left:4px solid var(--amber);
+  background:#1b211d; padding:7px 8px; color:#f5ead4; line-height:1.35; }
+.learned-advantage b { color:var(--amber); display:block; font-size:.66rem; }
+.learned-advantage span { color:#dce4e5; display:block; font-size:.55rem; margin-top:2px; }
+.learned-advantage small { color:#9aa69c; display:block; font-size:.49rem; margin-top:2px; }
+.count-chip { display:inline-flex; flex-direction:column; min-width:66px; border:1px solid #3c474e;
+  padding:7px 9px; margin:3px 4px 7px 0; color:#8f9aa0; font-size:.55rem; text-transform:uppercase; }
+.count-chip b { color:var(--cyan); font-size:1rem; }
+.check-line { border-bottom:1px dotted #38434a; padding:8px 4px; color:#bdc7ca; font-size:.65rem; }
+.check-line::first-letter { color:var(--green); }
+.empty-inspector { border-top:5px solid var(--orange); padding-top:8px; }
+[data-testid="stDataFrame"] { border:1px solid #354047; }
+.footer-strip { height:66px; display:grid; grid-template-columns:repeat(5,1fr); gap:7px;
+  border-top:1px solid #3d484f; padding-top:7px; }
+.unit-card { position:relative; background:#192026; border:1px solid #333e45; padding:6px 8px 5px 24px;
+  min-width:0; }
+.unit-card i { position:absolute; left:9px; top:10px; width:7px; height:7px; border-radius:50%;
+  background:var(--cyan); box-shadow:0 0 0 3px rgba(37,196,216,.12); }
+.unit-card i.state-idle,.unit-card i.state-ready { background:var(--green); }
+.unit-card i.state-stranded { background:var(--red); }
+.unit-card b { color:#f5ead4; font-size:.62rem; display:block; white-space:nowrap; overflow:hidden; }
+.unit-card span { position:absolute; right:7px; top:6px; color:var(--orange); font-size:.52rem; }
+.unit-card small { color:#7f8b92; font-size:.51rem; white-space:nowrap; }
+[data-testid="stToast"] { background:#252e34; color:#fff0d4; }
+@media (max-width:1100px) { .footer-strip { grid-template-columns:repeat(3,1fr); } }
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
-def main() -> None:
-    _inject_styles()
-    _init_session_state()
-    _ensure_scenario_current()
-    _ensure_cost_model_current()
+session = _load_session()
+record = _selected_record(session) if session else None
 
-    st.title("AI Emergency Commander：灾后救援智能指挥系统")
-    st.caption("B 分工控制台：24×24 俯视像素灾区地图、自然语言灾情更新、可解释推理、任务分配与动态重规划")
-
-    with st.sidebar:
-        st.header("演示控制台")
-        _render_api_controls()
-
-        st.divider()
-        _render_algorithm_controls()
-
-        st.divider()
-        st.subheader("场景初始化")
-        if st.button("加载初始灾区场景", use_container_width=True):
-            _load_initial_scene()
-        st.text_input(
-            "随机种子（可选）",
-            key="random_seed_text",
-            placeholder="留空则每次随机；填写后可复现同一张地图",
-        )
-        if st.button("随机生成灾区场景", use_container_width=True):
-            _load_random_scene()
-
-        st.divider()
-        st.subheader("自然语言灾情更新")
-        st.text_area(
-            "灾情变化",
-            key="disaster_update_text",
-            height=150,
-            placeholder="例如：无人机发现 C 区北侧道路可以通行，但 C 区火势扩大，SOS 信号增强。",
-        )
-        if st.button("应用灾情更新并重新规划", use_container_width=True):
-            _apply_natural_language_update()
-
-        st.divider()
-        st.subheader("演示测试")
-        if st.button("一键演示完整流程", use_container_width=True):
-            _run_full_demo()
-        if st.button("模拟道路塌方", use_container_width=True):
-            _simulate_collapse()
-
-        st.divider()
-        st.subheader("报告输出")
-        if st.button("生成救援报告", use_container_width=True):
-            _generate_report()
-
-        st.divider()
-        _render_scenario_export_panel()
-
-        st.divider()
-        _render_optional_image_panel()
-
-        st.divider()
-        st.subheader("图例")
+header_title, header_meta, model_col, generate_col, next_col, minute_col, transition_col = st.columns(
+    [2.25, 1.55, 1.05, 1.05, 1.22, 1.08, 1.3]
+)
+with header_title:
+    st.markdown("<div class='command-kicker'>OFFLINE RESCUE DECISION LAB</div>", unsafe_allow_html=True)
+    st.title("AI Emergency Commander")
+    st.markdown("<div class='command-sub'>复杂路网 · 可解释算法 · 手动应急推演</div>", unsafe_allow_html=True)
+with header_meta:
+    if session:
+        number, label, algorithm = PHASE_LABELS[session.phase]
         st.markdown(
-            """
-            - 红线：RescueCar-1
-            - 蓝线：RescueCar-2
-            - 绿线：Drone-1 空中路径
-            - 灰色路面：救援车优先通行道路
-            - 深灰建筑/水域：救援车不可直接穿过
-            - 黑色格：断裂道路，救援车不可通行
-            - 深红格：塌方风险或塌方路段
-            - 橙色格：火灾风险
-            - 黄色格：拥堵道路
-            """
+            f"<div class='phase-chip'><small>SEED {session.seed} · T+{session.clock_minutes:.1f} MIN</small>"
+            f"<b>{number} {label}</b><span>{algorithm}</span></div>",
+            unsafe_allow_html=True,
         )
-
-    if st.session_state.status_message:
-        st.info(st.session_state.status_message)
-    _render_last_update_summary()
-
-    if _routes_cross_forbidden_cells(st.session_state.scenario, st.session_state.routes):
-        _replan_current_scenario("检测到旧路线经过不可通行格，系统已自动重新规划。")
-
-    _render_summary_metrics()
-
-    scenario = st.session_state.scenario
-    left, right = st.columns([1.45, 1], gap="large")
-
-    with left:
-        st.subheader("灾区地图与路线")
-        st.plotly_chart(
-            _build_map_figure(
-                scenario,
-                st.session_state.routes,
-                st.session_state.assignments,
-            ),
-            use_container_width=True,
-            config={"displayModeBar": False},
+    else:
+        st.markdown(
+            "<div class='phase-chip'><small>NO ACTIVE SCENARIO</small><b>00 待命</b>"
+            "<span>生成地图后开始</span></div>",
+            unsafe_allow_html=True,
         )
-        _render_map_tile_legend()
-        _render_route_summary(st.session_state.assignments, st.session_state.routes)
-
-    with right:
-        st.subheader("概率推理与优先级")
-        _render_scores(st.session_state.zone_scores)
-        st.subheader("任务分配")
-        _render_assignments(
-            st.session_state.assignments,
-            st.session_state.routes,
-            st.session_state.scenario,
-            st.session_state.route_details,
-        )
-        _render_previous_plan_snapshot()
-
-    st.subheader("救援报告")
-    st.caption(f"报告生成方式：{st.session_state.report_source}")
-    st.text_area(
-        "报告内容",
-        value=st.session_state.report_text,
-        height=230,
+with model_col:
+    selected_model = st.selectbox(
+        "概率模型",
+        ["固定专家 CPT", "学习 CPT"],
+        key="model_selector",
         label_visibility="collapsed",
-        disabled=True,
     )
-    _render_current_scenario_preview()
-
-    _render_debug_outputs()
-
-
-def _init_session_state() -> None:
-    if "scenario" not in st.session_state:
-        st.session_state.scenario = load_scenario(SCENARIO_PATH)
-    st.session_state.setdefault("zone_scores", {})
-    st.session_state.setdefault("assignments", {})
-    st.session_state.setdefault("routes", {})
-    st.session_state.setdefault("previous_scenario", {})
-    st.session_state.setdefault("previous_zone_scores", {})
-    st.session_state.setdefault("previous_assignments", {})
-    st.session_state.setdefault("previous_routes", {})
-    st.session_state.setdefault("previous_snapshot_label", "")
-    st.session_state.setdefault("report_text", "点击左侧“加载初始灾区场景”开始课堂演示。")
-    st.session_state.setdefault("report_source", "尚未生成")
-    st.session_state.setdefault("status_message", "")
-    st.session_state.setdefault("scenario_source", "预设 scenario.json")
-    st.session_state.setdefault("scenario_seed", "-")
-    st.session_state.setdefault("algorithm_engine", ENGINE_DEMO)
-    st.session_state.setdefault("last_algorithm_engine", st.session_state.algorithm_engine)
-    st.session_state.setdefault("engine_status", "当前使用 B 演示引擎。")
-    st.session_state.setdefault("engine_summary", {})
-    st.session_state.setdefault("route_details", {})
-    st.session_state.setdefault("previous_route_details", {})
-    st.session_state.setdefault("last_update_summary", "")
-    st.session_state.setdefault("qwen_api_key", "")
-    st.session_state.setdefault("qwen_report_enabled", True)
-    st.session_state.setdefault("qwen_text_backend", "千问 API")
-    st.session_state.setdefault("qwen_text_model", "qwen-max")
-    st.session_state.setdefault("local_qwen_endpoint", "http://127.0.0.1:8000/v1/chat/completions")
-    st.session_state.setdefault("local_qwen_model", "qwen2.5-7b-instruct")
-    st.session_state.setdefault("local_qwen_api_key", "")
-    st.session_state.setdefault("qwen_vl_model", "qwen-vl-max")
-    st.session_state.setdefault("qwen_image_mode", "标准网格图识别")
-    st.session_state.setdefault("qwen_raw_json", {})
-    st.session_state.setdefault("qwen_raw_text", "")
-    st.session_state.setdefault("qwen_update_json", {})
-    st.session_state.setdefault("qwen_update_raw_text", "")
-    st.session_state.setdefault("disaster_update_text", "")
-    st.session_state.setdefault("random_seed_text", "")
-    st.session_state.setdefault("uploaded_image_bytes", None)
-    st.session_state.setdefault("uploaded_image_mime", "image/png")
-    st.session_state.setdefault("uploaded_image_name", "")
-    st.session_state.setdefault("scenario_export_path", "")
-    st.session_state.setdefault("scenario_export_error", "")
-
-
-def _ensure_cost_model_current() -> None:
-    if st.session_state.get("cost_model_version") == COST_MODEL_VERSION:
-        return
-    st.session_state.cost_model_version = COST_MODEL_VERSION
-    if st.session_state.routes:
-        _replan_current_scenario("路径代价模型已更新：拥堵惩罚提高，路线已重新规划。")
-
-
-def _ensure_scenario_current() -> None:
-    if st.session_state.get("scenario_version") == SCENARIO_VERSION:
-        return
-    st.session_state.scenario_version = SCENARIO_VERSION
-    st.session_state.scenario = load_scenario(SCENARIO_PATH)
-    st.session_state.scenario_source = "预设 scenario.json"
-    st.session_state.scenario_seed = "-"
-    _clear_previous_plan_snapshot()
-    st.session_state.qwen_update_json = {}
-    st.session_state.qwen_update_raw_text = ""
-    st.session_state.last_update_summary = "预设场景已更新：建筑占地调大"
-    if st.session_state.zone_scores or st.session_state.routes:
-        _replan_current_scenario("预设场景已更新：建筑占地调大，系统已重新规划路线。")
-    else:
-        st.session_state.report_text = "预设场景已更新：建筑占地调大。点击“加载初始灾区场景”开始演示。"
-
-
-def _render_api_controls() -> None:
-    with st.expander("模型接入设置", expanded=True):
-        st.radio(
-            "文本模型来源",
-            options=["千问 API", "本地 Qwen 7B"],
-            key="qwen_text_backend",
-            help="自然语言灾情解析和救援报告使用这里选择的后端。",
-        )
-
-        st.session_state.qwen_report_enabled = st.checkbox(
-            "生成报告时调用所选文本模型",
-            value=st.session_state.qwen_report_enabled,
-        )
-
-        if st.session_state.qwen_text_backend == "千问 API":
-            env_key_ready = bool(os.getenv("DASHSCOPE_API_KEY"))
-            api_key_input = st.text_input(
-                "DASHSCOPE_API_KEY",
-                type="password",
-                value="",
-                placeholder="已从环境变量读取" if env_key_ready else "仅保存在本次页面会话",
-            )
-            st.session_state.qwen_api_key = api_key_input.strip() or os.getenv(
-                "DASHSCOPE_API_KEY", ""
-            )
-            st.session_state.qwen_text_model = st.selectbox(
-                "API 文本模型",
-                options=["qwen-max", "qwen-plus", "qwen-turbo"],
-                index=_option_index(
-                    ["qwen-max", "qwen-plus", "qwen-turbo"],
-                    st.session_state.qwen_text_model,
-                ),
-                help="用于自然语言灾情解析和救援报告生成。",
-            )
-        else:
-            st.text_input(
-                "本地 Qwen 7B 地址",
-                key="local_qwen_endpoint",
-                help="填写 OpenAI-compatible 接口，例如 http://127.0.0.1:8000/v1/chat/completions。",
-            )
-            st.text_input(
-                "本地模型名",
-                key="local_qwen_model",
-                help="例如 qwen2.5-7b-instruct，具体名称以组员本地服务为准。",
-            )
-            local_key_input = st.text_input(
-                "本地 API Key（可选）",
-                type="password",
-                value="",
-                placeholder="多数本地服务可留空",
-            )
-            if local_key_input.strip():
-                st.session_state.local_qwen_api_key = local_key_input.strip()
-            env_key_ready = bool(os.getenv("DASHSCOPE_API_KEY"))
-            vl_api_key_input = st.text_input(
-                "DASHSCOPE_API_KEY（图片识别用，可选）",
-                type="password",
-                value="",
-                placeholder="已从环境变量读取" if env_key_ready else "仅 Qwen-VL 图片识别需要",
-            )
-            st.session_state.qwen_api_key = vl_api_key_input.strip() or os.getenv(
-                "DASHSCOPE_API_KEY", ""
-            )
-            st.caption("本地 Qwen 7B 只处理文字：自然语言灾情更新、救援报告。图片识别仍需要 Qwen-VL。")
-
-        st.session_state.qwen_vl_model = st.selectbox(
-            "视觉模型（图片识别用）",
-            options=["qwen-vl-max", "qwen-vl-plus"],
-            index=_option_index(
-                ["qwen-vl-max", "qwen-vl-plus"],
-                st.session_state.qwen_vl_model,
-            ),
-            help="仅用于可选图片识别功能。普通本地 Qwen 7B 不能看图。",
-        )
-
-
-def _render_algorithm_controls() -> None:
-    with st.expander("算法引擎设置", expanded=True):
-        previous_engine = st.session_state.get("last_algorithm_engine", ENGINE_DEMO)
-        st.radio(
-            "推理 / 分配 / 路径算法",
-            options=[ENGINE_DEMO, ENGINE_A_ADAPTER],
-            key="algorithm_engine",
-            help=(
-                "B 演示引擎保证稳定闭环；A 同学算法适配会把当前 24x24 区块地图转换成图结构，"
-                "再调用 A 的贝叶斯推理、效用分配和风险 A*。"
-            ),
-        )
-        if st.session_state.algorithm_engine == ENGINE_A_ADAPTER:
-            st.caption("区块、坍塌、火灾、拥堵等图层仍按当前 B 地图展示；算法结果来自 A 引擎适配层。")
-        else:
-            st.caption("使用 B 端内置临时逻辑，适合稳定课堂演示。")
-
-        if (
-            previous_engine != st.session_state.algorithm_engine
-            and (st.session_state.zone_scores or st.session_state.routes)
-        ):
-            st.session_state.last_algorithm_engine = st.session_state.algorithm_engine
-            _replan_current_scenario(
-                f"算法引擎已切换为 {st.session_state.algorithm_engine}，已重新推理、分配并规划路线。"
-            )
-        else:
-            st.session_state.last_algorithm_engine = st.session_state.algorithm_engine
-
-
-def _render_optional_image_panel() -> None:
-    with st.expander("可选功能：图片识别生成 24×24 场景", expanded=False):
-        st.caption("实验项：用于展示 Qwen-VL 可把图片转成场景 JSON，主流程不依赖它。")
-        st.session_state.qwen_image_mode = st.radio(
-            "图片类型",
-            options=["标准网格图识别", "实验功能：真实图片抽象为24×24网格"],
-            index=_image_mode_index(st.session_state.qwen_image_mode),
-        )
-
-        uploaded = st.file_uploader(
-            "上传灾区图片",
-            type=["png", "jpg", "jpeg"],
-            help="不上传时默认使用 assets/disaster_grid_input.png。",
-        )
-        if uploaded is not None:
-            image_bytes = uploaded.getvalue()
-            st.session_state.uploaded_image_bytes = image_bytes
-            st.session_state.uploaded_image_mime = uploaded.type or "image/png"
-            st.session_state.uploaded_image_name = uploaded.name
-            st.image(image_bytes, caption=uploaded.name, use_container_width=True)
-        elif DEFAULT_IMAGE_PATH.exists():
-            st.session_state.uploaded_image_bytes = None
-            st.session_state.uploaded_image_mime = "image/png"
-            st.session_state.uploaded_image_name = ""
-            st.image(str(DEFAULT_IMAGE_PATH), caption="内置灾区网格图", use_container_width=True)
-
-        if st.button("从图片加载 24×24 场景", use_container_width=True):
-            _load_scene_from_image()
-
-
-def _render_scenario_export_panel() -> None:
-    st.subheader("场景 JSON 导出")
-    st.caption("临时导出格式与 data/scenario.json 保持一致，等组员给格式后再做转换。")
-    _sync_current_scenario_export()
-
-    json_text = _current_scenario_json_text()
-    st.download_button(
-        "下载当前场景 JSON",
-        data=json_text.encode("utf-8"),
-        file_name=_current_scenario_export_name(),
-        mime="application/json",
-        use_container_width=True,
+    if selected_model == "学习 CPT":
+        _render_learned_advantage_panel()
+with generate_col:
+    st.button(
+        "生成复杂地图",
+        key="generate_map",
+        on_click=start_random_session,
+        type="primary",
+        width="stretch",
+    )
+with next_col:
+    st.button(
+        "执行下一算法步骤",
+        key="advance_phase",
+        on_click=advance_phase,
+        disabled=session is None or session.status != "running" or session.phase == "execute",
+        width="stretch",
+    )
+with minute_col:
+    st.button(
+        "推进 1 分钟",
+        key="advance_minute",
+        on_click=advance_execution,
+        disabled=session is None or session.status != "running" or session.phase != "execute",
+        width="stretch",
+    )
+with transition_col:
+    next_transition = session.next_transition_minutes() if session and session.phase == "execute" else None
+    st.button(
+        "推进到下一状态",
+        key="advance_transition",
+        on_click=advance_execution,
+        kwargs={"to_transition": True},
+        disabled=next_transition is None or (session is not None and session.status != "running"),
+        width="stretch",
     )
 
-    export_path = st.session_state.get("scenario_export_path", "")
-    if export_path:
-        st.caption(f"本地自动保存：{export_path}")
-    export_error = st.session_state.get("scenario_export_error", "")
-    if export_error:
-        st.warning(export_error)
-
-
-def _load_initial_scene() -> None:
-    st.session_state.scenario = load_scenario(SCENARIO_PATH)
-    st.session_state.scenario_source = "预设 scenario.json"
-    st.session_state.scenario_seed = "-"
-    _clear_previous_plan_snapshot()
-    st.session_state.qwen_raw_json = {}
-    st.session_state.qwen_raw_text = ""
-    st.session_state.qwen_update_json = {}
-    st.session_state.qwen_update_raw_text = ""
-    st.session_state.last_update_summary = ""
-    _replan_current_scenario("已加载初始灾区场景，并完成推理、分配和路线规划。")
-
-
-def _load_random_scene() -> None:
-    seed = _parse_random_seed(st.session_state.get("random_seed_text", ""))
-    if seed is None:
-        seed = random.SystemRandom().randint(1, 2_147_483_647)
-
-    st.session_state.scenario = generate_random_scenario(seed)
-    st.session_state.scenario_source = "随机生成"
-    st.session_state.scenario_seed = str(seed)
-    _clear_previous_plan_snapshot()
-    st.session_state.qwen_raw_json = {}
-    st.session_state.qwen_raw_text = ""
-    st.session_state.qwen_update_json = {}
-    st.session_state.qwen_update_raw_text = ""
-    st.session_state.last_update_summary = f"随机生成灾区场景，seed={seed}"
-    _replan_current_scenario(
-        f"已随机生成灾区场景并完成推理与路线规划。当前 seed = {seed}。"
-    )
-
-
-def _apply_natural_language_update() -> None:
-    update_text = st.session_state.disaster_update_text.strip()
-    if not update_text:
-        st.session_state.status_message = "请输入灾情变化描述后再应用更新。"
-        return
-
-    _capture_previous_plan_snapshot("自然语言灾情更新前")
-    text_model_config = _current_text_model_config()
-    parser_source = f"{text_model_config['backend']} update_json"
-    try:
-        if not _text_model_ready(text_model_config):
-            if text_model_config["backend"] == "本地 Qwen 7B":
-                raise QwenApiError("未配置本地 Qwen 7B 地址")
-            raise QwenApiError("未检测到 DASHSCOPE_API_KEY")
-        with st.spinner(f"正在调用{text_model_config['backend']}解析灾情更新..."):
-            update_json, raw_text = parse_disaster_update_with_qwen(
-                update_text,
-                st.session_state.scenario,
-                str(text_model_config.get("api_key") or ""),
-                model=str(text_model_config.get("model") or "qwen-max"),
-                endpoint=text_model_config.get("endpoint"),
-            )
-    except QwenApiError as exc:
-        update_json = _fallback_update_json_from_text(update_text, st.session_state.scenario)
-        raw_text = f"本地关键词 fallback：{exc}"
-        parser_source = "本地关键词 fallback"
-
-    update_json, changed_by_local_repair = _repair_update_json_with_local_hints(
-        update_json,
-        update_text,
-        st.session_state.scenario,
-    )
-    if changed_by_local_repair and parser_source.endswith("update_json"):
-        parser_source = f"{parser_source} + 本地规则校正"
-
-    st.session_state.qwen_update_json = update_json
-    st.session_state.qwen_update_raw_text = raw_text
-    st.session_state.scenario = apply_update_json_to_scenario(
-        st.session_state.scenario,
-        update_json,
-    )
-    st.session_state.last_update_summary = summarize_update_json(update_json)
-    _replan_current_scenario(
-        f"{parser_source} 已应用：{st.session_state.last_update_summary}；系统已自动重新规划路线。"
-    )
-
-
-def _load_scene_from_image() -> None:
-    api_key = _current_api_key()
-    if not api_key:
-        st.session_state.status_message = "图片识别需要 DASHSCOPE_API_KEY；主流程可直接使用预设场景。"
-        return
-
-    try:
-        image_bytes, mime_type, source_name = _get_image_payload()
-    except FileNotFoundError as exc:
-        st.session_state.status_message = str(exc)
-        return
-
-    try:
-        with st.spinner("正在调用 Qwen-VL 生成 24×24 场景..."):
-            recognition, raw_text = recognize_disaster_image(
-                image_bytes=image_bytes,
-                mime_type=mime_type,
-                api_key=api_key,
-                model=st.session_state.qwen_vl_model,
-                image_mode=_qwen_image_mode_value(),
-            )
-            scenario = merge_recognition_into_scenario(
-                load_scenario(SCENARIO_PATH),
-                recognition,
-                update_map=True,
-            )
-    except QwenApiError as exc:
-        st.session_state.status_message = f"Qwen-VL 图片识别失败：{exc}"
-        return
-
-    st.session_state.scenario = scenario
-    st.session_state.scenario_source = f"Qwen-VL 图片识别：{source_name}"
-    st.session_state.scenario_seed = "-"
-    _clear_previous_plan_snapshot()
-    st.session_state.qwen_raw_json = recognition
-    st.session_state.qwen_raw_text = raw_text
-    st.session_state.last_update_summary = "图片识别生成 24×24 场景"
-    _replan_current_scenario("已从图片生成 24×24 场景，并完成推理、分配和路线规划。")
-
-
-def _simulate_collapse() -> None:
-    _capture_previous_plan_snapshot("模拟道路塌方前")
-    st.session_state.scenario = apply_road_collapse(st.session_state.scenario)
-    st.session_state.last_update_summary = "塌方风险格已转为不可通行道路"
-    _replan_current_scenario("已触发动态重规划：塌方路段变为不可通行，路线已刷新。")
-
-
-def _run_full_demo() -> None:
-    st.session_state.scenario = load_scenario(SCENARIO_PATH)
-    st.session_state.scenario_source = "预设一键演示"
-    st.session_state.scenario_seed = "-"
-    st.session_state.qwen_raw_json = {}
-    st.session_state.qwen_raw_text = ""
-    st.session_state.qwen_update_json = {}
-    st.session_state.qwen_update_raw_text = ""
-
-    _replan_current_scenario("一键演示：已加载预设场景并生成初始救援方案。")
-    _capture_previous_plan_snapshot("一键演示：道路塌方前")
-
-    st.session_state.scenario = apply_road_collapse(st.session_state.scenario)
-    st.session_state.last_update_summary = (
-        "加载预设场景 -> 概率推理 -> 任务分配 -> 路线规划 -> 模拟塌方 -> 动态重规划"
-    )
-    _replan_current_scenario(
-        "一键演示完整流程已完成：已加载场景、完成推理分配、规划路线、模拟道路塌方并刷新报告。"
-    )
-
-
-def _generate_report() -> None:
-    _ensure_full_plan()
-    template_report = generate_report(
-        st.session_state.scenario,
-        st.session_state.zone_scores,
-        st.session_state.assignments,
-        st.session_state.routes,
-        st.session_state.route_details,
-    )
-
-    text_model_config = _current_text_model_config()
-    if st.session_state.qwen_report_enabled and _text_model_ready(text_model_config):
-        try:
-            with st.spinner(f"正在调用{text_model_config['backend']}生成救援报告..."):
-                st.session_state.report_text = generate_qwen_report(
-                    st.session_state.scenario,
-                    st.session_state.zone_scores,
-                    st.session_state.assignments,
-                    st.session_state.routes,
-                    str(text_model_config.get("api_key") or ""),
-                    model=str(text_model_config.get("model") or "qwen-max"),
-                    endpoint=text_model_config.get("endpoint"),
-                    route_details=st.session_state.route_details,
-                )
-            st.session_state.report_source = str(text_model_config["backend"])
-            st.session_state.status_message = f"{text_model_config['backend']}救援报告已生成。"
-            return
-        except QwenApiError as exc:
-            st.session_state.report_text = template_report
-            st.session_state.report_source = "模板 fallback"
-            st.session_state.status_message = f"{text_model_config['backend']}报告生成失败，已回退模板报告：{exc}"
-            return
-
-    st.session_state.report_text = template_report
-    st.session_state.report_source = "模板 fallback"
-    if st.session_state.qwen_report_enabled:
-        st.session_state.status_message = "文本模型未配置完整，已使用模板报告。"
-    else:
-        st.session_state.status_message = "救援报告已生成。"
-
-
-def _replan_current_scenario(status_message: str) -> None:
-    plan = _compute_plan_with_selected_engine(st.session_state.scenario)
-    st.session_state.zone_scores = plan["zone_scores"]
-    st.session_state.assignments = plan["assignments"]
-    st.session_state.routes = plan["routes"]
-    st.session_state.route_details = plan["route_details"]
-    st.session_state.engine_summary = plan["engine_summary"]
-    st.session_state.engine_status = plan["engine_status"]
-    st.session_state.report_text = generate_report(
-        st.session_state.scenario,
-        st.session_state.zone_scores,
-        st.session_state.assignments,
-        st.session_state.routes,
-        st.session_state.route_details,
-    )
-    st.session_state.report_source = "模板 fallback"
-    st.session_state.status_message = _status_with_engine(status_message)
-    _sync_current_scenario_export()
-
-
-def _ensure_full_plan() -> None:
-    if (
-        not st.session_state.zone_scores
-        or not st.session_state.assignments
-        or not st.session_state.routes
-    ):
-        _replan_current_scenario("已补全当前救援方案。")
-
-
-def _compute_plan_with_selected_engine(scenario: dict[str, Any]) -> dict[str, Any]:
-    if st.session_state.get("algorithm_engine") == ENGINE_A_ADAPTER:
-        try:
-            result = run_a_engine_on_grid(scenario)
-            return {
-                "zone_scores": result["zone_scores"],
-                "assignments": result["assignments"],
-                "routes": result["routes"],
-                "route_details": result["route_details"],
-                "engine_summary": result["engine_summary"],
-                "engine_status": (
-                    "A 同学算法适配已启用：B 端区块地图已转换为图结构，"
-                    "并调用 A 的贝叶斯推理、期望效用分配和风险感知 A*。"
-                ),
-            }
-        except AEngineUnavailable as exc:
-            fallback = _compute_demo_plan(scenario)
-            fallback["engine_status"] = (
-                f"A 同学算法适配失败，已回退 B 演示引擎：{exc}"
-            )
-            fallback["engine_summary"] = {
-                "engine": ENGINE_DEMO,
-                "warning": str(exc),
-            }
-            return fallback
-
-    return _compute_demo_plan(scenario)
-
-
-def _compute_demo_plan(scenario: dict[str, Any]) -> dict[str, Any]:
-    zone_scores = compute_zone_scores(scenario)
-    assignments = assign_tasks(scenario, zone_scores)
-    routes = plan_routes(scenario, assignments)
-    route_details = {
-        unit: {
-            "engine": ENGINE_DEMO,
-            "total_cost": calculate_route_cost(scenario, unit, route),
-            "route_layer": "ground" if scenario["units"][unit]["type"] == "car" else "air",
-        }
-        for unit, route in routes.items()
-    }
-    return {
-        "zone_scores": zone_scores,
-        "assignments": assignments,
-        "routes": routes,
-        "route_details": route_details,
-        "engine_summary": {
-            "engine": ENGINE_DEMO,
-            "note": "B 端内置临时逻辑，用于稳定演示闭环。",
-        },
-        "engine_status": "当前使用 B 演示引擎。",
-    }
-
-
-def _status_with_engine(status_message: str) -> str:
-    engine_status = st.session_state.get("engine_status", "")
-    if not engine_status:
-        return status_message
-    return f"{status_message}（{engine_status}）"
-
-
-def _capture_previous_plan_snapshot(label: str) -> None:
-    _ensure_full_plan()
-    st.session_state.previous_scenario = copy.deepcopy(st.session_state.scenario)
-    st.session_state.previous_zone_scores = copy.deepcopy(st.session_state.zone_scores)
-    st.session_state.previous_assignments = copy.deepcopy(st.session_state.assignments)
-    st.session_state.previous_routes = copy.deepcopy(st.session_state.routes)
-    st.session_state.previous_route_details = copy.deepcopy(st.session_state.route_details)
-    st.session_state.previous_snapshot_label = label
-
-
-def _clear_previous_plan_snapshot() -> None:
-    st.session_state.previous_scenario = {}
-    st.session_state.previous_zone_scores = {}
-    st.session_state.previous_assignments = {}
-    st.session_state.previous_routes = {}
-    st.session_state.previous_route_details = {}
-    st.session_state.previous_snapshot_label = ""
-
-
-def _current_api_key() -> str:
-    return st.session_state.get("qwen_api_key", "") or os.getenv("DASHSCOPE_API_KEY", "")
-
-
-def _current_text_model_config() -> dict[str, str | None]:
-    if st.session_state.get("qwen_text_backend") == "本地 Qwen 7B":
-        return {
-            "backend": "本地 Qwen 7B",
-            "api_key": st.session_state.get("local_qwen_api_key", ""),
-            "model": st.session_state.get("local_qwen_model", "").strip()
-            or "qwen2.5-7b-instruct",
-            "endpoint": st.session_state.get("local_qwen_endpoint", "").strip(),
-        }
-    return {
-        "backend": "千问 API",
-        "api_key": _current_api_key(),
-        "model": st.session_state.get("qwen_text_model", "qwen-max"),
-        "endpoint": None,
-    }
-
-
-def _text_model_ready(config: dict[str, str | None]) -> bool:
-    if config["backend"] == "本地 Qwen 7B":
-        return bool(config.get("endpoint"))
-    return bool(config.get("api_key"))
-
-
-def _qwen_image_mode_value() -> str:
-    if st.session_state.qwen_image_mode == "实验功能：真实图片抽象为24×24网格":
-        return "photo_to_grid"
-    return "schematic"
-
-
-def _image_mode_index(mode: str) -> int:
-    options = ["标准网格图识别", "实验功能：真实图片抽象为24×24网格"]
-    return options.index(mode) if mode in options else 0
-
-
-def _option_index(options: list[str], value: str) -> int:
-    return options.index(value) if value in options else 0
-
-
-def _parse_random_seed(value: Any) -> int | str | None:
-    seed_text = str(value).strip()
-    if not seed_text:
-        return None
-    try:
-        return int(seed_text)
-    except ValueError:
-        return seed_text
-
-
-def _get_image_payload() -> tuple[bytes, str, str]:
-    if st.session_state.uploaded_image_bytes is not None:
-        return (
-            st.session_state.uploaded_image_bytes,
-            st.session_state.uploaded_image_mime,
-            st.session_state.uploaded_image_name or "上传图片",
-        )
-    if not DEFAULT_IMAGE_PATH.exists():
-        raise FileNotFoundError("没有上传图片，也找不到内置灾区网格图。")
-    return DEFAULT_IMAGE_PATH.read_bytes(), "image/png", "内置灾区网格图"
-
-
-def _current_scenario_json_text() -> str:
-    return json.dumps(st.session_state.scenario, ensure_ascii=False, indent=2)
-
-
-def _current_scenario_export_name() -> str:
-    source = _safe_filename_part(st.session_state.get("scenario_source", "scenario"))
-    seed = str(st.session_state.get("scenario_seed", "")).strip()
-    seed_part = f"_seed_{_safe_filename_part(seed)}" if seed and seed != "-" else ""
-    return f"scenario_{source}{seed_part}.json"
-
-
-def _safe_filename_part(value: str) -> str:
-    cleaned = "".join(
-        char if char.isascii() and (char.isalnum() or char in ("-", "_")) else "_"
-        for char in value.strip()
-    ).strip("_")
-    return cleaned or "current"
-
-
-def _sync_current_scenario_export() -> None:
-    try:
-        EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-        CURRENT_SCENARIO_EXPORT_PATH.write_text(
-            _current_scenario_json_text(),
-            encoding="utf-8",
-        )
-    except OSError as exc:
-        st.session_state.scenario_export_error = f"自动保存 JSON 失败：{exc}"
-        return
-
-    st.session_state.scenario_export_path = str(CURRENT_SCENARIO_EXPORT_PATH)
-    st.session_state.scenario_export_error = ""
-
-
-def _render_current_scenario_preview() -> None:
-    with st.expander("当前场景 JSON 预览（临时算法输入）", expanded=False):
-        st.caption("当前预览保持 data/scenario.json 的结构；后续可按组员要求改成新的算法输入 schema。")
-        st.code(_current_scenario_json_text(), language="json")
-
-
-def _render_last_update_summary() -> None:
-    summary = st.session_state.get("last_update_summary", "")
-    if not summary:
-        return
-    st.success(f"本次变更：{summary}")
-
-
-def _render_summary_metrics() -> None:
-    map_data = st.session_state.scenario["map"]
-    leader = "-"
-    if st.session_state.zone_scores:
-        leader_name, leader_scores = max(
-            st.session_state.zone_scores.items(),
-            key=lambda item: item[1]["priority"],
-        )
-        leader = f"{leader_name}区 / {leader_scores['priority']:.1f}"
-
-    cols = st.columns(7)
-    cols[0].metric("场景来源", st.session_state.scenario_source)
-    cols[1].metric("seed", st.session_state.scenario_seed)
-    cols[2].metric("算法引擎", st.session_state.get("algorithm_engine", ENGINE_DEMO))
-    cols[3].metric("最高优先级", leader)
-    cols[4].metric("断路格", len(map_data.get("blocked", [])))
-    cols[5].metric("火灾格", len(map_data.get("fire", [])))
-    cols[6].metric("塌方风险格", len(map_data.get("collapse_cells", [])))
-
-
-def _render_scores(zone_scores: dict[str, dict[str, float]]) -> None:
-    if not zone_scores:
-        st.warning("尚未执行智能推理。")
-        return
-
-    rows = []
-    for zone, scores in zone_scores.items():
-        rows.append(
-            {
-                "区域": f"{zone}区",
-                "被困概率": scores["trapped_probability"],
-                "道路可通行概率": scores["road_accessibility"],
-                "生命风险": scores["life_risk"],
-                "紧迫度": scores["urgency"],
-                "优先级": scores["priority"],
-            }
-        )
-    df = pd.DataFrame(rows).sort_values("优先级", ascending=False)
-    st.dataframe(df, hide_index=True, use_container_width=True)
-
-
-def _render_assignments(
-    assignments: dict[str, str],
-    routes: dict[str, list[list[int]]],
-    scenario: dict[str, Any] | None = None,
-    route_details: dict[str, dict[str, Any]] | None = None,
-) -> None:
-    if not assignments:
-        st.warning("尚未规划救援路线。")
-        return
-
-    rows = []
-    for unit, zone in assignments.items():
-        route = routes.get(unit, [])
-        row = {
-            "救援单位": unit,
-            "任务": _display_assignment_task(unit, zone),
-            "路线长度": max(len(route) - 1, 0),
-        }
-        if scenario:
-            row["路线代价"] = _route_cost_for_display(
-                scenario,
-                unit,
-                route,
-                route_details,
-            )
-            detail = (route_details or {}).get(unit, {})
-            if detail.get("path_risk") is not None:
-                row["路径风险"] = detail["path_risk"]
-            if detail.get("expected_utility") is not None:
-                row["期望效用"] = detail["expected_utility"]
-        rows.append(row)
-    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
-
-
-def _render_previous_plan_snapshot() -> None:
-    st.subheader("重规划前快照")
-    if not st.session_state.previous_zone_scores:
-        st.caption("暂无重规划前数据。执行灾情更新或模拟塌方后，这里会保留更新前的优先级和任务分配。")
-        return
-
-    label = st.session_state.previous_snapshot_label or "重规划前"
-    st.markdown("**重规划前后对比**")
-    _render_replan_comparison()
-    with st.expander(label, expanded=True):
-        st.markdown("**重规划前优先级**")
-        _render_scores(st.session_state.previous_zone_scores)
-        st.markdown("**重规划前任务分配**")
-        _render_assignments(
-            st.session_state.previous_assignments,
-            st.session_state.previous_routes,
-            st.session_state.previous_scenario,
-            st.session_state.previous_route_details,
-        )
-
-
-def _render_replan_comparison() -> None:
-    previous_scores = st.session_state.previous_zone_scores
-    current_scores = st.session_state.zone_scores
-    if not previous_scores or not current_scores:
-        return
-
-    score_rows = []
-    for zone in sorted(set(previous_scores) | set(current_scores)):
-        before = previous_scores.get(zone, {})
-        after = current_scores.get(zone, {})
-        before_priority = before.get("priority", 0.0)
-        after_priority = after.get("priority", 0.0)
-        score_rows.append(
-            {
-                "区域": f"{zone}区",
-                "优先级(前)": before_priority,
-                "优先级(后)": after_priority,
-                "变化": round(after_priority - before_priority, 1),
-                "生命风险(前)": before.get("life_risk", 0.0),
-                "生命风险(后)": after.get("life_risk", 0.0),
-            }
-        )
-    st.dataframe(pd.DataFrame(score_rows), hide_index=True, use_container_width=True)
-
-    route_rows = []
-    units = sorted(
-        set(st.session_state.previous_assignments)
-        | set(st.session_state.assignments)
-    )
-    for unit in units:
-        before_route = st.session_state.previous_routes.get(unit, [])
-        after_route = st.session_state.routes.get(unit, [])
-        route_rows.append(
-            {
-                "单位": unit,
-                "任务(前)": _display_assignment_task(
-                    unit,
-                    st.session_state.previous_assignments.get(unit, "-"),
-                ),
-                "任务(后)": _display_assignment_task(
-                    unit,
-                    st.session_state.assignments.get(unit, "-"),
-                ),
-                "长度(前)": max(len(before_route) - 1, 0),
-                "长度(后)": max(len(after_route) - 1, 0),
-                "代价(前)": _route_cost_for_display(
-                    st.session_state.previous_scenario,
-                    unit,
-                    before_route,
-                    st.session_state.previous_route_details,
-                )
-                if before_route
-                else 0.0,
-                "代价(后)": _route_cost_for_display(
-                    st.session_state.scenario,
-                    unit,
-                    after_route,
-                    st.session_state.route_details,
-                )
-                if after_route
-                else 0.0,
-            }
-        )
-    st.dataframe(pd.DataFrame(route_rows), hide_index=True, use_container_width=True)
-
-
-def _render_route_summary(
-    assignments: dict[str, str],
-    routes: dict[str, list[list[int]]],
-) -> None:
-    st.subheader("路线摘要")
-    if not routes:
-        st.warning("尚未生成路线。")
-        return
-
-    rows = []
-    for unit, route in routes.items():
-        target = assignments.get(unit, "-")
-        rows.append(
-            {
-                "单位": unit,
-                "任务": _display_assignment_task(unit, target),
-                "起点": _format_point(route[0]) if route else "-",
-                "终点": _format_point(route[-1]) if route else "-",
-                "长度": max(len(route) - 1, 0),
-                "路线代价": _route_cost_for_display(
-                    st.session_state.scenario,
-                    unit,
-                    route,
-                    st.session_state.route_details,
-                ),
-                "路径风险": st.session_state.route_details.get(unit, {}).get("path_risk", "-"),
-                "ETA": st.session_state.route_details.get(unit, {}).get("eta", "-"),
-            }
-        )
-    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
-    _render_algorithm_engine_panel()
-
-
-def _route_cost_for_display(
-    scenario: dict[str, Any],
-    unit: str,
-    route: list[list[int]],
-    route_details: dict[str, dict[str, Any]] | None = None,
-) -> float:
-    detail = (route_details or {}).get(unit, {})
-    if isinstance(detail.get("total_cost"), (int, float)):
-        return round(float(detail["total_cost"]), 2)
-    return calculate_route_cost(scenario, unit, route)
-
-
-def _render_algorithm_engine_panel() -> None:
-    summary = st.session_state.get("engine_summary", {})
-    route_details = st.session_state.get("route_details", {})
-    with st.expander("算法引擎与适配说明", expanded=False):
-        st.caption(st.session_state.get("engine_status", ""))
-        if summary:
-            summary_rows = [
-                {"项目": key, "值": value}
-                for key, value in summary.items()
-                if key != "note"
-            ]
-            if summary_rows:
-                st.dataframe(
-                    pd.DataFrame(summary_rows),
-                    hide_index=True,
-                    use_container_width=True,
-                    height=220,
-                )
-            if summary.get("note"):
-                st.info(str(summary["note"]))
-
-        if route_details:
-            rows = []
-            for unit, detail in route_details.items():
-                rows.append(
-                    {
-                        "单位": unit,
-                        "算法": detail.get("engine", "-"),
-                        "图层": detail.get("route_layer", "-"),
-                        "总代价": detail.get("total_cost", "-"),
-                        "路径风险": detail.get("path_risk", "-"),
-                        "ETA": detail.get("eta", "-"),
-                        "A*扩展节点": detail.get("expanded_nodes", "-"),
-                        "期望效用": detail.get("expected_utility", "-"),
-                    }
-                )
-            st.dataframe(
-                pd.DataFrame(rows),
-                hide_index=True,
-                use_container_width=True,
-                height=190,
-            )
-
-
-def _render_map_tile_legend() -> None:
+notice = st.session_state.pop("event_notice", None)
+if notice:
+    st.toast(notice)
+
+if session is None:
     st.markdown(
-        """
-        <div class="map-legend-panel">
-          <div class="legend-title">地图区块说明</div>
-          <div class="tile-legend-grid">
-        """
-        + "\n".join(
-            _tile_legend_item_html(category)
-            for category in (0, 1, 2, 7, 8, 3, 4, 5, 6)
-        )
-        + """
-          </div>
-          <div class="cost-rule">
-            <b>地面代价：</b>救援车道路=1.0，草地/空地/绿地=1.8；拥堵 +3.5，火灾 +5.0，塌方风险 +4.0；建筑、水域、断路对救援车不可通行。<br>
-            <b>空中代价：</b>无人机使用 8 邻接空中格网，直飞单格=1.0、斜飞约=1.41；可飞越建筑/水域/断路，障碍 +0.3，拥堵 +0.35，塌方 +1.1，火灾 +2.4。
-          </div>
-          <div class="legend-title legend-title-spaced">标记与路线</div>
-          <div class="marker-legend-grid">
-            <span><b class="marker-dot" style="background:#2f4858">S</b> 救援中心/出发点</span>
-            <span><b class="marker-dot" style="background:#6a4c93">H</b> 医院/安全点</span>
-            <span><b class="marker-dot" style="background:#c1121f">A</b> A/B/C 灾情目标区</span>
-            <span><b class="line-sample" style="background:#d62728"></b> RescueCar-1 路线</span>
-            <span><b class="line-sample" style="background:#1f77b4"></b> RescueCar-2 路线</span>
-            <span><b class="line-sample" style="background:#2ca02c"></b> Drone-1 空中侦查路线</span>
-          </div>
-        </div>
-        """,
+        "<div class='phase-chip' style='margin-top:8px'><small>COMMAND CONSOLE READY</small>"
+        "<b>等待生成复杂救援地图</b><span>系统将创建 6 个灾区、18 个城区路口、40 条地面道路和 5 个异构单位。</span></div>",
         unsafe_allow_html=True,
     )
-
-
-def _tile_legend_item_html(category: int) -> str:
-    meta = TILE_CATEGORY_META[category]
-    return (
-        '<div class="tile-legend-item">'
-        f'<span class="tile-swatch" style="background:{meta["color"]}"></span>'
-        f'<span class="tile-copy"><b>{meta["name"]}</b><small>{meta["description"]}</small></span>'
-        "</div>"
-    )
-
-
-def _render_debug_outputs() -> None:
-    if st.session_state.qwen_update_json:
-        with st.expander("Qwen 自然语言更新 JSON", expanded=False):
-            st.code(
-                json.dumps(st.session_state.qwen_update_json, ensure_ascii=False, indent=2),
-                language="json",
-            )
-            if st.session_state.qwen_update_raw_text:
-                st.text_area(
-                    "原始解析输出",
-                    value=st.session_state.qwen_update_raw_text,
-                    height=160,
-                    disabled=True,
-                )
-
-    if st.session_state.qwen_raw_json:
-        with st.expander("Qwen-VL 图片识别 JSON", expanded=False):
-            st.code(
-                json.dumps(st.session_state.qwen_raw_json, ensure_ascii=False, indent=2),
-                language="json",
-            )
-            if st.session_state.qwen_raw_text:
-                st.text_area(
-                    "原始模型输出",
-                    value=st.session_state.qwen_raw_text,
-                    height=180,
-                    disabled=True,
-                )
-
-
-def _build_map_figure(
-    scenario: dict[str, Any],
-    routes: dict[str, list[list[int]]],
-    assignments: dict[str, str],
-) -> go.Figure:
-    map_data = scenario["map"]
-    width = map_data["width"]
-    height = map_data["height"]
-    grid = [[0 for _ in range(width)] for _ in range(height)]
-
-    for x, y in map_data.get("park", []):
-        grid[y][x] = 8
-    for x, y in map_data.get("water", []):
-        grid[y][x] = 7
-    for x, y in map_data.get("buildings", []):
-        grid[y][x] = 2
-    for x, y in map_data.get("roads", []):
-        grid[y][x] = 1
-    for x, y in map_data.get("congestion", []):
-        grid[y][x] = 3
-    for x, y in map_data.get("fire", []):
-        grid[y][x] = 4
-    for x, y in map_data.get("blocked", []):
-        grid[y][x] = 5
-    for x, y in map_data.get("collapse_cells", []):
-        grid[y][x] = 6
-
-    visual_grid, visual_x, visual_y, hover_cells = _build_visual_grid(grid, MAP_RENDER_SCALE)
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Heatmap(
-            z=visual_grid,
-            x=visual_x,
-            y=visual_y,
-            customdata=hover_cells,
-            colorscale=_discrete_colorscale(PIXEL_TILE_COLORS),
-            zmin=0,
-            zmax=len(PIXEL_TILE_COLORS) - 1,
-            showscale=False,
-            xgap=0,
-            ygap=0,
-            hovertemplate=(
-                "坐标=(%{customdata[0]}, %{customdata[1]})"
-                "<br>区块=%{customdata[2]}"
-                "<br>%{customdata[3]}"
-                "<extra></extra>"
-            ),
+    empty_left, empty_events, empty_detail = st.columns([5.7, 1.15, 3.15])
+    with empty_left:
+        st.markdown(
+            "<div style='height:610px;border:1px solid #39444b;background:radial-gradient(circle at 50% 45%,#283139,#171d22);"
+            "display:flex;align-items:center;justify-content:center;color:#647078;font-size:.75rem;letter-spacing:.12em'>"
+            "MAP ARRAY STANDBY</div>",
+            unsafe_allow_html=True,
         )
-    )
-
-    for unit, path in routes.items():
-        if not path:
-            continue
-        xs = [point[0] for point in path]
-        ys = [point[1] for point in path]
-        route_length = max(len(path) - 1, 0)
-        route_cost = _route_cost_for_display(
-            scenario,
-            unit,
-            path,
-            st.session_state.route_details,
+    with empty_events:
+        _render_event_dock(None)
+    with empty_detail:
+        with st.container(height=610, border=True):
+            st.markdown("#### 计算证据链")
+            st.caption("生成地图后，每一步由演示者手动触发。")
+else:
+    snapshot = _current_snapshot(session)
+    focus = record.get("focus", {}) if record else {}
+    map_column, event_column, inspector_column = st.columns([5.7, 1.15, 3.15])
+    with map_column:
+        st.markdown(
+            f"<div class='map-caption'><b>TACTICAL NETWORK / {len(session.scenario['nodes'])} NODES · "
+            f"{len(session.scenario['roads'])} ROADS</b><span>SELECTED CALCULATION HIGHLIGHTED</span></div>",
+            unsafe_allow_html=True,
         )
-        fig.add_trace(
-            go.Scatter(
-                x=xs,
-                y=ys,
-                mode="lines+markers",
-                name=_display_route_label(unit, assignments.get(unit, "-")),
-                customdata=[[route_length, route_cost] for _ in path],
-                line={
-                    "color": ROUTE_COLORS.get(unit, "#555555"),
-                    "width": 2.8,
-                },
-                marker={
-                    "size": 5.5,
-                    "color": ROUTE_COLORS.get(unit, "#555555"),
-                    "line": {"width": 1.2, "color": "white"},
-                },
-                hovertemplate=(
-                    f"{_display_route_label(unit, assignments.get(unit, '-'))}"
-                    "<br>路线节点=(%{x}, %{y})"
-                    "<br>路线长度=%{customdata[0]} 格"
-                    "<br>路线代价=%{customdata[1]}"
-                    "<extra></extra>"
-                ),
-            )
+        st.plotly_chart(
+            build_map_figure(session.scenario, snapshot, focus=focus),
+            width="stretch",
+            key=f"command_map_{session.step_count}_{len(session.event_log)}_{st.session_state.get('history_index', -1)}",
+            config={"displayModeBar": False, "scrollZoom": True},
         )
-
-    _add_marker(fig, map_data["base"], "救援中心", "#2f4858", "S")
-    _add_marker(fig, map_data["hospital"], "医院", "#6a4c93", "H")
-    for zone, target in map_data["targets"].items():
-        _add_marker(fig, target, f"{zone}区", "#c1121f", zone)
-
-    unit_offsets = {
-        "RescueCar-1": (-0.18, -0.18),
-        "RescueCar-2": (0.18, -0.18),
-        "Drone-1": (0.18, 0.18),
-    }
-    unit_labels = {
-        "RescueCar-1": "R1",
-        "RescueCar-2": "R2",
-        "Drone-1": "D",
-    }
-    for unit, detail in scenario["units"].items():
-        point = _offset_point(detail["start"], unit_offsets.get(unit, (0.0, 0.0)))
-        _add_marker(
-            fig,
-            point,
-            unit,
-            ROUTE_COLORS.get(unit, "#333333"),
-            unit_labels.get(unit, unit[:2]),
-            size=26,
-        )
-
-    fig.update_layout(
-        height=820,
-        margin={"l": 12, "r": 12, "t": 16, "b": 12},
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        legend={
-            "orientation": "h",
-            "yanchor": "bottom",
-            "y": 1.01,
-            "x": 0,
-            "font": {"size": 12},
-        },
-        xaxis={
-            "range": [-0.5, width - 0.5],
-            "dtick": 1,
-            "showgrid": True,
-            "gridcolor": "rgba(50, 60, 70, 0.28)",
-            "gridwidth": 1,
-            "zeroline": False,
-            "title": "",
-            "showline": True,
-            "linecolor": "#b9c3d0",
-            "mirror": True,
-        },
-        yaxis={
-            "range": [-0.5, height - 0.5],
-            "dtick": 1,
-            "showgrid": True,
-            "gridcolor": "rgba(50, 60, 70, 0.28)",
-            "gridwidth": 1,
-            "zeroline": False,
-            "title": "",
-            "scaleanchor": "x",
-            "showline": True,
-            "linecolor": "#b9c3d0",
-            "mirror": True,
-        },
-    )
-    return fig
-
-
-def _build_visual_grid(
-    grid: list[list[int]], scale: int
-) -> tuple[list[list[int]], list[float], list[float], list[list[list[Any]]]]:
-    height = len(grid)
-    width = len(grid[0]) if height else 0
-    visual_grid: list[list[int]] = []
-    hover_cells: list[list[list[Any]]] = []
-
-    for y, row in enumerate(grid):
-        for sy in range(scale):
-            visual_row: list[int] = []
-            hover_row: list[list[Any]] = []
-            for x, value in enumerate(row):
-                meta = TILE_CATEGORY_META.get(value, TILE_CATEGORY_META[0])
-                for sx in range(scale):
-                    visual_row.append(_textured_tile_code(value, x, y, sx, sy))
-                    hover_row.append([x, y, meta["name"], meta["description"]])
-            visual_grid.append(visual_row)
-            hover_cells.append(hover_row)
-
-    visual_x = [-0.5 + (index + 0.5) / scale for index in range(width * scale)]
-    visual_y = [-0.5 + (index + 0.5) / scale for index in range(height * scale)]
-    return visual_grid, visual_x, visual_y, hover_cells
-
-
-def _routes_cross_forbidden_cells(
-    scenario: dict[str, Any],
-    routes: dict[str, list[list[int]]],
-) -> bool:
-    if not routes:
-        return False
-    map_data = scenario.get("map", {})
-    forbidden = {
-        tuple(cell)
-        for key in ("blocked", "buildings", "water")
-        for cell in map_data.get(key, [])
-    }
-    for unit, path in routes.items():
-        if unit == "Drone-1":
-            continue
-        if any(tuple(point) in forbidden for point in path):
-            return True
-    return False
-
-
-def _textured_tile_code(category: int, x: int, y: int, sx: int, sy: int) -> int:
-    variants = TILE_VARIANTS.get(category, TILE_VARIANTS[0])
-    index = (x * 17 + y * 31 + sx * 7 + sy * 11) % len(variants)
-    return variants[index]
-
-
-def _discrete_colorscale(colors: list[str]) -> list[list[float | str]]:
-    max_index = len(colors) - 1
-    if max_index <= 0:
-        return [[0.0, colors[0]], [1.0, colors[0]]]
-
-    scale: list[list[float | str]] = []
-    for index, color in enumerate(colors):
-        left = max(0.0, (index - 0.5) / max_index)
-        right = min(1.0, (index + 0.5) / max_index)
-        scale.append([left, color])
-        scale.append([right, color])
-    return scale
-
-
-def _add_marker(
-    fig: go.Figure,
-    point: list[float],
-    name: str,
-    color: str,
-    label: str,
-    size: int = 30,
-) -> None:
-    fig.add_trace(
-        go.Scatter(
-            x=[point[0]],
-            y=[point[1]],
-            mode="markers+text",
-            name=name,
-            text=[label],
-            textposition="middle center",
-            marker={
-                "size": size,
-                "color": color,
-                "line": {"width": 2.5, "color": "white"},
-            },
-            textfont={"color": "white", "size": 14},
-            hovertemplate=f"{name}<br>x=%{{x}}, y=%{{y}}<extra></extra>",
-        )
-    )
-
-
-def _fallback_update_json_from_text(
-    text: str,
-    scenario: dict[str, Any],
-) -> dict[str, Any]:
-    targets = _targets_from_text(text)
-    target_updates: list[dict[str, Any]] = []
-    cell_updates: list[dict[str, Any]] = []
-
-    for target in targets:
-        fields: dict[str, float] = {}
-
-        if _zone_has_fire_update(text, target):
-            fire_level = 0.98 if _zone_has_intensified_fire(text, target) else 0.9
-            fields.update({"fire": fire_level, "smoke": 0.9, "urgency": 0.9})
-            cell_updates.append(
-                {
-                    "type": "add_fire_cells",
-                    "cells": _nearby_cells(scenario, target, count=2),
-                }
+    with event_column:
+        _render_event_dock(session)
+    with inspector_column:
+        nav_prev, nav_label, nav_next = st.columns([1, 1.4, 1])
+        with nav_prev:
+            st.button(
+                "上一条",
+                key="history_previous",
+                on_click=move_history,
+                args=(-1,),
+                disabled=not session.calculation_history
+                or st.session_state.get("history_index", 0) <= 0,
+                width="stretch",
             )
-
-        if any(word in text for word in ("SOS", "求救", "被困", "生命体征")):
-            fields.update({"sos_signal": 0.95, "human_activity": 0.75, "urgency": 0.9})
-
-        if any(word in text for word in ("拥堵", "堵塞", "车流")):
-            fields.update({"congestion": 0.85})
-            cell_updates.append(
-                {
-                    "type": "add_congestion_cells",
-                    "cells": _nearby_cells(scenario, target, count=2),
-                }
+        with nav_label:
+            st.markdown(
+                f"<div style='text-align:center;color:#7f8b92;font-size:.58rem;padding-top:10px'>"
+                f"STEP {session.step_count} · EVENT {len(session.event_log)}</div>",
+                unsafe_allow_html=True,
             )
-
-        if any(word in text for word in ("道路可以通行", "道路恢复", "可通行", "打通")):
-            fields.update({"road_damage": 0.25})
-            blocked_cell = _nearest_existing_cell(scenario, "blocked", target)
-            collapse_cell = _nearest_existing_cell(scenario, "collapse_cells", target)
-            if blocked_cell:
-                cell_updates.append({"type": "remove_blocked_cells", "cells": [blocked_cell]})
-            if collapse_cell:
-                cell_updates.append({"type": "remove_collapse_cells", "cells": [collapse_cell]})
-
-        if any(word in text for word in ("塌方", "断裂", "断路", "新增障碍")):
-            fields.update({"road_damage": 0.85, "building_collapse": 0.85})
-            cell_updates.append(
-                {
-                    "type": "add_collapse_cells",
-                    "cells": _nearby_cells(scenario, target, count=2),
-                }
+        with nav_next:
+            st.button(
+                "下一条",
+                key="history_next",
+                on_click=move_history,
+                args=(1,),
+                disabled=not session.calculation_history
+                or st.session_state.get("history_index", -1)
+                >= len(session.calculation_history) - 1,
+                width="stretch",
             )
-
-        if fields:
-            target_updates.append({"type": "target_update", "target": target, "fields": fields})
-
-    return {"updates": target_updates + cell_updates}
-
-
-def _repair_update_json_with_local_hints(
-    update_json: dict[str, Any],
-    text: str,
-    scenario: dict[str, Any],
-) -> tuple[dict[str, Any], bool]:
-    local_json = _fallback_update_json_from_text(text, scenario)
-    if not local_json.get("updates"):
-        return update_json, False
-
-    before = json.dumps(update_json, ensure_ascii=False, sort_keys=True)
-    repaired = json.loads(json.dumps(update_json, ensure_ascii=False))
-    repaired.setdefault("updates", [])
-
-    existing_target_updates: dict[str, dict[str, Any]] = {}
-    for update in repaired["updates"]:
-        if isinstance(update, dict) and update.get("type") == "target_update":
-            target = update.get("target")
-            if target in ("A", "B", "C"):
-                update.setdefault("fields", {})
-                existing_target_updates[target] = update
-
-    existing_cell_updates = {
-        (
-            update.get("type"),
-            tuple(tuple(cell) for cell in update.get("cells", []))
-            if isinstance(update.get("cells"), list)
-            else (),
-        )
-        for update in repaired["updates"]
-        if isinstance(update, dict) and update.get("type") != "target_update"
-    }
-
-    for local_update in local_json.get("updates", []):
-        if not isinstance(local_update, dict):
-            continue
-        if local_update.get("type") == "target_update":
-            target = local_update.get("target")
-            fields = local_update.get("fields", {})
-            if target not in ("A", "B", "C") or not isinstance(fields, dict):
-                continue
-            target_update = existing_target_updates.get(target)
-            if target_update is None:
-                target_update = {"type": "target_update", "target": target, "fields": {}}
-                repaired["updates"].append(target_update)
-                existing_target_updates[target] = target_update
-            for key, value in fields.items():
-                if isinstance(value, (int, float)):
-                    current = target_update["fields"].get(key)
-                    if not isinstance(current, (int, float)) or value > current:
-                        target_update["fields"][key] = value
-        else:
-            cells = local_update.get("cells", [])
-            signature = (
-                local_update.get("type"),
-                tuple(tuple(cell) for cell in cells) if isinstance(cells, list) else (),
-            )
-            if signature not in existing_cell_updates:
-                repaired["updates"].append(local_update)
-                existing_cell_updates.add(signature)
-
-    after = json.dumps(repaired, ensure_ascii=False, sort_keys=True)
-    return repaired, before != after
-
-
-def _targets_from_text(text: str) -> list[str]:
-    targets = [
-        zone
-        for zone in ("A", "B", "C")
-        if f"{zone}区" in text or f"{zone} 区" in text
-    ]
-    if targets:
-        return targets
-    if any(word in text for word in ("火势", "火灾", "浓烟")):
-        return ["C"]
-    return ["A"]
-
-
-def _zone_has_fire_update(text: str, target: str) -> bool:
-    if not any(word in text for word in ("火势", "起火", "火灾", "烟雾", "浓烟")):
-        return False
-    if f"{target}区" in text or f"{target} 区" in text:
-        return True
-    return len(_targets_from_text(text)) == 1
-
-
-def _zone_has_intensified_fire(text: str, target: str) -> bool:
-    zone_forms = (f"{target}区", f"{target} 区")
-    intensity_words = ("扩大", "加剧", "蔓延", "严重")
-    for zone_form in zone_forms:
-        zone_index = text.find(zone_form)
-        if zone_index == -1:
-            continue
-        segment_end = len(text)
-        for other_zone in ("A", "B", "C"):
-            if other_zone == target:
-                continue
-            for other_form in (f"{other_zone}区", f"{other_zone} 区"):
-                other_index = text.find(other_form, zone_index + len(zone_form))
-                if other_index != -1:
-                    segment_end = min(segment_end, other_index)
-        segment = text[zone_index:segment_end]
-        if any(word in segment for word in intensity_words):
-            return True
-        for word in intensity_words:
-            word_index = text.find(word, zone_index + len(zone_form))
-            if word_index == -1:
-                continue
-            between = text[zone_index:word_index]
-            if not any(mark in between for mark in "，,。；;！!？?\n"):
-                return True
-    return False
-
-
-def _nearby_cells(scenario: dict[str, Any], target: str, count: int) -> list[list[int]]:
-    map_data = scenario["map"]
-    width = int(map_data.get("width", 24))
-    height = int(map_data.get("height", 24))
-    x, y = map_data.get("targets", {}).get(target, [5, 5])
-    reserved = {
-        tuple(map_data.get("base", [0, 0])),
-        tuple(map_data.get("hospital", [9, 9])),
-        *(tuple(point) for point in map_data.get("targets", {}).values()),
-    }
-    candidates = [
-        (x, y + 1),
-        (x + 1, y),
-        (x - 1, y),
-        (x, y - 1),
-        (x + 1, y + 1),
-        (x - 1, y + 1),
-    ]
-    cells: list[list[int]] = []
-    for cx, cy in candidates:
-        if 0 <= cx < width and 0 <= cy < height and (cx, cy) not in reserved:
-            cells.append([cx, cy])
-        if len(cells) >= count:
-            break
-    return cells
-
-
-def _nearest_existing_cell(
-    scenario: dict[str, Any],
-    field: str,
-    target: str,
-) -> list[int]:
-    map_data = scenario["map"]
-    cells = map_data.get(field, [])
-    if not cells:
-        return []
-    target_point = map_data.get("targets", {}).get(target, [5, 5])
-    nearest = min(
-        cells,
-        key=lambda cell: abs(cell[0] - target_point[0]) + abs(cell[1] - target_point[1]),
-    )
-    return [int(nearest[0]), int(nearest[1])]
-
-
-def _offset_point(point: list[int], offset: tuple[float, float]) -> list[float]:
-    return [point[0] + offset[0], point[1] + offset[1]]
-
-
-def _format_point(point: list[int]) -> str:
-    return f"({point[0]}, {point[1]})"
-
-
-def _display_assignment_task(unit: str, zone: str) -> str:
-    if unit == "Drone-1":
-        return "无人机侦查"
-    return f"{zone}区救援"
-
-
-def _display_route_label(unit: str, zone: str) -> str:
-    if unit == "Drone-1":
-        return "Drone-1 -> 无人机侦查"
-    return f"{unit} -> {zone}区"
-
-
-def _inject_styles() -> None:
-    st.markdown(
-        """
-        <style>
-        .block-container {
-            padding-top: 1.4rem;
-            padding-bottom: 2rem;
-        }
-        div[data-testid="stMetricValue"] {
-            font-size: 1.25rem;
-        }
-        textarea {
-            font-family: "Microsoft YaHei", "Segoe UI", sans-serif !important;
-            line-height: 1.7 !important;
-        }
-        .map-legend-panel {
-            border: 1px solid #d8dee8;
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 12px 14px 14px;
-            margin: -0.4rem 0 1rem;
-        }
-        .legend-title {
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        .legend-title-spaced {
-            margin-top: 12px;
-        }
-        .cost-rule {
-            margin-top: 10px;
-            padding: 8px 10px;
-            border-radius: 6px;
-            background: #f8fafc;
-            color: #344054;
-            border: 1px solid #e4e7ec;
-            font-size: 0.9rem;
-            line-height: 1.45;
-        }
-        .tile-legend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-            gap: 8px 12px;
-        }
-        .tile-legend-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            min-width: 0;
-        }
-        .tile-swatch {
-            width: 22px;
-            height: 22px;
-            border-radius: 4px;
-            border: 1px solid rgba(31, 41, 55, 0.24);
-            flex: 0 0 auto;
-            margin-top: 1px;
-        }
-        .tile-copy {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-        .tile-copy b {
-            font-size: 0.9rem;
-            color: #1f2937;
-            line-height: 1.15;
-        }
-        .tile-copy small {
-            color: #667085;
-            line-height: 1.25;
-            margin-top: 2px;
-        }
-        .marker-legend-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 14px;
-            color: #344054;
-            font-size: 0.9rem;
-        }
-        .marker-dot {
-            display: inline-flex;
-            width: 22px;
-            height: 22px;
-            border-radius: 999px;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 0.75rem;
-            margin-right: 5px;
-            border: 1px solid #fff;
-        }
-        .line-sample {
-            display: inline-block;
-            width: 28px;
-            height: 4px;
-            border-radius: 999px;
-            margin: 0 6px 3px 0;
-            vertical-align: middle;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-if __name__ == "__main__":
-    main()
+        with st.container(height=560, border=True):
+            _render_calculation_inspector(session)
+    _render_footer(session)

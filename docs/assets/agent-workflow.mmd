@@ -1,0 +1,25 @@
+flowchart TB
+    A[场景 JSON] --> B[Schema 校验与场景归一化]
+    B --> C[阈值离散化并构造贝叶斯证据]
+    C --> D[固定专家 CPT 或 Dirichlet 学习 CPT<br/>贝叶斯网络精确枚举推理]
+    D --> E[加权生命风险与区域优先级评分]
+    E --> F[硬约束过滤与风险感知 A*]
+    F --> G[加权期望效用与任务组合穷举]
+    G --> H[有限状态机推进单位任务]
+    H --> I{还有事件?}
+    I -- 是 --> J[推进时钟、应用事件并失效受影响任务]
+    J -. 只为可用单位滚动重规划 .-> C
+    I -- 否 --> K[生成决策输出并执行输出 Schema 校验]
+
+    classDef source fill:#e8f1ff,stroke:#2563eb,stroke-width:2px,color:#172554;
+    classDef model fill:#f3e8ff,stroke:#7e22ce,stroke-width:2px,color:#3b0764;
+    classDef infer fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#431407;
+    classDef plan fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#022c22;
+    classDef execute fill:#fefce8,stroke:#ca8a04,stroke-width:2px,color:#422006;
+    classDef decision fill:#ffffff,stroke:#475569,stroke-width:2px,color:#0f172a;
+
+    class A source;
+    class B,C,D,E infer;
+    class F,G plan;
+    class H,J,K execute;
+    class I decision;

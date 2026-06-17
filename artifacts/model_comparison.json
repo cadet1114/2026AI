@@ -1,0 +1,132 @@
+{
+  "summary": {
+    "case_count": 6,
+    "improved_cases": 6,
+    "fixed_brier": {
+      "trapped": 0.1563625,
+      "passability": 0.08895833,
+      "mean": 0.12266042
+    },
+    "learned_brier": {
+      "trapped": 0.1207452,
+      "passability": 0.0274552,
+      "mean": 0.0741002
+    }
+  },
+  "cases": [
+    {
+      "case_id": "SHOWCASE_01",
+      "description": "强SOS但建筑倒塌较轻，专家确认有人被困且道路可通",
+      "labels": {
+        "trapped_ground_truth": 1,
+        "passable_ground_truth": 1
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.535,
+        "passability_prob": 0.9
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.764315,
+        "passability_prob": 1.0
+      },
+      "fixed_error": 0.1131125,
+      "learned_error": 0.02777372,
+      "learned_improved": true
+    },
+    {
+      "case_id": "SHOWCASE_02",
+      "description": "建筑受损但没有SOS和活动迹象，人工复核无人被困",
+      "labels": {
+        "trapped_ground_truth": 0,
+        "passable_ground_truth": 1
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.285,
+        "passability_prob": 0.835
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.114731,
+        "passability_prob": 0.958868
+      },
+      "fixed_error": 0.054225,
+      "learned_error": 0.00742759,
+      "learned_improved": true
+    },
+    {
+      "case_id": "SHOWCASE_03",
+      "description": "火势严重导致道路不可通，损毁程度本身不高",
+      "labels": {
+        "trapped_ground_truth": 1,
+        "passable_ground_truth": 0
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.63,
+        "passability_prob": 0.565
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.627559,
+        "passability_prob": 0.384628
+      },
+      "fixed_error": 0.2280625,
+      "learned_error": 0.14332542,
+      "learned_improved": true
+    },
+    {
+      "case_id": "SHOWCASE_04",
+      "description": "道路表面受损但无人机确认仍可缓慢通行",
+      "labels": {
+        "trapped_ground_truth": 0,
+        "passable_ground_truth": 1
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.34,
+        "passability_prob": 0.63
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.378829,
+        "passability_prob": 0.947068
+      },
+      "fixed_error": 0.12625,
+      "learned_error": 0.07315677,
+      "learned_improved": true
+    },
+    {
+      "case_id": "SHOWCASE_05",
+      "description": "人群活动迹象显著但SOS设备失效",
+      "labels": {
+        "trapped_ground_truth": 1,
+        "passable_ground_truth": 1
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.385,
+        "passability_prob": 0.8
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.39706,
+        "passability_prob": 0.889099
+      },
+      "fixed_error": 0.2091125,
+      "learned_error": 0.18791772,
+      "learned_improved": true
+    },
+    {
+      "case_id": "SHOWCASE_06",
+      "description": "多项证据均低，区域低风险且道路畅通",
+      "labels": {
+        "trapped_ground_truth": 0,
+        "passable_ground_truth": 1
+      },
+      "fixed_prediction": {
+        "trapped_prob": 0.1,
+        "passability_prob": 0.98
+      },
+      "learned_prediction": {
+        "trapped_prob": 0.1,
+        "passability_prob": 1.0
+      },
+      "fixed_error": 0.0052,
+      "learned_error": 0.005,
+      "learned_improved": true
+    }
+  ]
+}

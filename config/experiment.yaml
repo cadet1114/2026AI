@@ -1,0 +1,14 @@
+public_data:
+  start_time: "2024-01-01"
+  end_time: "2025-12-31"
+  minimum_magnitude: 4.5
+  limit: 2000
+dataset:
+  sample_count: 50000
+  seed: 42
+  missing_rate: 0.10
+  label_noise: 0.03
+evaluation:
+  folds: 5
+output_dir: artifacts/full_bayesian_experiment
+

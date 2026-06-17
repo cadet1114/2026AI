@@ -1,0 +1,2813 @@
+{
+  "folds": 5,
+  "per_fold": [
+    {
+      "fold": 1,
+      "test_samples": 10000,
+      "models": {
+        "expert_cpt": {
+          "trapped_people": {
+            "brier": 0.17660289,
+            "accuracy": 0.7332,
+            "f1": 0.33927687,
+            "roc_auc": 0.74525276,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.04683356,
+                "fraction_positive": 0.05577689
+              },
+              {
+                "mean_predicted": 0.12936738,
+                "fraction_positive": 0.11556982
+              },
+              {
+                "mean_predicted": 0.18105058,
+                "fraction_positive": 0.17936508
+              },
+              {
+                "mean_predicted": 0.23807621,
+                "fraction_positive": 0.2496038
+              },
+              {
+                "mean_predicted": 0.29423895,
+                "fraction_positive": 0.28167877
+              },
+              {
+                "mean_predicted": 0.35980593,
+                "fraction_positive": 0.40209268
+              },
+              {
+                "mean_predicted": 0.43673265,
+                "fraction_positive": 0.47610773
+              },
+              {
+                "mean_predicted": 0.57931138,
+                "fraction_positive": 0.6285028
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15581749,
+            "accuracy": 0.7733,
+            "f1": 0.86186095,
+            "roc_auc": 0.76917474,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.39921656,
+                "fraction_positive": 0.3752988
+              },
+              {
+                "mean_predicted": 0.59657955,
+                "fraction_positive": 0.5547562
+              },
+              {
+                "mean_predicted": 0.69936661,
+                "fraction_positive": 0.68425197
+              },
+              {
+                "mean_predicted": 0.78092039,
+                "fraction_positive": 0.7627907
+              },
+              {
+                "mean_predicted": 0.84878659,
+                "fraction_positive": 0.82177479
+              },
+              {
+                "mean_predicted": 0.89384337,
+                "fraction_positive": 0.88527552
+              },
+              {
+                "mean_predicted": 0.93473379,
+                "fraction_positive": 0.91911765
+              },
+              {
+                "mean_predicted": 0.9770853,
+                "fraction_positive": 0.94937833
+              }
+            ]
+          }
+        },
+        "learned_cpt": {
+          "trapped_people": {
+            "brier": 0.17667884,
+            "accuracy": 0.7347,
+            "f1": 0.3963595,
+            "roc_auc": 0.74359367,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.06433355,
+                "fraction_positive": 0.05499613
+              },
+              {
+                "mean_predicted": 0.13292773,
+                "fraction_positive": 0.11893584
+              },
+              {
+                "mean_predicted": 0.18085473,
+                "fraction_positive": 0.19373942
+              },
+              {
+                "mean_predicted": 0.24295377,
+                "fraction_positive": 0.24813052
+              },
+              {
+                "mean_predicted": 0.29661503,
+                "fraction_positive": 0.3011583
+              },
+              {
+                "mean_predicted": 0.37084597,
+                "fraction_positive": 0.3935743
+              },
+              {
+                "mean_predicted": 0.46377209,
+                "fraction_positive": 0.45789896
+              },
+              {
+                "mean_predicted": 0.64107416,
+                "fraction_positive": 0.628
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15445293,
+            "accuracy": 0.7773,
+            "f1": 0.86260719,
+            "roc_auc": 0.77212349,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.36744696,
+                "fraction_positive": 0.36552749
+              },
+              {
+                "mean_predicted": 0.57902866,
+                "fraction_positive": 0.57708872
+              },
+              {
+                "mean_predicted": 0.6829849,
+                "fraction_positive": 0.68660287
+              },
+              {
+                "mean_predicted": 0.76958019,
+                "fraction_positive": 0.76186709
+              },
+              {
+                "mean_predicted": 0.82689414,
+                "fraction_positive": 0.8168
+              },
+              {
+                "mean_predicted": 0.89014734,
+                "fraction_positive": 0.88866499
+              },
+              {
+                "mean_predicted": 0.93877501,
+                "fraction_positive": 0.93700787
+              },
+              {
+                "mean_predicted": 0.95817468,
+                "fraction_positive": 0.9512987
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "test_samples": 10000,
+      "models": {
+        "expert_cpt": {
+          "trapped_people": {
+            "brier": 0.17864159,
+            "accuracy": 0.7308,
+            "f1": 0.32834331,
+            "roc_auc": 0.73510981,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.04656188,
+                "fraction_positive": 0.06818182
+              },
+              {
+                "mean_predicted": 0.12900714,
+                "fraction_positive": 0.13495935
+              },
+              {
+                "mean_predicted": 0.17937493,
+                "fraction_positive": 0.18599222
+              },
+              {
+                "mean_predicted": 0.23704425,
+                "fraction_positive": 0.24878049
+              },
+              {
+                "mean_predicted": 0.2903826,
+                "fraction_positive": 0.28167877
+              },
+              {
+                "mean_predicted": 0.35790219,
+                "fraction_positive": 0.36608443
+              },
+              {
+                "mean_predicted": 0.43622843,
+                "fraction_positive": 0.49068323
+              },
+              {
+                "mean_predicted": 0.5792766,
+                "fraction_positive": 0.62308313
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15401982,
+            "accuracy": 0.7784,
+            "f1": 0.86509193,
+            "roc_auc": 0.77451486,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.40060379,
+                "fraction_positive": 0.35647426
+              },
+              {
+                "mean_predicted": 0.59641289,
+                "fraction_positive": 0.57154277
+              },
+              {
+                "mean_predicted": 0.69617355,
+                "fraction_positive": 0.67535545
+              },
+              {
+                "mean_predicted": 0.77542967,
+                "fraction_positive": 0.7721725
+              },
+              {
+                "mean_predicted": 0.84394345,
+                "fraction_positive": 0.83224756
+              },
+              {
+                "mean_predicted": 0.8889206,
+                "fraction_positive": 0.87091633
+              },
+              {
+                "mean_predicted": 0.93088424,
+                "fraction_positive": 0.9136
+              },
+              {
+                "mean_predicted": 0.97497417,
+                "fraction_positive": 0.95722357
+              }
+            ]
+          }
+        },
+        "learned_cpt": {
+          "trapped_people": {
+            "brier": 0.17868097,
+            "accuracy": 0.7334,
+            "f1": 0.40170557,
+            "roc_auc": 0.73394728,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.05926828,
+                "fraction_positive": 0.0661597
+              },
+              {
+                "mean_predicted": 0.1221529,
+                "fraction_positive": 0.14189757
+              },
+              {
+                "mean_predicted": 0.17426647,
+                "fraction_positive": 0.19206349
+              },
+              {
+                "mean_predicted": 0.23778173,
+                "fraction_positive": 0.23335772
+              },
+              {
+                "mean_predicted": 0.29851441,
+                "fraction_positive": 0.29874776
+              },
+              {
+                "mean_predicted": 0.37444607,
+                "fraction_positive": 0.37242472
+              },
+              {
+                "mean_predicted": 0.46611794,
+                "fraction_positive": 0.46940419
+              },
+              {
+                "mean_predicted": 0.64126805,
+                "fraction_positive": 0.61927711
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.1530592,
+            "accuracy": 0.7783,
+            "f1": 0.8636112,
+            "roc_auc": 0.77692868,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.37365629,
+                "fraction_positive": 0.36137527
+              },
+              {
+                "mean_predicted": 0.5818066,
+                "fraction_positive": 0.58210252
+              },
+              {
+                "mean_predicted": 0.67826984,
+                "fraction_positive": 0.67248216
+              },
+              {
+                "mean_predicted": 0.76613935,
+                "fraction_positive": 0.76793893
+              },
+              {
+                "mean_predicted": 0.82198648,
+                "fraction_positive": 0.8327674
+              },
+              {
+                "mean_predicted": 0.89081293,
+                "fraction_positive": 0.88672061
+              },
+              {
+                "mean_predicted": 0.93886927,
+                "fraction_positive": 0.93925234
+              },
+              {
+                "mean_predicted": 0.95973476,
+                "fraction_positive": 0.95930233
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "test_samples": 10000,
+      "models": {
+        "expert_cpt": {
+          "trapped_people": {
+            "brier": 0.17662549,
+            "accuracy": 0.7325,
+            "f1": 0.3347426,
+            "roc_auc": 0.74301492,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.04635057,
+                "fraction_positive": 0.05450416
+              },
+              {
+                "mean_predicted": 0.13052254,
+                "fraction_positive": 0.14030819
+              },
+              {
+                "mean_predicted": 0.18242177,
+                "fraction_positive": 0.18301731
+              },
+              {
+                "mean_predicted": 0.2389151,
+                "fraction_positive": 0.2359375
+              },
+              {
+                "mean_predicted": 0.29303222,
+                "fraction_positive": 0.2865353
+              },
+              {
+                "mean_predicted": 0.35913517,
+                "fraction_positive": 0.39234809
+              },
+              {
+                "mean_predicted": 0.43729317,
+                "fraction_positive": 0.48350694
+              },
+              {
+                "mean_predicted": 0.57910632,
+                "fraction_positive": 0.6224
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15343808,
+            "accuracy": 0.7789,
+            "f1": 0.86538813,
+            "roc_auc": 0.77537357,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.40448289,
+                "fraction_positive": 0.35248447
+              },
+              {
+                "mean_predicted": 0.5978239,
+                "fraction_positive": 0.55221519
+              },
+              {
+                "mean_predicted": 0.69782537,
+                "fraction_positive": 0.69275604
+              },
+              {
+                "mean_predicted": 0.77892799,
+                "fraction_positive": 0.77769626
+              },
+              {
+                "mean_predicted": 0.84798761,
+                "fraction_positive": 0.84168013
+              },
+              {
+                "mean_predicted": 0.91267438,
+                "fraction_positive": 0.89217852
+              },
+              {
+                "mean_predicted": 0.95381865,
+                "fraction_positive": 0.92481203
+              },
+              {
+                "mean_predicted": 0.97537288,
+                "fraction_positive": 0.9528
+              }
+            ]
+          }
+        },
+        "learned_cpt": {
+          "trapped_people": {
+            "brier": 0.17606257,
+            "accuracy": 0.7374,
+            "f1": 0.39990859,
+            "roc_auc": 0.74225452,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.05962891,
+                "fraction_positive": 0.05896043
+              },
+              {
+                "mean_predicted": 0.12763101,
+                "fraction_positive": 0.13126492
+              },
+              {
+                "mean_predicted": 0.18337361,
+                "fraction_positive": 0.19233904
+              },
+              {
+                "mean_predicted": 0.24043807,
+                "fraction_positive": 0.24025457
+              },
+              {
+                "mean_predicted": 0.29505591,
+                "fraction_positive": 0.28708901
+              },
+              {
+                "mean_predicted": 0.38066063,
+                "fraction_positive": 0.38158872
+              },
+              {
+                "mean_predicted": 0.46619221,
+                "fraction_positive": 0.47121346
+              },
+              {
+                "mean_predicted": 0.64084592,
+                "fraction_positive": 0.63592622
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15135003,
+            "accuracy": 0.7835,
+            "f1": 0.86654749,
+            "roc_auc": 0.78037103,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.36997612,
+                "fraction_positive": 0.33359073
+              },
+              {
+                "mean_predicted": 0.5764446,
+                "fraction_positive": 0.5701007
+              },
+              {
+                "mean_predicted": 0.68671136,
+                "fraction_positive": 0.69757728
+              },
+              {
+                "mean_predicted": 0.76367933,
+                "fraction_positive": 0.7819063
+              },
+              {
+                "mean_predicted": 0.81873773,
+                "fraction_positive": 0.82887267
+              },
+              {
+                "mean_predicted": 0.89326383,
+                "fraction_positive": 0.88776493
+              },
+              {
+                "mean_predicted": 0.94140482,
+                "fraction_positive": 0.92271663
+              },
+              {
+                "mean_predicted": 0.95947864,
+                "fraction_positive": 0.95655672
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "test_samples": 10000,
+      "models": {
+        "expert_cpt": {
+          "trapped_people": {
+            "brier": 0.17767155,
+            "accuracy": 0.7299,
+            "f1": 0.33456516,
+            "roc_auc": 0.74065629,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.04648028,
+                "fraction_positive": 0.05661821
+              },
+              {
+                "mean_predicted": 0.12843586,
+                "fraction_positive": 0.13533835
+              },
+              {
+                "mean_predicted": 0.17980398,
+                "fraction_positive": 0.17227564
+              },
+              {
+                "mean_predicted": 0.23843181,
+                "fraction_positive": 0.23783784
+              },
+              {
+                "mean_predicted": 0.29353923,
+                "fraction_positive": 0.30730897
+              },
+              {
+                "mean_predicted": 0.35832992,
+                "fraction_positive": 0.39301634
+              },
+              {
+                "mean_predicted": 0.4393197,
+                "fraction_positive": 0.48655681
+              },
+              {
+                "mean_predicted": 0.58242261,
+                "fraction_positive": 0.6056
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15467967,
+            "accuracy": 0.7753,
+            "f1": 0.86309633,
+            "roc_auc": 0.77479149,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.39901645,
+                "fraction_positive": 0.37234878
+              },
+              {
+                "mean_predicted": 0.59490872,
+                "fraction_positive": 0.55942948
+              },
+              {
+                "mean_predicted": 0.69722802,
+                "fraction_positive": 0.6745098
+              },
+              {
+                "mean_predicted": 0.77453807,
+                "fraction_positive": 0.74979287
+              },
+              {
+                "mean_predicted": 0.84485257,
+                "fraction_positive": 0.83572568
+              },
+              {
+                "mean_predicted": 0.89035652,
+                "fraction_positive": 0.88808953
+              },
+              {
+                "mean_predicted": 0.93240388,
+                "fraction_positive": 0.91273018
+              },
+              {
+                "mean_predicted": 0.97526387,
+                "fraction_positive": 0.95606184
+              }
+            ]
+          }
+        },
+        "learned_cpt": {
+          "trapped_people": {
+            "brier": 0.17743205,
+            "accuracy": 0.7356,
+            "f1": 0.40982143,
+            "roc_auc": 0.74054595,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.06198647,
+                "fraction_positive": 0.05847953
+              },
+              {
+                "mean_predicted": 0.12617739,
+                "fraction_positive": 0.13415711
+              },
+              {
+                "mean_predicted": 0.17676852,
+                "fraction_positive": 0.18014412
+              },
+              {
+                "mean_predicted": 0.24287292,
+                "fraction_positive": 0.23845624
+              },
+              {
+                "mean_predicted": 0.29207649,
+                "fraction_positive": 0.3164919
+              },
+              {
+                "mean_predicted": 0.37725801,
+                "fraction_positive": 0.39519651
+              },
+              {
+                "mean_predicted": 0.47037788,
+                "fraction_positive": 0.46003552
+              },
+              {
+                "mean_predicted": 0.64308531,
+                "fraction_positive": 0.624
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15329692,
+            "accuracy": 0.7737,
+            "f1": 0.85858901,
+            "roc_auc": 0.77883338,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.35712668,
+                "fraction_positive": 0.37634409
+              },
+              {
+                "mean_predicted": 0.5822856,
+                "fraction_positive": 0.55130168
+              },
+              {
+                "mean_predicted": 0.68711102,
+                "fraction_positive": 0.68324607
+              },
+              {
+                "mean_predicted": 0.76404962,
+                "fraction_positive": 0.7457899
+              },
+              {
+                "mean_predicted": 0.82125087,
+                "fraction_positive": 0.83373301
+              },
+              {
+                "mean_predicted": 0.88929027,
+                "fraction_positive": 0.89638783
+              },
+              {
+                "mean_predicted": 0.93956024,
+                "fraction_positive": 0.94166667
+              },
+              {
+                "mean_predicted": 0.95775128,
+                "fraction_positive": 0.95790378
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 5,
+      "test_samples": 10000,
+      "models": {
+        "expert_cpt": {
+          "trapped_people": {
+            "brier": 0.17616087,
+            "accuracy": 0.7358,
+            "f1": 0.34015984,
+            "roc_auc": 0.74357648,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.04644312,
+                "fraction_positive": 0.0599393
+              },
+              {
+                "mean_predicted": 0.12766974,
+                "fraction_positive": 0.12073272
+              },
+              {
+                "mean_predicted": 0.17717756,
+                "fraction_positive": 0.1865369
+              },
+              {
+                "mean_predicted": 0.23620209,
+                "fraction_positive": 0.26118211
+              },
+              {
+                "mean_predicted": 0.28662399,
+                "fraction_positive": 0.27367576
+              },
+              {
+                "mean_predicted": 0.35646303,
+                "fraction_positive": 0.38727915
+              },
+              {
+                "mean_predicted": 0.4363875,
+                "fraction_positive": 0.47511312
+              },
+              {
+                "mean_predicted": 0.58515261,
+                "fraction_positive": 0.63495935
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15404497,
+            "accuracy": 0.7781,
+            "f1": 0.86478581,
+            "roc_auc": 0.77625091,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.39942594,
+                "fraction_positive": 0.36216216
+              },
+              {
+                "mean_predicted": 0.60320445,
+                "fraction_positive": 0.58124553
+              },
+              {
+                "mean_predicted": 0.70417478,
+                "fraction_positive": 0.67920978
+              },
+              {
+                "mean_predicted": 0.77872062,
+                "fraction_positive": 0.7573474
+              },
+              {
+                "mean_predicted": 0.8479909,
+                "fraction_positive": 0.82224094
+              },
+              {
+                "mean_predicted": 0.89012245,
+                "fraction_positive": 0.88433735
+              },
+              {
+                "mean_predicted": 0.93178068,
+                "fraction_positive": 0.91949487
+              },
+              {
+                "mean_predicted": 0.9756886,
+                "fraction_positive": 0.95816243
+              }
+            ]
+          }
+        },
+        "learned_cpt": {
+          "trapped_people": {
+            "brier": 0.17540765,
+            "accuracy": 0.7393,
+            "f1": 0.41244084,
+            "roc_auc": 0.74362518,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.05923704,
+                "fraction_positive": 0.05741627
+              },
+              {
+                "mean_predicted": 0.12495383,
+                "fraction_positive": 0.13103448
+              },
+              {
+                "mean_predicted": 0.17650052,
+                "fraction_positive": 0.18532819
+              },
+              {
+                "mean_predicted": 0.23785948,
+                "fraction_positive": 0.25299282
+              },
+              {
+                "mean_predicted": 0.29186624,
+                "fraction_positive": 0.29108392
+              },
+              {
+                "mean_predicted": 0.37043316,
+                "fraction_positive": 0.36437546
+              },
+              {
+                "mean_predicted": 0.4658966,
+                "fraction_positive": 0.47965368
+              },
+              {
+                "mean_predicted": 0.63908997,
+                "fraction_positive": 0.64141821
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15387054,
+            "accuracy": 0.7759,
+            "f1": 0.86167521,
+            "roc_auc": 0.77607379,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.35755481,
+                "fraction_positive": 0.36463224
+              },
+              {
+                "mean_predicted": 0.57323571,
+                "fraction_positive": 0.56582175
+              },
+              {
+                "mean_predicted": 0.68924928,
+                "fraction_positive": 0.67327518
+              },
+              {
+                "mean_predicted": 0.76687474,
+                "fraction_positive": 0.75785441
+              },
+              {
+                "mean_predicted": 0.82471258,
+                "fraction_positive": 0.82700422
+              },
+              {
+                "mean_predicted": 0.8894351,
+                "fraction_positive": 0.89074427
+              },
+              {
+                "mean_predicted": 0.93889263,
+                "fraction_positive": 0.93378995
+              },
+              {
+                "mean_predicted": 0.95746022,
+                "fraction_positive": 0.96046129
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "expert_cpt": {
+      "trapped_people": {
+        "brier": 0.17714048,
+        "accuracy": 0.73244,
+        "f1": 0.33541977,
+        "roc_auc": 0.74153872,
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.04653079,
+            "fraction_positive": 0.05897792
+          },
+          {
+            "mean_predicted": 0.128644,
+            "fraction_positive": 0.12845555
+          },
+          {
+            "mean_predicted": 0.17979215,
+            "fraction_positive": 0.18214965
+          },
+          {
+            "mean_predicted": 0.23840349,
+            "fraction_positive": 0.24713259
+          },
+          {
+            "mean_predicted": 0.29272801,
+            "fraction_positive": 0.28716388
+          },
+          {
+            "mean_predicted": 0.35831683,
+            "fraction_positive": 0.38732394
+          },
+          {
+            "mean_predicted": 0.43695021,
+            "fraction_positive": 0.48161245
+          },
+          {
+            "mean_predicted": 0.58053702,
+            "fraction_positive": 0.62288
+          }
+        ]
+      },
+      "road_passable": {
+        "brier": 0.1544,
+        "accuracy": 0.7768,
+        "f1": 0.86404503,
+        "roc_auc": 0.77400595,
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.40055832,
+            "fraction_positive": 0.36367902
+          },
+          {
+            "mean_predicted": 0.5960796,
+            "fraction_positive": 0.56264054
+          },
+          {
+            "mean_predicted": 0.69683905,
+            "fraction_positive": 0.67979977
+          },
+          {
+            "mean_predicted": 0.77527807,
+            "fraction_positive": 0.76221971
+          },
+          {
+            "mean_predicted": 0.84501891,
+            "fraction_positive": 0.82872663
+          },
+          {
+            "mean_predicted": 0.88978213,
+            "fraction_positive": 0.87896254
+          },
+          {
+            "mean_predicted": 0.93210209,
+            "fraction_positive": 0.91300916
+          },
+          {
+            "mean_predicted": 0.97543741,
+            "fraction_positive": 0.95463415
+          }
+        ]
+      }
+    },
+    "learned_cpt": {
+      "trapped_people": {
+        "brier": 0.17685242,
+        "accuracy": 0.73608,
+        "f1": 0.40408237,
+        "roc_auc": 0.74049388,
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.05917328,
+            "fraction_positive": 0.05792056
+          },
+          {
+            "mean_predicted": 0.12583613,
+            "fraction_positive": 0.12803104
+          },
+          {
+            "mean_predicted": 0.17707622,
+            "fraction_positive": 0.1894336
+          },
+          {
+            "mean_predicted": 0.23686403,
+            "fraction_positive": 0.24085269
+          },
+          {
+            "mean_predicted": 0.29259386,
+            "fraction_positive": 0.29249716
+          },
+          {
+            "mean_predicted": 0.37159081,
+            "fraction_positive": 0.38028169
+          },
+          {
+            "mean_predicted": 0.46410553,
+            "fraction_positive": 0.46354751
+          },
+          {
+            "mean_predicted": 0.64094843,
+            "fraction_positive": 0.63048351
+          }
+        ]
+      },
+      "road_passable": {
+        "brier": 0.15320592,
+        "accuracy": 0.77774,
+        "f1": 0.8626176,
+        "roc_auc": 0.77659754,
+        "calibration_bins": [
+          {
+            "mean_predicted": 0.35797266,
+            "fraction_positive": 0.35665339
+          },
+          {
+            "mean_predicted": 0.57362484,
+            "fraction_positive": 0.56302789
+          },
+          {
+            "mean_predicted": 0.68312158,
+            "fraction_positive": 0.67755363
+          },
+          {
+            "mean_predicted": 0.76488725,
+            "fraction_positive": 0.76370358
+          },
+          {
+            "mean_predicted": 0.82187926,
+            "fraction_positive": 0.82513223
+          },
+          {
+            "mean_predicted": 0.88182457,
+            "fraction_positive": 0.88325588
+          },
+          {
+            "mean_predicted": 0.92031268,
+            "fraction_positive": 0.91537037
+          },
+          {
+            "mean_predicted": 0.95830845,
+            "fraction_positive": 0.95739228
+          }
+        ]
+      }
+    }
+  },
+  "robustness": {
+    "missing_evidence": {
+      "rates": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "metrics": {
+        "0.0": {
+          "trapped_people": {
+            "brier": 0.17494546,
+            "accuracy": 0.73948,
+            "f1": 0.40919811,
+            "roc_auc": 0.74579682,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.06259261,
+                "fraction_positive": 0.05938384
+              },
+              {
+                "mean_predicted": 0.12830521,
+                "fraction_positive": 0.12947056
+              },
+              {
+                "mean_predicted": 0.18143836,
+                "fraction_positive": 0.18953901
+              },
+              {
+                "mean_predicted": 0.24000204,
+                "fraction_positive": 0.24258214
+              },
+              {
+                "mean_predicted": 0.29656585,
+                "fraction_positive": 0.29019404
+              },
+              {
+                "mean_predicted": 0.37775238,
+                "fraction_positive": 0.38303652
+              },
+              {
+                "mean_predicted": 0.46880777,
+                "fraction_positive": 0.47043658
+              },
+              {
+                "mean_predicted": 0.6418261,
+                "fraction_positive": 0.64698184
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15257662,
+            "accuracy": 0.77932,
+            "f1": 0.86354192,
+            "roc_auc": 0.7780905,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.35998123,
+                "fraction_positive": 0.35159457
+              },
+              {
+                "mean_predicted": 0.57430746,
+                "fraction_positive": 0.56653386
+              },
+              {
+                "mean_predicted": 0.68397484,
+                "fraction_positive": 0.68126792
+              },
+              {
+                "mean_predicted": 0.76677916,
+                "fraction_positive": 0.76528874
+              },
+              {
+                "mean_predicted": 0.82346057,
+                "fraction_positive": 0.82843792
+              },
+              {
+                "mean_predicted": 0.89102042,
+                "fraction_positive": 0.89041887
+              },
+              {
+                "mean_predicted": 0.94033529,
+                "fraction_positive": 0.93654267
+              },
+              {
+                "mean_predicted": 0.95845122,
+                "fraction_positive": 0.95811081
+              }
+            ]
+          }
+        },
+        "0.2": {
+          "trapped_people": {
+            "brier": 0.18107361,
+            "accuracy": 0.73216,
+            "f1": 0.36392135,
+            "roc_auc": 0.7213854,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.08152978,
+                "fraction_positive": 0.08128426
+              },
+              {
+                "mean_predicted": 0.14077644,
+                "fraction_positive": 0.14272388
+              },
+              {
+                "mean_predicted": 0.19999961,
+                "fraction_positive": 0.20231894
+              },
+              {
+                "mean_predicted": 0.24387095,
+                "fraction_positive": 0.24590953
+              },
+              {
+                "mean_predicted": 0.29214823,
+                "fraction_positive": 0.29651163
+              },
+              {
+                "mean_predicted": 0.35521451,
+                "fraction_positive": 0.35095137
+              },
+              {
+                "mean_predicted": 0.44622593,
+                "fraction_positive": 0.44730942
+              },
+              {
+                "mean_predicted": 0.61069511,
+                "fraction_positive": 0.61945201
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.15883819,
+            "accuracy": 0.772,
+            "f1": 0.86098917,
+            "roc_auc": 0.75433583,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.38875769,
+                "fraction_positive": 0.38051969
+              },
+              {
+                "mean_predicted": 0.58375216,
+                "fraction_positive": 0.58241053
+              },
+              {
+                "mean_predicted": 0.70200696,
+                "fraction_positive": 0.69656824
+              },
+              {
+                "mean_predicted": 0.77298352,
+                "fraction_positive": 0.76275316
+              },
+              {
+                "mean_predicted": 0.81920927,
+                "fraction_positive": 0.81965491
+              },
+              {
+                "mean_predicted": 0.85486073,
+                "fraction_positive": 0.8540146
+              },
+              {
+                "mean_predicted": 0.89559198,
+                "fraction_positive": 0.90007163
+              },
+              {
+                "mean_predicted": 0.95124002,
+                "fraction_positive": 0.95216
+              }
+            ]
+          }
+        },
+        "0.4": {
+          "trapped_people": {
+            "brier": 0.18727926,
+            "accuracy": 0.72364,
+            "f1": 0.30183913,
+            "roc_auc": 0.6934518,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.10469515,
+                "fraction_positive": 0.09920635
+              },
+              {
+                "mean_predicted": 0.16567001,
+                "fraction_positive": 0.1741458
+              },
+              {
+                "mean_predicted": 0.22385594,
+                "fraction_positive": 0.22542735
+              },
+              {
+                "mean_predicted": 0.25249079,
+                "fraction_positive": 0.25640215
+              },
+              {
+                "mean_predicted": 0.29051081,
+                "fraction_positive": 0.29272237
+              },
+              {
+                "mean_predicted": 0.3393628,
+                "fraction_positive": 0.34156646
+              },
+              {
+                "mean_predicted": 0.42439096,
+                "fraction_positive": 0.42507987
+              },
+              {
+                "mean_predicted": 0.57492502,
+                "fraction_positive": 0.58189103
+              }
+            ]
+          },
+          "road_passable": {
+            "brier": 0.16476524,
+            "accuracy": 0.76542,
+            "f1": 0.85891961,
+            "roc_auc": 0.72609808,
+            "calibration_bins": [
+              {
+                "mean_predicted": 0.42487246,
+                "fraction_positive": 0.41212793
+              },
+              {
+                "mean_predicted": 0.59424608,
+                "fraction_positive": 0.58380475
+              },
+              {
+                "mean_predicted": 0.717646,
+                "fraction_positive": 0.72132672
+              },
+              {
+                "mean_predicted": 0.78138717,
+                "fraction_positive": 0.78016376
+              },
+              {
+                "mean_predicted": 0.81339152,
+                "fraction_positive": 0.82161309
+              },
+              {
+                "mean_predicted": 0.8343323,
+                "fraction_positive": 0.83210427
+              },
+              {
+                "mean_predicted": 0.86624849,
+                "fraction_positive": 0.86437768
+              },
+              {
+                "mean_predicted": 0.93947023,
+                "fraction_positive": 0.93527236
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "public_anchor_report": {
+    "dataset": "USGS Earthquake Catalog",
+    "unique_public_rows": 2000,
+    "hazard_distribution": {
+      "high": 275,
+      "low": 39175,
+      "medium": 10550
+    },
+    "target_labels_available": false,
+    "note": "USGS anchors hazard intensity only; rescue target metrics use simulated labels."
+  },
+  "learned_network": {
+    "format": "discrete_bayesian_network_v1",
+    "nodes": [
+      {
+        "name": "hazard_intensity",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [],
+        "cpt": {
+          "": {
+            "low": 0.7834926602935882,
+            "medium": 0.21100355985760572,
+            "high": 0.0055037798488060475
+          }
+        }
+      },
+      {
+        "name": "building_damage",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [
+          "hazard_intensity"
+        ],
+        "cpt": {
+          "low": {
+            "low": 0.8199291322958301,
+            "medium": 0.15940471128497322,
+            "high": 0.020666156419196644
+          },
+          "medium": {
+            "low": 0.22164805057955744,
+            "medium": 0.5760969441517386,
+            "high": 0.2022550052687039
+          },
+          "high": {
+            "low": 0.08170731707317073,
+            "medium": 0.27463414634146344,
+            "high": 0.6436585365853659
+          }
+        }
+      },
+      {
+        "name": "fire_severity",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [
+          "hazard_intensity"
+        ],
+        "cpt": {
+          "low": {
+            "low": 0.7982367615375893,
+            "medium": 0.17154269191518312,
+            "high": 0.030220546547227577
+          },
+          "medium": {
+            "low": 0.299746835443038,
+            "medium": 0.5225780590717299,
+            "high": 0.17767510548523208
+          },
+          "high": {
+            "low": 0.0795275590551181,
+            "medium": 0.32944881889763783,
+            "high": 0.5910236220472441
+          }
+        }
+      },
+      {
+        "name": "smoke_level",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [
+          "fire_severity"
+        ],
+        "cpt": {
+          "low": {
+            "low": 0.8617826740110166,
+            "medium": 0.11904428070677443,
+            "high": 0.019173045282209027
+          },
+          "medium": {
+            "low": 0.1806263131565783,
+            "medium": 0.6576588294147073,
+            "high": 0.16171485742871436
+          },
+          "high": {
+            "low": 0.04277242972660762,
+            "medium": 0.2547246823257605,
+            "high": 0.7025028879476319
+          }
+        }
+      },
+      {
+        "name": "sos_signal",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [],
+        "cpt": {
+          "": {
+            "low": 0.5490589125211355,
+            "medium": 0.30129482958084897,
+            "high": 0.1496462578980155
+          }
+        }
+      },
+      {
+        "name": "human_activity",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [],
+        "cpt": {
+          "": {
+            "low": 0.4775495848451795,
+            "medium": 0.3708510117311844,
+            "high": 0.151599403423636
+          }
+        }
+      },
+      {
+        "name": "trapped_people",
+        "states": [
+          "no",
+          "yes"
+        ],
+        "parents": [
+          "building_damage",
+          "fire_severity",
+          "smoke_level",
+          "sos_signal",
+          "human_activity"
+        ],
+        "cpt": {
+          "low|low|low|low|low": {
+            "no": 0.9498271465004251,
+            "yes": 0.050172853499574954
+          },
+          "low|low|low|low|medium": {
+            "no": 0.8722086330935251,
+            "yes": 0.12779136690647483
+          },
+          "low|low|low|low|high": {
+            "no": 0.728826714801444,
+            "yes": 0.271173285198556
+          },
+          "low|low|low|medium|low": {
+            "no": 0.7968206820682068,
+            "yes": 0.20317931793179317
+          },
+          "low|low|low|medium|medium": {
+            "no": 0.7122985468956408,
+            "yes": 0.2877014531043593
+          },
+          "low|low|low|medium|high": {
+            "no": 0.540064829821718,
+            "yes": 0.45993517017828195
+          },
+          "low|low|low|high|low": {
+            "no": 0.5705450733752621,
+            "yes": 0.42945492662473794
+          },
+          "low|low|low|high|medium": {
+            "no": 0.45047619047619053,
+            "yes": 0.5495238095238095
+          },
+          "low|low|low|high|high": {
+            "no": 0.31993957703927495,
+            "yes": 0.6800604229607251
+          },
+          "low|low|medium|low|low": {
+            "no": 0.9345798319327732,
+            "yes": 0.06542016806722689
+          },
+          "low|low|medium|low|medium": {
+            "no": 0.8795419847328243,
+            "yes": 0.12045801526717557
+          },
+          "low|low|medium|low|high": {
+            "no": 0.6209696969696971,
+            "yes": 0.37903030303030305
+          },
+          "low|low|medium|medium|low": {
+            "no": 0.7681294964028776,
+            "yes": 0.23187050359712233
+          },
+          "low|low|medium|medium|medium": {
+            "no": 0.6635680751173709,
+            "yes": 0.3364319248826291
+          },
+          "low|low|medium|medium|high": {
+            "no": 0.5197590361445783,
+            "yes": 0.4802409638554217
+          },
+          "low|low|medium|high|low": {
+            "no": 0.5293055555555556,
+            "yes": 0.47069444444444447
+          },
+          "low|low|medium|high|medium": {
+            "no": 0.4382857142857142,
+            "yes": 0.5617142857142857
+          },
+          "low|low|medium|high|high": {
+            "no": 0.3030769230769231,
+            "yes": 0.6969230769230769
+          },
+          "low|low|high|low|low": {
+            "no": 0.9607317073170731,
+            "yes": 0.03926829268292683
+          },
+          "low|low|high|low|medium": {
+            "no": 0.7620833333333333,
+            "yes": 0.23791666666666667
+          },
+          "low|low|high|low|high": {
+            "no": 0.6394285714285713,
+            "yes": 0.3605714285714286
+          },
+          "low|low|high|medium|low": {
+            "no": 0.7966666666666666,
+            "yes": 0.2033333333333333
+          },
+          "low|low|high|medium|medium": {
+            "no": 0.524516129032258,
+            "yes": 0.4754838709677419
+          },
+          "low|low|high|medium|high": {
+            "no": 0.39222222222222225,
+            "yes": 0.6077777777777778
+          },
+          "low|low|high|high|low": {
+            "no": 0.39,
+            "yes": 0.61
+          },
+          "low|low|high|high|medium": {
+            "no": 0.3609090909090909,
+            "yes": 0.6390909090909092
+          },
+          "low|low|high|high|high": {
+            "no": 0.12333333333333334,
+            "yes": 0.8766666666666666
+          },
+          "low|medium|low|low|low": {
+            "no": 0.9212222222222222,
+            "yes": 0.07877777777777778
+          },
+          "low|medium|low|low|medium": {
+            "no": 0.8140506329113925,
+            "yes": 0.1859493670886076
+          },
+          "low|medium|low|low|high": {
+            "no": 0.6403333333333333,
+            "yes": 0.35966666666666663
+          },
+          "low|medium|low|medium|low": {
+            "no": 0.7453703703703703,
+            "yes": 0.25462962962962965
+          },
+          "low|medium|low|medium|medium": {
+            "no": 0.6134146341463415,
+            "yes": 0.38658536585365855
+          },
+          "low|medium|low|medium|high": {
+            "no": 0.6243243243243244,
+            "yes": 0.37567567567567567
+          },
+          "low|medium|low|high|low": {
+            "no": 0.5284745762711864,
+            "yes": 0.47152542372881356
+          },
+          "low|medium|low|high|medium": {
+            "no": 0.436875,
+            "yes": 0.563125
+          },
+          "low|medium|low|high|high": {
+            "no": 0.26555555555555554,
+            "yes": 0.7344444444444445
+          },
+          "low|medium|medium|low|low": {
+            "no": 0.8760511363636364,
+            "yes": 0.12394886363636362
+          },
+          "low|medium|medium|low|medium": {
+            "no": 0.7743724696356274,
+            "yes": 0.2256275303643725
+          },
+          "low|medium|medium|low|high": {
+            "no": 0.6329032258064516,
+            "yes": 0.36709677419354836
+          },
+          "low|medium|medium|medium|low": {
+            "no": 0.7052879581151833,
+            "yes": 0.29471204188481676
+          },
+          "low|medium|medium|medium|medium": {
+            "no": 0.6183157894736842,
+            "yes": 0.3816842105263158
+          },
+          "low|medium|medium|medium|high": {
+            "no": 0.5001666666666666,
+            "yes": 0.49983333333333335
+          },
+          "low|medium|medium|high|low": {
+            "no": 0.4348484848484848,
+            "yes": 0.5651515151515152
+          },
+          "low|medium|medium|high|medium": {
+            "no": 0.38152866242038214,
+            "yes": 0.6184713375796178
+          },
+          "low|medium|medium|high|high": {
+            "no": 0.22075471698113205,
+            "yes": 0.7792452830188679
+          },
+          "low|medium|high|low|low": {
+            "no": 0.8820731707317073,
+            "yes": 0.11792682926829268
+          },
+          "low|medium|high|low|medium": {
+            "no": 0.7417460317460318,
+            "yes": 0.25825396825396824
+          },
+          "low|medium|high|low|high": {
+            "no": 0.5651999999999999,
+            "yes": 0.4348
+          },
+          "low|medium|high|medium|low": {
+            "no": 0.6667226890756303,
+            "yes": 0.33327731092436974
+          },
+          "low|medium|high|medium|medium": {
+            "no": 0.5382608695652173,
+            "yes": 0.4617391304347826
+          },
+          "low|medium|high|medium|high": {
+            "no": 0.3227027027027027,
+            "yes": 0.6772972972972974
+          },
+          "low|medium|high|high|low": {
+            "no": 0.3729411764705882,
+            "yes": 0.6270588235294118
+          },
+          "low|medium|high|high|medium": {
+            "no": 0.3578723404255319,
+            "yes": 0.642127659574468
+          },
+          "low|medium|high|high|high": {
+            "no": 0.12461538461538463,
+            "yes": 0.8753846153846153
+          },
+          "low|high|low|low|low": {
+            "no": 0.8818181818181817,
+            "yes": 0.11818181818181818
+          },
+          "low|high|low|low|medium": {
+            "no": 0.9285714285714286,
+            "yes": 0.07142857142857142
+          },
+          "low|high|low|low|high": {
+            "no": 0.825,
+            "yes": 0.175
+          },
+          "low|high|low|medium|low": {
+            "no": 0.6983333333333333,
+            "yes": 0.3016666666666667
+          },
+          "low|high|low|medium|medium": {
+            "no": 0.7949999999999999,
+            "yes": 0.20500000000000002
+          },
+          "low|high|low|medium|high": {
+            "no": 0.495,
+            "yes": 0.505
+          },
+          "low|high|low|high|low": {
+            "no": 0.6866666666666666,
+            "yes": 0.3133333333333333
+          },
+          "low|high|low|high|medium": {
+            "no": 0.2866666666666667,
+            "yes": 0.7133333333333333
+          },
+          "low|high|low|high|high": {
+            "no": 0.33000000000000007,
+            "yes": 0.6699999999999999
+          },
+          "low|high|medium|low|low": {
+            "no": 0.8196153846153847,
+            "yes": 0.18038461538461537
+          },
+          "low|high|medium|low|medium": {
+            "no": 0.7917391304347826,
+            "yes": 0.2082608695652174
+          },
+          "low|high|medium|low|high": {
+            "no": 0.7344444444444443,
+            "yes": 0.26555555555555554
+          },
+          "low|high|medium|medium|low": {
+            "no": 0.5676470588235294,
+            "yes": 0.43235294117647055
+          },
+          "low|high|medium|medium|medium": {
+            "no": 0.5962962962962963,
+            "yes": 0.40370370370370373
+          },
+          "low|high|medium|medium|high": {
+            "no": 0.29,
+            "yes": 0.71
+          },
+          "low|high|medium|high|low": {
+            "no": 0.44333333333333336,
+            "yes": 0.5566666666666666
+          },
+          "low|high|medium|high|medium": {
+            "no": 0.26555555555555554,
+            "yes": 0.7344444444444443
+          },
+          "low|high|medium|high|high": {
+            "no": 0.3225,
+            "yes": 0.6775
+          },
+          "low|high|high|low|low": {
+            "no": 0.775688622754491,
+            "yes": 0.22431137724550898
+          },
+          "low|high|high|low|medium": {
+            "no": 0.6485454545454545,
+            "yes": 0.3514545454545454
+          },
+          "low|high|high|low|high": {
+            "no": 0.5988461538461538,
+            "yes": 0.40115384615384614
+          },
+          "low|high|high|medium|low": {
+            "no": 0.6280555555555556,
+            "yes": 0.37194444444444447
+          },
+          "low|high|high|medium|medium": {
+            "no": 0.48599999999999993,
+            "yes": 0.514
+          },
+          "low|high|high|medium|high": {
+            "no": 0.315,
+            "yes": 0.6849999999999999
+          },
+          "low|high|high|high|low": {
+            "no": 0.20697674418604653,
+            "yes": 0.7930232558139535
+          },
+          "low|high|high|high|medium": {
+            "no": 0.16785714285714287,
+            "yes": 0.8321428571428572
+          },
+          "low|high|high|high|high": {
+            "no": 0.19230769230769232,
+            "yes": 0.8076923076923077
+          },
+          "medium|low|low|low|low": {
+            "no": 0.8594633077765609,
+            "yes": 0.1405366922234392
+          },
+          "medium|low|low|low|medium": {
+            "no": 0.7894971264367816,
+            "yes": 0.21050287356321837
+          },
+          "medium|low|low|low|high": {
+            "no": 0.6445214521452145,
+            "yes": 0.3554785478547855
+          },
+          "medium|low|low|medium|low": {
+            "no": 0.6754417670682731,
+            "yes": 0.3245582329317269
+          },
+          "medium|low|low|medium|medium": {
+            "no": 0.5636538461538462,
+            "yes": 0.43634615384615383
+          },
+          "medium|low|low|medium|high": {
+            "no": 0.4623809523809524,
+            "yes": 0.5376190476190477
+          },
+          "medium|low|low|high|low": {
+            "no": 0.44213483146067417,
+            "yes": 0.5578651685393258
+          },
+          "medium|low|low|high|medium": {
+            "no": 0.4159313725490196,
+            "yes": 0.5840686274509804
+          },
+          "medium|low|low|high|high": {
+            "no": 0.23124999999999998,
+            "yes": 0.76875
+          },
+          "medium|low|medium|low|low": {
+            "no": 0.8574418604651163,
+            "yes": 0.14255813953488372
+          },
+          "medium|low|medium|low|medium": {
+            "no": 0.746,
+            "yes": 0.254
+          },
+          "medium|low|medium|low|high": {
+            "no": 0.5488571428571429,
+            "yes": 0.4511428571428571
+          },
+          "medium|low|medium|medium|low": {
+            "no": 0.6191025641025641,
+            "yes": 0.3808974358974359
+          },
+          "medium|low|medium|medium|medium": {
+            "no": 0.5777966101694916,
+            "yes": 0.4222033898305085
+          },
+          "medium|low|medium|medium|high": {
+            "no": 0.4495454545454546,
+            "yes": 0.5504545454545454
+          },
+          "medium|low|medium|high|low": {
+            "no": 0.46970588235294114,
+            "yes": 0.5302941176470588
+          },
+          "medium|low|medium|high|medium": {
+            "no": 0.3373076923076923,
+            "yes": 0.6626923076923077
+          },
+          "medium|low|medium|high|high": {
+            "no": 0.257,
+            "yes": 0.743
+          },
+          "medium|low|high|low|low": {
+            "no": 0.7233333333333334,
+            "yes": 0.27666666666666667
+          },
+          "medium|low|high|low|medium": {
+            "no": 0.8068421052631579,
+            "yes": 0.1931578947368421
+          },
+          "medium|low|high|low|high": {
+            "no": 0.76625,
+            "yes": 0.23375
+          },
+          "medium|low|high|medium|low": {
+            "no": 0.5645454545454546,
+            "yes": 0.4354545454545455
+          },
+          "medium|low|high|medium|medium": {
+            "no": 0.40099999999999997,
+            "yes": 0.599
+          },
+          "medium|low|high|medium|high": {
+            "no": 0.4683333333333333,
+            "yes": 0.5316666666666666
+          },
+          "medium|low|high|high|low": {
+            "no": 0.6544444444444445,
+            "yes": 0.34555555555555556
+          },
+          "medium|low|high|high|medium": {
+            "no": 0.11500000000000003,
+            "yes": 0.8849999999999999
+          },
+          "medium|low|high|high|high": {
+            "no": 0.1633333333333334,
+            "yes": 0.8366666666666666
+          },
+          "medium|medium|low|low|low": {
+            "no": 0.7857017543859649,
+            "yes": 0.2142982456140351
+          },
+          "medium|medium|low|low|medium": {
+            "no": 0.7393396226415094,
+            "yes": 0.26066037735849057
+          },
+          "medium|medium|low|low|high": {
+            "no": 0.5042500000000001,
+            "yes": 0.49574999999999997
+          },
+          "medium|medium|low|medium|low": {
+            "no": 0.6169354838709677,
+            "yes": 0.38306451612903225
+          },
+          "medium|medium|low|medium|medium": {
+            "no": 0.5141891891891891,
+            "yes": 0.48581081081081084
+          },
+          "medium|medium|low|medium|high": {
+            "no": 0.5642857142857143,
+            "yes": 0.4357142857142857
+          },
+          "medium|medium|low|high|low": {
+            "no": 0.3819230769230769,
+            "yes": 0.6180769230769231
+          },
+          "medium|medium|low|high|medium": {
+            "no": 0.3492,
+            "yes": 0.6507999999999999
+          },
+          "medium|medium|low|high|high": {
+            "no": 0.19124999999999998,
+            "yes": 0.8087500000000001
+          },
+          "medium|medium|medium|low|low": {
+            "no": 0.7539455782312925,
+            "yes": 0.24605442176870745
+          },
+          "medium|medium|medium|low|medium": {
+            "no": 0.6599147727272727,
+            "yes": 0.3400852272727273
+          },
+          "medium|medium|medium|low|high": {
+            "no": 0.5600699300699301,
+            "yes": 0.4399300699300699
+          },
+          "medium|medium|medium|medium|low": {
+            "no": 0.5629317269076306,
+            "yes": 0.43706827309236945
+          },
+          "medium|medium|medium|medium|medium": {
+            "no": 0.5506417112299465,
+            "yes": 0.44935828877005346
+          },
+          "medium|medium|medium|medium|high": {
+            "no": 0.40202380952380945,
+            "yes": 0.5979761904761905
+          },
+          "medium|medium|medium|high|low": {
+            "no": 0.2938095238095238,
+            "yes": 0.7061904761904763
+          },
+          "medium|medium|medium|high|medium": {
+            "no": 0.28802083333333334,
+            "yes": 0.7119791666666666
+          },
+          "medium|medium|medium|high|high": {
+            "no": 0.09583333333333334,
+            "yes": 0.9041666666666666
+          },
+          "medium|medium|high|low|low": {
+            "no": 0.7011111111111111,
+            "yes": 0.29888888888888887
+          },
+          "medium|medium|high|low|medium": {
+            "no": 0.5817105263157895,
+            "yes": 0.4182894736842105
+          },
+          "medium|medium|high|low|high": {
+            "no": 0.4597297297297297,
+            "yes": 0.5402702702702703
+          },
+          "medium|medium|high|medium|low": {
+            "no": 0.48621212121212126,
+            "yes": 0.5137878787878787
+          },
+          "medium|medium|high|medium|medium": {
+            "no": 0.5095121951219512,
+            "yes": 0.49048780487804877
+          },
+          "medium|medium|high|medium|high": {
+            "no": 0.45235294117647057,
+            "yes": 0.5476470588235295
+          },
+          "medium|medium|high|high|low": {
+            "no": 0.16485714285714284,
+            "yes": 0.8351428571428572
+          },
+          "medium|medium|high|high|medium": {
+            "no": 0.23464285714285715,
+            "yes": 0.7653571428571428
+          },
+          "medium|medium|high|high|high": {
+            "no": 0.12454545454545456,
+            "yes": 0.8754545454545454
+          },
+          "medium|high|low|low|low": {
+            "no": 0.7269230769230769,
+            "yes": 0.27307692307692305
+          },
+          "medium|high|low|low|medium": {
+            "no": 0.65,
+            "yes": 0.35
+          },
+          "medium|high|low|low|high": {
+            "no": 0.41,
+            "yes": 0.5900000000000001
+          },
+          "medium|high|low|medium|low": {
+            "no": 0.8757142857142857,
+            "yes": 0.1242857142857143
+          },
+          "medium|high|low|medium|medium": {
+            "no": 0.46499999999999997,
+            "yes": 0.535
+          },
+          "medium|high|low|medium|high": {
+            "no": 0.24333333333333332,
+            "yes": 0.7566666666666667
+          },
+          "medium|high|low|high|low": {
+            "no": 0.2025,
+            "yes": 0.7975
+          },
+          "medium|high|low|high|medium": {
+            "no": 0.4025,
+            "yes": 0.5974999999999999
+          },
+          "medium|high|low|high|high": {
+            "no": 0.13666666666666671,
+            "yes": 0.8633333333333333
+          },
+          "medium|high|medium|low|low": {
+            "no": 0.6274000000000001,
+            "yes": 0.3726
+          },
+          "medium|high|medium|low|medium": {
+            "no": 0.65425,
+            "yes": 0.34575
+          },
+          "medium|high|medium|low|high": {
+            "no": 0.43347826086956515,
+            "yes": 0.5665217391304348
+          },
+          "medium|high|medium|medium|low": {
+            "no": 0.4532258064516129,
+            "yes": 0.5467741935483871
+          },
+          "medium|high|medium|medium|medium": {
+            "no": 0.6583333333333333,
+            "yes": 0.3416666666666667
+          },
+          "medium|high|medium|medium|high": {
+            "no": 0.265,
+            "yes": 0.735
+          },
+          "medium|high|medium|high|low": {
+            "no": 0.20722222222222222,
+            "yes": 0.7927777777777778
+          },
+          "medium|high|medium|high|medium": {
+            "no": 0.283125,
+            "yes": 0.7168749999999999
+          },
+          "medium|high|medium|high|high": {
+            "no": 0.055000000000000014,
+            "yes": 0.945
+          },
+          "medium|high|high|low|low": {
+            "no": 0.6984444444444444,
+            "yes": 0.3015555555555556
+          },
+          "medium|high|high|low|medium": {
+            "no": 0.6266412213740459,
+            "yes": 0.3733587786259542
+          },
+          "medium|high|high|low|high": {
+            "no": 0.5323255813953488,
+            "yes": 0.46767441860465114
+          },
+          "medium|high|high|medium|low": {
+            "no": 0.5055294117647059,
+            "yes": 0.4944705882352941
+          },
+          "medium|high|high|medium|medium": {
+            "no": 0.29793650793650794,
+            "yes": 0.7020634920634922
+          },
+          "medium|high|high|medium|high": {
+            "no": 0.48045454545454547,
+            "yes": 0.5195454545454545
+          },
+          "medium|high|high|high|low": {
+            "no": 0.19558823529411765,
+            "yes": 0.8044117647058824
+          },
+          "medium|high|high|high|medium": {
+            "no": 0.03918918918918919,
+            "yes": 0.9608108108108108
+          },
+          "medium|high|high|high|high": {
+            "no": 0.17105263157894737,
+            "yes": 0.8289473684210527
+          },
+          "high|low|low|low|low": {
+            "no": 0.7750724637681159,
+            "yes": 0.22492753623188408
+          },
+          "high|low|low|low|medium": {
+            "no": 0.6812213740458016,
+            "yes": 0.3187786259541985
+          },
+          "high|low|low|low|high": {
+            "no": 0.5633333333333334,
+            "yes": 0.4366666666666667
+          },
+          "high|low|low|medium|low": {
+            "no": 0.5805607476635515,
+            "yes": 0.4194392523364486
+          },
+          "high|low|low|medium|medium": {
+            "no": 0.38279069767441865,
+            "yes": 0.6172093023255814
+          },
+          "high|low|low|medium|high": {
+            "no": 0.38111111111111107,
+            "yes": 0.6188888888888889
+          },
+          "high|low|low|high|low": {
+            "no": 0.3066666666666667,
+            "yes": 0.6933333333333334
+          },
+          "high|low|low|high|medium": {
+            "no": 0.23414634146341462,
+            "yes": 0.7658536585365854
+          },
+          "high|low|low|high|high": {
+            "no": 0.09999999999999999,
+            "yes": 0.9
+          },
+          "high|low|medium|low|low": {
+            "no": 0.6505263157894736,
+            "yes": 0.3494736842105263
+          },
+          "high|low|medium|low|medium": {
+            "no": 0.5721739130434783,
+            "yes": 0.42782608695652175
+          },
+          "high|low|medium|low|high": {
+            "no": 0.495,
+            "yes": 0.505
+          },
+          "high|low|medium|medium|low": {
+            "no": 0.5359999999999999,
+            "yes": 0.464
+          },
+          "high|low|medium|medium|medium": {
+            "no": 0.42666666666666664,
+            "yes": 0.5733333333333334
+          },
+          "high|low|medium|medium|high": {
+            "no": 0.41000000000000003,
+            "yes": 0.59
+          },
+          "high|low|medium|high|low": {
+            "no": 0.27199999999999996,
+            "yes": 0.728
+          },
+          "high|low|medium|high|medium": {
+            "no": 0.08666666666666667,
+            "yes": 0.9133333333333334
+          },
+          "high|low|medium|high|high": {
+            "no": 0.07999999999999996,
+            "yes": 0.92
+          },
+          "high|low|high|low|low": {
+            "no": 0.6977777777777777,
+            "yes": 0.3022222222222222
+          },
+          "high|low|high|low|medium": {
+            "no": 0.41600000000000004,
+            "yes": 0.584
+          },
+          "high|low|high|low|high": {
+            "no": 0.43999999999999995,
+            "yes": 0.56
+          },
+          "high|low|high|medium|low": {
+            "no": 0.6533333333333333,
+            "yes": 0.3466666666666667
+          },
+          "high|low|high|medium|medium": {
+            "no": 0.352,
+            "yes": 0.648
+          },
+          "high|low|high|medium|high": {
+            "no": 0.28,
+            "yes": 0.72
+          },
+          "high|low|high|high|low": {
+            "no": 0.15999999999999998,
+            "yes": 0.8400000000000001
+          },
+          "high|low|high|high|medium": {
+            "no": 0.21999999999999997,
+            "yes": 0.78
+          },
+          "high|low|high|high|high": {
+            "no": 0.05999999999999994,
+            "yes": 0.9400000000000001
+          },
+          "high|medium|low|low|low": {
+            "no": 0.752,
+            "yes": 0.248
+          },
+          "high|medium|low|low|medium": {
+            "no": 0.6167741935483871,
+            "yes": 0.38322580645161286
+          },
+          "high|medium|low|low|high": {
+            "no": 0.44727272727272727,
+            "yes": 0.5527272727272727
+          },
+          "high|medium|low|medium|low": {
+            "no": 0.64,
+            "yes": 0.36
+          },
+          "high|medium|low|medium|medium": {
+            "no": 0.5230769230769231,
+            "yes": 0.47692307692307695
+          },
+          "high|medium|low|medium|high": {
+            "no": 0.17777777777777778,
+            "yes": 0.8222222222222223
+          },
+          "high|medium|low|high|low": {
+            "no": 0.11333333333333333,
+            "yes": 0.8866666666666667
+          },
+          "high|medium|low|high|medium": {
+            "no": 0.05333333333333333,
+            "yes": 0.9466666666666667
+          },
+          "high|medium|low|high|high": {
+            "no": 0.05599999999999996,
+            "yes": 0.9440000000000002
+          },
+          "high|medium|medium|low|low": {
+            "no": 0.6822950819672132,
+            "yes": 0.3177049180327869
+          },
+          "high|medium|medium|low|medium": {
+            "no": 0.5578761061946903,
+            "yes": 0.44212389380530975
+          },
+          "high|medium|medium|low|high": {
+            "no": 0.45951219512195124,
+            "yes": 0.5404878048780488
+          },
+          "high|medium|medium|medium|low": {
+            "no": 0.44333333333333336,
+            "yes": 0.5566666666666666
+          },
+          "high|medium|medium|medium|medium": {
+            "no": 0.3724590163934426,
+            "yes": 0.6275409836065574
+          },
+          "high|medium|medium|medium|high": {
+            "no": 0.2509090909090909,
+            "yes": 0.7490909090909091
+          },
+          "high|medium|medium|high|low": {
+            "no": 0.17837837837837836,
+            "yes": 0.8216216216216216
+          },
+          "high|medium|medium|high|medium": {
+            "no": 0.23703703703703705,
+            "yes": 0.7629629629629631
+          },
+          "high|medium|medium|high|high": {
+            "no": 0.09230769230769233,
+            "yes": 0.9076923076923078
+          },
+          "high|medium|high|low|low": {
+            "no": 0.5682051282051283,
+            "yes": 0.4317948717948718
+          },
+          "high|medium|high|low|medium": {
+            "no": 0.6761290322580645,
+            "yes": 0.32387096774193547
+          },
+          "high|medium|high|low|high": {
+            "no": 0.19555555555555554,
+            "yes": 0.8044444444444445
+          },
+          "high|medium|high|medium|low": {
+            "no": 0.49,
+            "yes": 0.51
+          },
+          "high|medium|high|medium|medium": {
+            "no": 0.48000000000000004,
+            "yes": 0.52
+          },
+          "high|medium|high|medium|high": {
+            "no": 0.5723076923076923,
+            "yes": 0.4276923076923077
+          },
+          "high|medium|high|high|low": {
+            "no": 0.1688888888888889,
+            "yes": 0.8311111111111111
+          },
+          "high|medium|high|high|medium": {
+            "no": 0.06400000000000002,
+            "yes": 0.9359999999999999
+          },
+          "high|medium|high|high|high": {
+            "no": 0.22400000000000003,
+            "yes": 0.776
+          },
+          "high|high|low|low|low": {
+            "no": 0.64,
+            "yes": 0.36
+          },
+          "high|high|low|low|medium": {
+            "no": 0.3333333333333333,
+            "yes": 0.6666666666666666
+          },
+          "high|high|low|low|high": {
+            "no": 0.19999999999999996,
+            "yes": 0.8
+          },
+          "high|high|low|medium|low": {
+            "no": 0.43999999999999995,
+            "yes": 0.56
+          },
+          "high|high|low|medium|medium": {
+            "no": 0.13599999999999998,
+            "yes": 0.8640000000000001
+          },
+          "high|high|low|medium|high": {
+            "no": 0.24,
+            "yes": 0.76
+          },
+          "high|high|low|high|low": {
+            "no": 0.18666666666666668,
+            "yes": 0.8133333333333334
+          },
+          "high|high|low|high|medium": {
+            "no": 0.45333333333333337,
+            "yes": 0.5466666666666666
+          },
+          "high|high|low|high|high": {
+            "no": 0.08000000000000007,
+            "yes": 0.9199999999999999
+          },
+          "high|high|medium|low|low": {
+            "no": 0.4661538461538462,
+            "yes": 0.5338461538461539
+          },
+          "high|high|medium|low|medium": {
+            "no": 0.3844444444444444,
+            "yes": 0.6155555555555555
+          },
+          "high|high|medium|low|high": {
+            "no": 0.5733333333333334,
+            "yes": 0.4266666666666667
+          },
+          "high|high|medium|medium|low": {
+            "no": 0.29230769230769227,
+            "yes": 0.7076923076923076
+          },
+          "high|high|medium|medium|medium": {
+            "no": 0.325,
+            "yes": 0.675
+          },
+          "high|high|medium|medium|high": {
+            "no": 0.04999999999999999,
+            "yes": 0.95
+          },
+          "high|high|medium|high|low": {
+            "no": 0.41333333333333333,
+            "yes": 0.5866666666666667
+          },
+          "high|high|medium|high|medium": {
+            "no": 0.25333333333333335,
+            "yes": 0.7466666666666666
+          },
+          "high|high|medium|high|high": {
+            "no": 0.016000000000000014,
+            "yes": 0.984
+          },
+          "high|high|high|low|low": {
+            "no": 0.5425,
+            "yes": 0.4575
+          },
+          "high|high|high|low|medium": {
+            "no": 0.48653061224489796,
+            "yes": 0.5134693877551021
+          },
+          "high|high|high|low|high": {
+            "no": 0.532,
+            "yes": 0.46799999999999997
+          },
+          "high|high|high|medium|low": {
+            "no": 0.4518918918918919,
+            "yes": 0.5481081081081082
+          },
+          "high|high|high|medium|medium": {
+            "no": 0.24,
+            "yes": 0.76
+          },
+          "high|high|high|medium|high": {
+            "no": 0.18444444444444444,
+            "yes": 0.8155555555555556
+          },
+          "high|high|high|high|low": {
+            "no": 0.15,
+            "yes": 0.85
+          },
+          "high|high|high|high|medium": {
+            "no": 0.015384615384615382,
+            "yes": 0.9846153846153847
+          },
+          "high|high|high|high|high": {
+            "no": 0.006666666666666672,
+            "yes": 0.9933333333333333
+          }
+        }
+      },
+      {
+        "name": "road_damage",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [
+          "hazard_intensity"
+        ],
+        "cpt": {
+          "low": {
+            "low": 0.8419199000879907,
+            "medium": 0.13764241718940706,
+            "high": 0.02043768272260225
+          },
+          "medium": {
+            "low": 0.2568939393939394,
+            "medium": 0.566300505050505,
+            "high": 0.17680555555555558
+          },
+          "high": {
+            "low": 0.066875,
+            "medium": 0.3265625,
+            "high": 0.6065625
+          }
+        }
+      },
+      {
+        "name": "congestion",
+        "states": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "parents": [],
+        "cpt": {
+          "": {
+            "low": 0.49709018214127054,
+            "medium": 0.3501932474455798,
+            "high": 0.1527165704131497
+          }
+        }
+      },
+      {
+        "name": "drone_road_report",
+        "states": [
+          "blocked",
+          "uncertain",
+          "open"
+        ],
+        "parents": [],
+        "cpt": {
+          "": {
+            "blocked": 0.1222641341577332,
+            "uncertain": 0.6283808549441752,
+            "open": 0.24935501089809173
+          }
+        }
+      },
+      {
+        "name": "road_passable",
+        "states": [
+          "no",
+          "yes"
+        ],
+        "parents": [
+          "road_damage",
+          "fire_severity",
+          "congestion",
+          "drone_road_report"
+        ],
+        "cpt": {
+          "low|low|low|blocked": {
+            "no": 0.3822665457842248,
+            "yes": 0.6177334542157752
+          },
+          "low|low|low|uncertain": {
+            "no": 0.09202322627472326,
+            "yes": 0.9079767737252766
+          },
+          "low|low|low|open": {
+            "no": 0.040715563506261175,
+            "yes": 0.9592844364937388
+          },
+          "low|low|medium|blocked": {
+            "no": 0.44288113695090436,
+            "yes": 0.5571188630490956
+          },
+          "low|low|medium|uncertain": {
+            "no": 0.17404304381245195,
+            "yes": 0.825956956187548
+          },
+          "low|low|medium|open": {
+            "no": 0.041907216494845356,
+            "yes": 0.9580927835051547
+          },
+          "low|low|high|blocked": {
+            "no": 0.516047197640118,
+            "yes": 0.48395280235988203
+          },
+          "low|low|high|uncertain": {
+            "no": 0.23703877790834313,
+            "yes": 0.7629612220916568
+          },
+          "low|low|high|open": {
+            "no": 0.04981927710843372,
+            "yes": 0.9501807228915662
+          },
+          "low|medium|low|blocked": {
+            "no": 0.5138028169014085,
+            "yes": 0.4861971830985915
+          },
+          "low|medium|low|uncertain": {
+            "no": 0.23053749170537494,
+            "yes": 0.769462508294625
+          },
+          "low|medium|low|open": {
+            "no": 0.058930481283422466,
+            "yes": 0.9410695187165776
+          },
+          "low|medium|medium|blocked": {
+            "no": 0.5625405405405405,
+            "yes": 0.4374594594594595
+          },
+          "low|medium|medium|uncertain": {
+            "no": 0.309697247706422,
+            "yes": 0.6903027522935781
+          },
+          "low|medium|medium|open": {
+            "no": 0.030755667506297237,
+            "yes": 0.9692443324937028
+          },
+          "low|medium|high|blocked": {
+            "no": 0.5874468085106382,
+            "yes": 0.4125531914893617
+          },
+          "low|medium|high|uncertain": {
+            "no": 0.3302415458937198,
+            "yes": 0.6697584541062801
+          },
+          "low|medium|high|open": {
+            "no": 0.09333333333333332,
+            "yes": 0.9066666666666666
+          },
+          "low|high|low|blocked": {
+            "no": 0.7275862068965517,
+            "yes": 0.27241379310344827
+          },
+          "low|high|low|uncertain": {
+            "no": 0.5484732824427481,
+            "yes": 0.4515267175572519
+          },
+          "low|high|low|open": {
+            "no": 0.12256410256410256,
+            "yes": 0.8774358974358974
+          },
+          "low|high|medium|blocked": {
+            "no": 0.6443181818181819,
+            "yes": 0.3556818181818182
+          },
+          "low|high|medium|uncertain": {
+            "no": 0.5598654708520179,
+            "yes": 0.44013452914798207
+          },
+          "low|high|medium|open": {
+            "no": 0.32703703703703707,
+            "yes": 0.672962962962963
+          },
+          "low|high|high|blocked": {
+            "no": 0.8913043478260869,
+            "yes": 0.10869565217391304
+          },
+          "low|high|high|uncertain": {
+            "no": 0.6224489795918368,
+            "yes": 0.37755102040816324
+          },
+          "low|high|high|open": {
+            "no": 0.27714285714285714,
+            "yes": 0.7228571428571429
+          },
+          "medium|low|low|blocked": {
+            "no": 0.5424615384615384,
+            "yes": 0.45753846153846156
+          },
+          "medium|low|low|uncertain": {
+            "no": 0.2801998462720984,
+            "yes": 0.7198001537279016
+          },
+          "medium|low|low|open": {
+            "no": 0.04281853281853282,
+            "yes": 0.9571814671814671
+          },
+          "medium|low|medium|blocked": {
+            "no": 0.6037820512820513,
+            "yes": 0.39621794871794874
+          },
+          "medium|low|medium|uncertain": {
+            "no": 0.3665767878077374,
+            "yes": 0.6334232121922625
+          },
+          "medium|low|medium|open": {
+            "no": 0.1107887323943662,
+            "yes": 0.8892112676056338
+          },
+          "medium|low|high|blocked": {
+            "no": 0.7627272727272728,
+            "yes": 0.23727272727272727
+          },
+          "medium|low|high|uncertain": {
+            "no": 0.4206516290726817,
+            "yes": 0.5793483709273183
+          },
+          "medium|low|high|open": {
+            "no": 0.1736585365853659,
+            "yes": 0.8263414634146342
+          },
+          "medium|medium|low|blocked": {
+            "no": 0.7315723270440251,
+            "yes": 0.26842767295597486
+          },
+          "medium|medium|low|uncertain": {
+            "no": 0.381251504211793,
+            "yes": 0.618748495788207
+          },
+          "medium|medium|low|open": {
+            "no": 0.19206250000000002,
+            "yes": 0.8079375
+          },
+          "medium|medium|medium|blocked": {
+            "no": 0.7345217391304347,
+            "yes": 0.2654782608695652
+          },
+          "medium|medium|medium|uncertain": {
+            "no": 0.4929545454545455,
+            "yes": 0.5070454545454545
+          },
+          "medium|medium|medium|open": {
+            "no": 0.23514285714285715,
+            "yes": 0.7648571428571428
+          },
+          "medium|medium|high|blocked": {
+            "no": 0.8301492537313434,
+            "yes": 0.1698507462686567
+          },
+          "medium|medium|high|uncertain": {
+            "no": 0.5111489361702127,
+            "yes": 0.4888510638297872
+          },
+          "medium|medium|high|open": {
+            "no": 0.28774193548387095,
+            "yes": 0.7122580645161292
+          },
+          "medium|high|low|blocked": {
+            "no": 0.906896551724138,
+            "yes": 0.09310344827586207
+          },
+          "medium|high|low|uncertain": {
+            "no": 0.6756457564575645,
+            "yes": 0.32435424354243547
+          },
+          "medium|high|low|open": {
+            "no": 0.47945454545454547,
+            "yes": 0.5205454545454545
+          },
+          "medium|high|medium|blocked": {
+            "no": 0.9671052631578947,
+            "yes": 0.03289473684210526
+          },
+          "medium|high|medium|uncertain": {
+            "no": 0.7373595505617978,
+            "yes": 0.26264044943820225
+          },
+          "medium|high|medium|open": {
+            "no": 0.4473076923076923,
+            "yes": 0.5526923076923077
+          },
+          "medium|high|high|blocked": {
+            "no": 0.9125,
+            "yes": 0.08749999999999998
+          },
+          "medium|high|high|uncertain": {
+            "no": 0.8795454545454546,
+            "yes": 0.12045454545454545
+          },
+          "medium|high|high|open": {
+            "no": 0.58,
+            "yes": 0.42000000000000004
+          },
+          "high|low|low|blocked": {
+            "no": 0.756875,
+            "yes": 0.243125
+          },
+          "high|low|low|uncertain": {
+            "no": 0.42343511450381677,
+            "yes": 0.5765648854961832
+          },
+          "high|low|low|open": {
+            "no": 0.2903157894736842,
+            "yes": 0.7096842105263158
+          },
+          "high|low|medium|blocked": {
+            "no": 0.8966666666666666,
+            "yes": 0.10333333333333333
+          },
+          "high|low|medium|uncertain": {
+            "no": 0.5068987341772152,
+            "yes": 0.4931012658227848
+          },
+          "high|low|medium|open": {
+            "no": 0.28973333333333334,
+            "yes": 0.7102666666666666
+          },
+          "high|low|high|blocked": {
+            "no": 0.9628571428571429,
+            "yes": 0.037142857142857144
+          },
+          "high|low|high|uncertain": {
+            "no": 0.5585185185185185,
+            "yes": 0.4414814814814815
+          },
+          "high|low|high|open": {
+            "no": 0.4832432432432432,
+            "yes": 0.5167567567567568
+          },
+          "high|medium|low|blocked": {
+            "no": 0.8825806451612903,
+            "yes": 0.11741935483870967
+          },
+          "high|medium|low|uncertain": {
+            "no": 0.5891596638655462,
+            "yes": 0.4108403361344538
+          },
+          "high|medium|low|open": {
+            "no": 0.33166666666666667,
+            "yes": 0.6683333333333333
+          },
+          "high|medium|medium|blocked": {
+            "no": 0.995,
+            "yes": 0.005
+          },
+          "high|medium|medium|uncertain": {
+            "no": 0.6525766871165645,
+            "yes": 0.34742331288343553
+          },
+          "high|medium|medium|open": {
+            "no": 0.37157142857142855,
+            "yes": 0.6284285714285714
+          },
+          "high|medium|high|blocked": {
+            "no": 0.8300000000000001,
+            "yes": 0.17
+          },
+          "high|medium|high|uncertain": {
+            "no": 0.8013636363636363,
+            "yes": 0.19863636363636364
+          },
+          "high|medium|high|open": {
+            "no": 0.7264,
+            "yes": 0.2736
+          },
+          "high|high|low|blocked": {
+            "no": 0.9422222222222223,
+            "yes": 0.05777777777777778
+          },
+          "high|high|low|uncertain": {
+            "no": 0.8092783505154639,
+            "yes": 0.19072164948453607
+          },
+          "high|high|low|open": {
+            "no": 0.6496774193548387,
+            "yes": 0.35032258064516125
+          },
+          "high|high|medium|blocked": {
+            "no": 0.8725,
+            "yes": 0.1275
+          },
+          "high|high|medium|uncertain": {
+            "no": 0.9246478873239438,
+            "yes": 0.07535211267605633
+          },
+          "high|high|medium|open": {
+            "no": 0.6495454545454545,
+            "yes": 0.35045454545454546
+          },
+          "high|high|high|blocked": {
+            "no": 0.992,
+            "yes": 0.008
+          },
+          "high|high|high|uncertain": {
+            "no": 0.9199999999999999,
+            "yes": 0.08
+          },
+          "high|high|high|open": {
+            "no": 0.7466666666666666,
+            "yes": 0.25333333333333335
+          }
+        }
+      }
+    ]
+  }
+}

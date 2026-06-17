@@ -1,0 +1,14 @@
+{
+  "training_samples": 240,
+  "validation_samples": 60,
+  "fixed_validation_brier": {
+    "trapped": 0.22524654,
+    "passability": 0.21773145,
+    "mean": 0.22148899
+  },
+  "learned_validation_brier": {
+    "trapped": 0.20980794,
+    "passability": 0.21600193,
+    "mean": 0.21290494
+  }
+}

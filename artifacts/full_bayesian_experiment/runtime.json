@@ -1,0 +1,11 @@
+{
+  "seed": 42,
+  "sample_count": 50000,
+  "public_anchor_rows": 2000,
+  "missing_rate": 0.1,
+  "label_noise": 0.03,
+  "label_source": "bayesian_ancestral_simulation",
+  "truth_claim": "Only hazard intensity is public-data anchored; target labels are simulated.",
+  "elapsed_seconds": 92.566,
+  "peak_memory_mb": 121.632
+}
