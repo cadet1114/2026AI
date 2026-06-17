@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 import random
 from math import hypot
 from typing import Any
@@ -14,6 +15,8 @@ GRID_COLUMNS = 6
 MAP_X_RANGE = (-2.5, 22.5)
 MAP_Y_RANGE = (-3.5, 12.0)
 MIN_ZONE_DISTANCE = 5.0
+ROAD_PRUNE_RANGE = (4, 8)
+MIN_BYPASS_ROADS_AFTER_PRUNE = 2
 
 
 def _round_probability(value: float) -> float:
@@ -184,6 +187,85 @@ def _road(
     }
 
 
+def _open_graph_reaches_zones(
+    roads: list[dict[str, Any]], zone_node_ids: set[str]
+) -> bool:
+    graph: dict[str, set[str]] = {}
+    for road in roads:
+        if road["status"] != "open":
+            continue
+        start = road["from"]
+        end = road["to"]
+        graph.setdefault(start, set()).add(end)
+        if road.get("bidirectional", True):
+            graph.setdefault(end, set()).add(start)
+
+    queue: deque[str] = deque(["HQ"])
+    visited = {"HQ"}
+    while queue:
+        node_id = queue.popleft()
+        for neighbor in graph.get(node_id, set()) - visited:
+            visited.add(neighbor)
+            queue.append(neighbor)
+    return zone_node_ids.issubset(visited)
+
+
+def _single_failure_tolerant(
+    roads: list[dict[str, Any]], zone_node_ids: set[str]
+) -> bool:
+    """Keep generated maps demonstrable even after one additional road failure."""
+    open_roads = [road for road in roads if road["status"] == "open"]
+    for candidate in open_roads:
+        remaining = [road for road in roads if road is not candidate]
+        if not _open_graph_reaches_zones(remaining, zone_node_ids):
+            return False
+    return True
+
+
+def _can_prune_road(road: dict[str, Any]) -> bool:
+    if road["status"] != "open":
+        return False
+    if road["from"] in {"HQ", "HOSPITAL"} or road["to"] in {"HQ", "HOSPITAL"}:
+        return False
+    if road["from"].startswith("ZONE_") or road["to"].startswith("ZONE_"):
+        return False
+    return road["from"].startswith("J") and road["to"].startswith("J")
+
+
+def _prune_random_roads(
+    roads: list[dict[str, Any]],
+    nodes: dict[str, dict[str, float]],
+    rng: random.Random,
+) -> list[dict[str, Any]]:
+    """Remove non-critical road segments so random maps do not look grid-stamped."""
+    zone_node_ids = {node_id for node_id in nodes if node_id.startswith("ZONE_")}
+    target_prunes = rng.randint(*ROAD_PRUNE_RANGE)
+    candidates = [road for road in roads if _can_prune_road(road)]
+    rng.shuffle(candidates)
+    pruned = 0
+
+    for road in candidates:
+        if pruned >= target_prunes:
+            break
+        if "BYPASS" in road["road_id"]:
+            bypass_count = sum(
+                candidate["status"] == "open" and "BYPASS" in candidate["road_id"]
+                for candidate in roads
+            )
+            if bypass_count <= MIN_BYPASS_ROADS_AFTER_PRUNE:
+                continue
+
+        trial = [candidate for candidate in roads if candidate is not road]
+        if not _open_graph_reaches_zones(trial, zone_node_ids):
+            continue
+        if not _single_failure_tolerant(trial, zone_node_ids):
+            continue
+        roads = trial
+        pruned += 1
+
+    return roads
+
+
 def _generate_ground_roads(
     nodes: dict[str, dict[str, float]], rng: random.Random
 ) -> list[dict[str, Any]]:
@@ -306,7 +388,7 @@ def _generate_ground_roads(
                 road_id=f"R_{junction}_ZONE_{zone_id}_{index}",
                 risk_profile="mixed",
             )
-    return roads
+    return _prune_random_roads(roads, nodes, rng)
 
 
 def _generate_air_routes(
