@@ -241,6 +241,7 @@ def _edge_trace(
     name: str,
     color: str,
     dash: str | None = None,
+    width: float = 1.8,
 ) -> go.Scatter:
     x_values: list[float | None] = []
     y_values: list[float | None] = []
@@ -266,7 +267,7 @@ def _edge_trace(
         name=name,
         text=hover,
         hoverinfo="text",
-        line={"color": color, "width": 2, "dash": dash or "solid"},
+        line={"color": color, "width": width, "dash": dash or "solid"},
     )
 
 
@@ -292,10 +293,10 @@ def _ground_risk_groups(scenario: dict[str, Any]) -> list[tuple[str, str, list[d
         else:
             groups["高风险"].append(decorated)
     return [
-        ("低风险", "#167349", groups["低风险"]),
-        ("中风险", "#c18316", groups["中风险"]),
-        ("高风险", "#cf3f30", groups["高风险"]),
-        ("阻断", "#1b1712", groups["阻断"]),
+        ("低风险", "rgba(24,116,75,.78)", groups["低风险"]),
+        ("中风险", "rgba(191,130,31,.82)", groups["中风险"]),
+        ("高风险", "rgba(205,64,48,.84)", groups["高风险"]),
+        ("阻断", "rgba(22,18,16,.92)", groups["阻断"]),
     ]
 
 
@@ -327,10 +328,10 @@ def build_map_figure(
                 open_roads,
                 nodes,
                 name="道路骨架",
-                color="rgba(16,18,20,.72)",
+                color="rgba(35,43,49,.50)",
+                width=1.25,
             )
         )
-        figure.data[-1].line.width = 2
         figure.data[-1].showlegend = False
     for label, color, roads in _ground_risk_groups(scenario):
         if not roads:
@@ -342,6 +343,7 @@ def build_map_figure(
                 name=f"{label}道路",
                 color=color,
                 dash="dash" if label == "阻断" else None,
+                width=1.55 if label != "阻断" else 2.0,
             )
         )
     figure.add_trace(
@@ -353,11 +355,12 @@ def build_map_figure(
             ],
             nodes,
             name="无人机航线",
-            color="#0ba8c8",
+            color="rgba(11,168,200,.58)",
             dash="dot",
+            width=1.45,
         )
     )
-    figure.data[-1].opacity = 0.78
+    figure.data[-1].opacity = 0.58
 
     blocked = [
         road
@@ -508,8 +511,8 @@ def build_map_figure(
                     FIRE_STATUS_COLORS[_fire_status(zone["observations"])]
                     for zone in zones
                 ],
-                "opacity": 0.82,
-                "line": {"color": "#111111", "width": 1},
+                "opacity": 0.66,
+                "line": {"color": "rgba(20,20,20,.62)", "width": 1},
             },
             customdata=[
                 [
@@ -534,8 +537,8 @@ def build_map_figure(
             hoverinfo="skip",
             marker={
                 "size": [42 + 34 * display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
-                "color": "rgba(236,82,45,.16)",
-                "line": {"color": "rgba(236,82,45,.28)", "width": 1},
+                "color": "rgba(236,82,45,.10)",
+                "line": {"color": "rgba(236,82,45,.16)", "width": 1},
             },
         )
     )
@@ -547,7 +550,7 @@ def build_map_figure(
             name="灾区优先级",
             text=[f"#{rank_by_zone[zone['zone_id']]} {_zone_label(zone['zone_id'])}" for zone in zones],
             textposition="top center",
-            textfont={"color": "#161717", "size": 12},
+            textfont={"color": "#111719", "size": 13},
             marker={
                 "size": [21 + 16 * display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
                 "color": [display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
@@ -555,7 +558,7 @@ def build_map_figure(
                 "cmin": 0,
                 "cmax": 1,
                 "showscale": False,
-                "line": {"color": "#1b1712", "width": 2},
+                "line": {"color": "#fff6df", "width": 2},
             },
             customdata=[
                 [
@@ -602,8 +605,8 @@ def build_map_figure(
             mode="markers+text",
             name="关键设施",
             text=[_node_label(node) for node in infrastructure_ids],
-            textposition="bottom center",
-            textfont={"color": "#141719", "size": 11},
+            textposition="top center",
+            textfont={"color": "#111719", "size": 12},
             marker={
                 "size": 16,
                 "symbol": "diamond",
@@ -632,7 +635,7 @@ def build_map_figure(
             name="救援单位",
             text=[_unit_label(unit_id) for unit_id in states],
             textposition="middle right",
-            textfont={"color": "#141719", "size": 11},
+            textfont={"color": "#111719", "size": 12},
             marker={
                 "size": 17,
                 "symbol": ["triangle-up" if state["type"] == "drone" else "square" for state in states.values()],
@@ -666,9 +669,9 @@ def build_map_figure(
                 nodes,
                 name="当前计算道路",
                 color="#ff6b35",
+                width=5.6,
             )
         )
-        figure.data[-1].line.width = 7
 
     focused_zones = [zone for zone in zones if zone["zone_id"] in set(focus.get("zones", []))]
     if focused_zones:
@@ -681,7 +684,7 @@ def build_map_figure(
                 marker={
                     "size": 54,
                     "color": "rgba(0,0,0,0)",
-                    "line": {"color": "#fff4cf", "width": 5},
+                    "line": {"color": "#fff4cf", "width": 4},
                 },
                 hoverinfo="skip",
             )
@@ -708,7 +711,7 @@ def build_map_figure(
         height=510,
         margin={"l": 4, "r": 4, "t": 22, "b": 4},
         paper_bgcolor="#14212b",
-        plot_bgcolor="#d8c79d",
+        plot_bgcolor="#cfc3a3",
         font={"family": "Avenir Next Condensed, sans-serif", "color": "#1b1712"},
         showlegend=False,
         legend={

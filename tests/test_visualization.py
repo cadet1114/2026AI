@@ -92,10 +92,10 @@ def test_map_renders_complex_scenario_before_inference_and_highlights_focus():
     assert "#39444c" in grid_colors
     assert len(figure.layout.shapes) == 0
     road_trace = next(trace for trace in figure.data if trace.name == "道路骨架")
-    assert road_trace.line.color == "rgba(16,18,20,.72)"
+    assert road_trace.line.color == "rgba(35,43,49,.50)"
     fire_trace = next(trace for trace in figure.data if trace.name == "火势范围")
     assert "#e3342f" in list(fire_trace.marker.color)
-    assert figure.layout.plot_bgcolor == "#d8c79d"
+    assert figure.layout.plot_bgcolor == "#cfc3a3"
 
 
 def test_map_hides_synthetic_position_connectors_from_base_road_layers():

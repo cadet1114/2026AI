@@ -287,7 +287,7 @@ def _event_status(session: LiveSimulation | None, event_type: str, enabled: bool
         return "待解锁", "locked"
     if any(event.get("event_type") == event_type for event in session.event_log):
         return "已触发", "danger"
-    return "待触发", "ready"
+    return "可触发", "ready"
 
 
 def _unit_progress(state: dict[str, Any]) -> int:
@@ -748,11 +748,18 @@ def _render_calculation_inspector(session: LiveSimulation) -> None:
     record = _selected_record(session)
     st.markdown(_render_step_stack(session), unsafe_allow_html=True)
     st.markdown(_render_algorithm_hint(session, record), unsafe_allow_html=True)
+    output_label = PHASE_LABELS.get(record["phase"], ("--", "当前输出", ""))[1] if record else "等待输入校验"
+    st.markdown(
+        f"<div class='output-title'><b>当前输出 / Current Output</b>"
+        f"<span>{html.escape(output_label)}</span></div>",
+        unsafe_allow_html=True,
+    )
     if record is None:
-        st.markdown("<div class='empty-inspector'>", unsafe_allow_html=True)
-        st.markdown("#### 等待第一步计算")
-        st.caption("地图已生成，等待输入校验。点击顶部按钮后，这里会显示每一步的结果卡。")
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='empty-output'><b>等待输入校验</b>"
+            "<span>点击“执行下一算法步骤”后，将在这里显示 JSON 校验结果。</span></div>",
+            unsafe_allow_html=True,
+        )
         return
 
     index = int(st.session_state.get("history_index", len(session.calculation_history) - 1))
@@ -835,8 +842,9 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
                 args=(event_type,),
             )
             st.markdown(
-                f"<div class='event-meta'>{html.escape(hint)}"
-                f"<b>目标 · {html.escape(_display_node_id(selected))}</b></div>",
+                f"<div class='event-meta'><span>说明：{html.escape(hint)}</span>"
+                f"<b>目标：{html.escape(_display_node_id(selected))}</b>"
+                "<em>预计影响：触发后重新计算风险、路线和任务。</em></div>",
                 unsafe_allow_html=True,
             )
     with st.container(border=True):
@@ -856,8 +864,9 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
         )
         st.button("随算法自动更新", key="event_resource_dispatch", disabled=True, width="stretch")
         st.markdown(
-            f"<div class='event-meta'>任务分配完成后自动刷新救援单位状态"
-            f"<b>当前 · {html.escape(target)}</b></div>",
+            f"<div class='event-meta'><span>说明：任务分配完成后自动刷新救援单位状态</span>"
+            f"<b>当前：{html.escape(target)}</b>"
+            "<em>预计影响：更新底部资源卡与执行进度。</em></div>",
             unsafe_allow_html=True,
         )
 
@@ -922,13 +931,13 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
     linear-gradient(180deg,var(--shell2),var(--shell));
   color:#edf4f7;
 }
-.block-container { max-width:none; min-height:100vh; padding:.75rem .95rem .7rem; }
+.block-container { max-width:none; min-height:100vh; padding:.82rem 1.05rem .85rem; }
 h1,h2,h3,h4 { font-family:"DIN Condensed","Avenir Next Condensed",sans-serif !important;
   text-transform:uppercase; letter-spacing:.04em; }
 p,div,button,input,small { font-family:"Inter","IBM Plex Mono","Menlo",sans-serif; }
 h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !important; color:#fff6e7; }
 [data-testid="stVerticalBlock"] { gap:.55rem; }
-[data-testid="stHorizontalBlock"] { gap:.75rem; align-items:stretch; }
+[data-testid="stHorizontalBlock"] { gap:1rem; align-items:stretch; }
 [data-testid="stSelectbox"] label { display:none; }
 [data-baseweb="select"] > div {
   min-height:34px; background:#21313d; border:1px solid #3b5060; color:#eef6f7;
@@ -980,9 +989,9 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
 .status-ok::before { background:var(--green); box-shadow:0 0 10px rgba(73,209,138,.6); }
 .status-standby::before { background:var(--amber); }
 .stButton > button, .stDownloadButton > button {
-  min-height:38px; border:1px solid #496071; border-radius:8px;
+  min-height:40px; border:1px solid #496071; border-radius:8px;
   background:linear-gradient(180deg,#263846,#1d2b36); color:#eef6f7;
-  font-weight:800; font-size:.78rem; box-shadow:0 8px 18px rgba(0,0,0,.18);
+  font-weight:800; font-size:.8rem; box-shadow:0 8px 18px rgba(0,0,0,.18);
 }
 .stButton > button:hover { border-color:var(--orange); color:#fff2e7; background:#2b3d4a; }
 .stButton > button[kind="primary"] {
@@ -990,24 +999,24 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
   border-color:#ff8c68; box-shadow:0 10px 24px rgba(255,112,67,.24);
 }
 .stButton > button:disabled {
-  opacity:.58; color:#81919c; background:#182630; border-color:#2c3e4a; box-shadow:none;
+  opacity:.72; color:#9aaab5; background:#1a2a36; border-color:#334958; box-shadow:none;
 }
 [data-testid="stPlotlyChart"] {
-  border:1px solid #334754; border-radius:8px; overflow:hidden;
+  border:1px solid #334754; border-radius:10px; overflow:hidden;
   box-shadow:0 14px 34px rgba(0,0,0,.24);
 }
 .panel-title {
   display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
-  margin:0 0 8px; padding-bottom:8px; border-bottom:1px solid var(--soft-line);
+  margin:0 0 12px; padding-bottom:9px; border-bottom:1px solid var(--soft-line);
 }
-.panel-title b { color:#fff4df; font-size:.95rem; letter-spacing:.05em; }
-.panel-title span { color:#94a7b4; font-size:.7rem; }
+.panel-title b { color:#fff4df; font-size:1.05rem; letter-spacing:.04em; }
+.panel-title span { color:#94a7b4; font-size:.76rem; }
 .map-caption { display:flex; justify-content:space-between; align-items:center; color:#94a7b4;
-  font-size:.68rem; letter-spacing:.06em; margin:0 2px 6px; }
+  font-size:.72rem; letter-spacing:.04em; margin:0 2px 10px; }
 .map-caption b { color:#f7ecd2; }
 .map-legend {
-  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px 12px;
-  padding:8px 10px; margin-top:8px; border:1px solid #2c4050; border-radius:8px;
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px 12px;
+  padding:7px 10px; margin-top:8px; border:1px solid #2c4050; border-radius:8px;
   background:rgba(20,31,41,.92);
 }
 .map-legend span { display:flex; align-items:center; gap:7px; color:#bed0d9; font-size:.7rem; white-space:nowrap; }
@@ -1024,18 +1033,20 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
 }
 .map-empty b { color:#f3e6cc; font-size:1rem; margin-bottom:8px; }
 .map-empty span { max-width:520px; line-height:1.55; font-size:.78rem; }
-.dock-label { color:#fff1d4; padding:0 0 8px; font-size:.86rem; font-weight:900; }
+.dock-label { color:#fff1d4; padding:0 0 10px; font-size:1rem; font-weight:900; }
 .event-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.event-card-head b { color:#f4ead8; font-size:.82rem; }
+.event-card-head b { color:#f4ead8; font-size:.9rem; }
 .event-status { border-radius:999px; padding:3px 8px; font-size:.62rem; border:1px solid #3a4d5b; color:#9fb0bb; }
 .event-status.ready { color:#ffdbaa; border-color:rgba(245,184,75,.45); background:rgba(245,184,75,.08); }
 .event-status.danger { color:#ffd0c9; border-color:rgba(238,81,72,.52); background:rgba(238,81,72,.10); }
 .event-status.locked { opacity:.72; }
-.event-meta { color:#8fa2af; font-size:.68rem; line-height:1.42; margin:5px 1px 3px; }
-.event-meta b { display:block; color:#c6d4db; font-size:.64rem; margin-top:4px; }
+.event-meta { color:#8fa2af; font-size:.72rem; line-height:1.48; margin:7px 1px 2px; }
+.event-meta span,.event-meta b,.event-meta em { display:block; }
+.event-meta b { color:#d3e0e6; font-size:.7rem; margin-top:4px; }
+.event-meta em { color:#7f929e; font-size:.66rem; font-style:normal; margin-top:3px; }
 [data-testid="stVerticalBlockBorderWrapper"] { border-color:#39444b !important; border-radius:2px !important;
   background:linear-gradient(180deg,#1a2834,#14212b) !important;
-  box-shadow:0 12px 30px rgba(0,0,0,.20); border-radius:8px !important; }
+  box-shadow:0 12px 30px rgba(0,0,0,.20); border-radius:10px !important; }
 .inspector-head { display:grid; grid-template-columns:54px 1fr; gap:10px; align-items:center;
   border-bottom:1px solid #3d474e; padding-bottom:9px; }
 .inspector-head > span { font-family:"DIN Condensed",sans-serif; font-size:2.2rem; line-height:1;
@@ -1059,14 +1070,27 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
 .step-active > span { color:var(--orange); border-color:var(--orange); background:rgba(255,112,67,.13); }
 .step-active b { color:#fff2dd; }
 .algorithm-hint {
-  border:1px solid #2e4250; border-radius:8px; padding:10px 11px; margin:8px 0 10px;
+  border:1px solid #2e4250; border-radius:8px; padding:11px 12px; margin:8px 0 12px;
   background:rgba(14,25,34,.78);
 }
 .algorithm-hint b { display:block; color:#f4c66c; font-size:.7rem; margin-top:6px; }
 .algorithm-hint b:first-child { margin-top:0; }
 .algorithm-hint p { margin:3px 0 0; color:#b9c8cf; font-size:.68rem; line-height:1.45; }
+.output-title {
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  margin:10px 0 8px; padding:9px 10px; border-radius:8px;
+  border:1px solid #334958; background:rgba(19,31,42,.90);
+}
+.output-title b { color:#fff3dc; font-size:.82rem; }
+.output-title span { color:#f5bf68; font-size:.68rem; }
+.empty-output {
+  border:1px dashed #405466; border-radius:8px; padding:16px 14px;
+  background:rgba(12,22,30,.62); color:#a8bbc6;
+}
+.empty-output b { display:block; color:#f2e5cf; font-size:.9rem; margin-bottom:6px; }
+.empty-output span { display:block; font-size:.74rem; line-height:1.5; }
 .formula-box,.alert-box { background:#0f1418; border:1px solid #3b464d; border-left:4px solid var(--cyan);
-  color:#dce4e5; padding:10px 12px; font-size:.68rem; margin:5px 0 8px; line-height:1.55; }
+  color:#dce4e5; padding:11px 13px; font-size:.72rem; margin:5px 0 9px; line-height:1.55; border-radius:8px; }
 .formula-box b { color:var(--cyan); }
 .formula-box small,.alert-box small { display:block; color:#7f8b92; margin-top:4px; }
 .alert-box { border-left-color:var(--orange); }
@@ -1089,7 +1113,12 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
 .check-line { border-bottom:1px dotted #38434a; padding:8px 4px; color:#bdc7ca; font-size:.65rem; }
 .check-line::first-letter { color:var(--green); }
 .empty-inspector { border-top:5px solid var(--orange); padding-top:8px; }
-[data-testid="stDataFrame"] { border:1px solid #354047; }
+[data-testid="stDataFrame"] { border:1px solid #354047; border-radius:8px; overflow:hidden; }
+.resource-title {
+  display:flex; justify-content:space-between; align-items:center; margin:10px 0 6px;
+  color:#fff2dc; font-size:1rem; font-weight:900;
+}
+.resource-title span { color:#94a7b4; font-size:.72rem; font-weight:500; }
 .footer-strip { min-height:104px; display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
   padding-top:4px; }
 .unit-card {
@@ -1184,7 +1213,7 @@ if notice:
     st.toast(notice)
 
 if session is None:
-    map_column, event_column, inspector_column = st.columns([6, 1.8, 2.2])
+    map_column, event_column, inspector_column = st.columns([6.2, 1.8, 2.4], gap="large")
     with map_column:
         with st.container(border=True):
             st.markdown(
@@ -1199,10 +1228,10 @@ if session is None:
             )
             st.markdown(_render_map_legend(), unsafe_allow_html=True)
     with event_column:
-        with st.container(height=645, border=True):
+        with st.container(height=620, border=True):
             _render_event_dock(None)
     with inspector_column:
-        with st.container(height=645, border=True):
+        with st.container(height=620, border=True):
             st.markdown("<div class='dock-label'>算法步骤</div>", unsafe_allow_html=True)
             st.markdown(_render_step_stack(None), unsafe_allow_html=True)
             st.markdown(_render_algorithm_hint(None, None), unsafe_allow_html=True)
@@ -1210,7 +1239,7 @@ if session is None:
 else:
     snapshot = _current_snapshot(session)
     focus = record.get("focus", {}) if record else {}
-    map_column, event_column, inspector_column = st.columns([6, 1.8, 2.2])
+    map_column, event_column, inspector_column = st.columns([6.2, 1.8, 2.4], gap="large")
     with map_column:
         with st.container(border=True):
             st.markdown(
@@ -1231,10 +1260,10 @@ else:
             )
             st.markdown(_render_map_legend(), unsafe_allow_html=True)
     with event_column:
-        with st.container(height=645, border=True):
+        with st.container(height=620, border=True):
             _render_event_dock(session)
     with inspector_column:
-        with st.container(height=645, border=True):
+        with st.container(height=620, border=True):
             st.markdown("<div class='dock-label'>算法步骤</div>", unsafe_allow_html=True)
             nav_prev, nav_label, nav_next = st.columns([1, 1.4, 1])
             with nav_prev:
@@ -1263,6 +1292,11 @@ else:
                     or st.session_state.get("history_index", -1)
                     >= len(session.calculation_history) - 1,
                     width="stretch",
-                )
+            )
             _render_calculation_inspector(session)
+    st.markdown(
+        "<div class='resource-title'>救援资源 / Rescue Assets"
+        "<span>车辆、无人机与当前任务状态</span></div>",
+        unsafe_allow_html=True,
+    )
     _render_footer(session)
