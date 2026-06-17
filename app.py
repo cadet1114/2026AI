@@ -40,7 +40,7 @@ DEFAULT_IMAGE_PATH = BASE_DIR / "assets" / "disaster_grid_input.png"
 EXPORT_DIR = BASE_DIR / "exports"
 CURRENT_SCENARIO_EXPORT_PATH = EXPORT_DIR / "current_scenario.json"
 MAP_RENDER_SCALE = 3
-COST_MODEL_VERSION = "terrain-cost-v4-avoid-congestion"
+COST_MODEL_VERSION = "terrain-cost-v5-air-grid"
 SCENARIO_VERSION = "scenario-v4-expanded-buildings"
 ENGINE_DEMO = "B 演示引擎"
 ENGINE_A_ADAPTER = "A 同学算法适配"
@@ -82,7 +82,7 @@ TILE_VARIANTS = {
 TILE_CATEGORY_META = {
     0: {
         "name": "地面/空地",
-        "description": "救援车可通行，单格代价 1.8；无人机代价 1.0。",
+        "description": "救援车可通行，单格代价 1.8；无人机按空中格网飞越。",
         "color": "#c8d7a0",
     },
     1: {
@@ -92,17 +92,17 @@ TILE_CATEGORY_META = {
     },
     2: {
         "name": "建筑",
-        "description": "救援车不可通行；无人机可飞越，额外代价 +0.3。",
+        "description": "救援车不可通行；无人机可飞越，空中障碍代价 +0.3。",
         "color": "#9aa4ad",
     },
     3: {
         "name": "拥堵",
-        "description": "救援车额外代价 +3.5；无人机额外代价 +0.8。",
+        "description": "救援车额外代价 +3.5；无人机空中代价 +0.35。",
         "color": "#f2d16b",
     },
     4: {
         "name": "火灾风险",
-        "description": "救援车额外代价 +5.0；无人机额外代价 +1.5。",
+        "description": "救援车额外代价 +5.0；无人机空中代价 +2.4。",
         "color": "#f28a2e",
     },
     5: {
@@ -112,17 +112,17 @@ TILE_CATEGORY_META = {
     },
     6: {
         "name": "塌方风险",
-        "description": "救援车额外代价 +4.0；模拟塌方后转为断路。",
+        "description": "救援车额外代价 +4.0；无人机空中代价 +1.1；模拟塌方后转为断路。",
         "color": "#7b3140",
     },
     7: {
         "name": "水域",
-        "description": "救援车不可通行；无人机可飞越，额外代价 +0.3。",
+        "description": "救援车不可通行；无人机可飞越，空中障碍代价 +0.3。",
         "color": "#5ca8c8",
     },
     8: {
         "name": "公园/绿地",
-        "description": "救援车可绕行，单格代价 1.8；无人机代价 1.0。",
+        "description": "救援车可绕行，单格代价 1.8；无人机按空中格网飞越。",
         "color": "#7dae68",
     },
 }
@@ -1160,7 +1160,8 @@ def _render_map_tile_legend() -> None:
         + """
           </div>
           <div class="cost-rule">
-            <b>代价规则：</b>救援车道路=1.0，草地/空地/绿地=1.8；拥堵 +3.5，火灾 +5.0，塌方风险 +4.0；建筑、水域、断路对救援车不可通行。无人机基础代价=1.0，可飞越障碍但火灾/塌方/拥堵会增加风险代价。
+            <b>地面代价：</b>救援车道路=1.0，草地/空地/绿地=1.8；拥堵 +3.5，火灾 +5.0，塌方风险 +4.0；建筑、水域、断路对救援车不可通行。<br>
+            <b>空中代价：</b>无人机使用 8 邻接空中格网，直飞单格=1.0、斜飞约=1.41；可飞越建筑/水域/断路，障碍 +0.3，拥堵 +0.35，塌方 +1.1，火灾 +2.4。
           </div>
           <div class="legend-title legend-title-spaced">标记与路线</div>
           <div class="marker-legend-grid">
