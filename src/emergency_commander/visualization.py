@@ -29,12 +29,12 @@ FIRE_STATUS_LABELS = {
 }
 SANDBOX_GRID_CELL_SIZE = 0.42
 SANDBOX_STATE_COLORS = {
-    0: "#ead9b4",
-    1: "#dbc492",
-    2: "#f2ad38",
-    3: "#e64032",
-    4: "#2b3033",
-    5: "#4a1719",
+    0: "#cddbb3",
+    1: "#d4c198",
+    2: "#e9bd55",
+    3: "#df553f",
+    4: "#39444c",
+    5: "#3a171b",
 }
 SANDBOX_STATE_LABELS = {
     0: "稳定地面",
@@ -216,9 +216,9 @@ def _add_sandbox_state_grid(figure: go.Figure, scenario: dict[str, Any]) -> None
                     "道路",
                     "阻断",
                 ],
-                "tickfont": {"color": "#f4ead5", "size": 9},
-                "thickness": 9,
-                "len": 0.74,
+                "tickfont": {"color": "#dce8ef", "size": 8},
+                "thickness": 7,
+                "len": 0.58,
                 "y": 0.48,
             },
         )
@@ -705,11 +705,12 @@ def build_map_figure(
         )
 
     figure.update_layout(
-        height=610,
+        height=510,
         margin={"l": 4, "r": 4, "t": 22, "b": 4},
-        paper_bgcolor="#11161b",
-        plot_bgcolor="#ead8b4",
+        paper_bgcolor="#14212b",
+        plot_bgcolor="#d8c79d",
         font={"family": "Avenir Next Condensed, sans-serif", "color": "#1b1712"},
+        showlegend=False,
         legend={
             "orientation": "h",
             "y": 1.025,

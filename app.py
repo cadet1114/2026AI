@@ -21,6 +21,72 @@ EVENTS = (
     ("fire_spread", "火势蔓延", "提高区域风险"),
     ("new_sos", "新增求救", "注入高置信 SOS"),
 )
+COMMAND_STEPS = (
+    ("validate", "01", "输入校验"),
+    ("infer", "02", "贝叶斯推断"),
+    ("prioritize", "03", "风险排序"),
+    ("route", "04", "路线规划"),
+    ("allocate", "05", "任务分配"),
+    ("complete", "06", "报告生成"),
+)
+PHASE_TO_COMMAND_STEP = {
+    "validate": "validate",
+    "infer": "infer",
+    "prioritize": "prioritize",
+    "route": "route",
+    "utility": "allocate",
+    "allocate": "allocate",
+    "execute": "complete",
+    "replan": "route",
+    "complete": "complete",
+}
+STEP_HINTS = {
+    "validate": (
+        "校验输入 JSON、道路端点和单位起点。",
+        "场景节点、道路、灾区和救援单位。",
+        "输出结构化校验结果。",
+    ),
+    "infer": (
+        "用 CPT 对每个灾区进行贝叶斯后验推断。",
+        "SOS、烟雾、火势、建筑损伤和道路损伤。",
+        "输出被困概率与道路可通概率。",
+    ),
+    "prioritize": (
+        "融合被困概率、生命风险、紧迫度和可达性。",
+        "贝叶斯推理结果与灾区观测特征。",
+        "输出灾区优先级排序。",
+    ),
+    "route": (
+        "按道路风险和通行状态搜索候选路线。",
+        "路网、阻断道路、火势风险和单位当前位置。",
+        "输出可行路线、总代价与风险。",
+    ),
+    "utility": (
+        "计算候选任务的期望效用。",
+        "路线时间、目标优先级、风险和单位能力。",
+        "输出效用矩阵。",
+    ),
+    "allocate": (
+        "枚举组合并选择总效用最高的任务分配。",
+        "候选任务、单位容量和重复目标约束。",
+        "输出最终任务分配。",
+    ),
+    "execute": (
+        "推进救援单位状态机。",
+        "当前任务、剩余路程和服务时间。",
+        "输出单位状态与救援进度。",
+    ),
+    "replan": (
+        "根据突发事件重新计算风险、路线和任务。",
+        "事件变化、旧计划和当前单位位置。",
+        "输出重规划后的任务与路线。",
+    ),
+    "complete": (
+        "汇总救援结果并生成可下载报告。",
+        "全流程日志、最终单位状态和完成区域。",
+        "输出 JSON 与 Markdown 报告。",
+    ),
+}
 MISSION_LABELS = {
     "ground_rescue": "地面救援",
     "air_recon": "无人机侦查",
@@ -87,6 +153,153 @@ def _display_node_id(value: Any) -> str:
 
 def _display_route_path(path: list[str]) -> str:
     return " → ".join(_display_node_id(node) for node in path)
+
+
+def _current_command_step(session: LiveSimulation | None) -> str | None:
+    if session is None:
+        return None
+    return PHASE_TO_COMMAND_STEP.get(session.phase, session.phase)
+
+
+def _completed_command_steps(session: LiveSimulation | None) -> set[str]:
+    if session is None:
+        return set()
+    completed = {
+        PHASE_TO_COMMAND_STEP.get(record["phase"], record["phase"])
+        for record in session.calculation_history
+    }
+    if session.status == "completed":
+        completed.add("complete")
+    return completed
+
+
+def _render_progress_bar(session: LiveSimulation | None) -> str:
+    current = _current_command_step(session)
+    completed = _completed_command_steps(session)
+    items = []
+    for step_key, number, label in COMMAND_STEPS:
+        if step_key in completed and step_key != current:
+            state = "done"
+            icon = "✓"
+        elif step_key == current:
+            state = "active"
+            icon = "●"
+        else:
+            state = "todo"
+            icon = "○"
+        items.append(
+            "<div class='progress-step progress-{}'>"
+            "<span>{}</span><b>{}</b><small>{}</small></div>".format(
+                state,
+                icon,
+                html.escape(number),
+                html.escape(label),
+            )
+        )
+    return "<div class='progress-rail'>" + "".join(items) + "</div>"
+
+
+def _render_status_capsules(session: LiveSimulation | None, selected_model: str) -> str:
+    if session is None:
+        capsules = [
+            ("等待场景", "standby"),
+            ("模型 " + selected_model, "neutral"),
+            ("时间 0.0 分钟", "neutral"),
+        ]
+    else:
+        capsules = [
+            (f"种子 {session.seed}", "neutral"),
+            (f"时间 +{session.clock_minutes:.1f} 分钟", "neutral"),
+            (f"模式 {selected_model}", "ok"),
+        ]
+    return "<div class='status-capsules'>" + "".join(
+        f"<span class='status-pill status-{kind}'>{html.escape(label)}</span>"
+        for label, kind in capsules
+    ) + "</div>"
+
+
+def _render_map_legend() -> str:
+    items = [
+        ("#d7e1b2", "地面"),
+        ("#6f7c86", "道路"),
+        ("#a7b2bc", "建筑"),
+        ("#f2c85b", "拥堵"),
+        ("#f27f2d", "火势"),
+        ("#1c2024", "阻断"),
+        ("#21b7ce", "无人机航线"),
+        ("#e4583e", "救援路线"),
+        ("#6d57a3", "医院"),
+        ("#c91525", "灾区目标"),
+    ]
+    return "<div class='map-legend'>" + "".join(
+        f"<span><i style='background:{color}'></i>{label}</span>"
+        for color, label in items
+    ) + "</div>"
+
+
+def _phase_state(session: LiveSimulation | None, phase: str) -> str:
+    if session is None:
+        return "todo"
+    seen = {record["phase"] for record in session.calculation_history}
+    if phase == session.phase:
+        return "active"
+    if phase in seen or session.status == "completed":
+        return "done"
+    return "todo"
+
+
+def _render_step_stack(session: LiveSimulation | None) -> str:
+    phases = ("validate", "infer", "prioritize", "route", "utility", "allocate")
+    cards = []
+    for phase in phases:
+        state = _phase_state(session, phase)
+        icon = {"done": "✓", "active": "●", "todo": "○"}[state]
+        number, label, algorithm = PHASE_LABELS[phase]
+        cards.append(
+            "<div class='step-card step-{}'><span>{}</span><div><b>{} {}</b>"
+            "<small>{}</small></div></div>".format(
+                state,
+                icon,
+                html.escape(number),
+                html.escape(label),
+                html.escape(algorithm),
+            )
+        )
+    return "<div class='step-stack'>" + "".join(cards) + "</div>"
+
+
+def _render_algorithm_hint(session: LiveSimulation | None, record: dict[str, Any] | None) -> str:
+    phase = record["phase"] if record else (session.phase if session else "validate")
+    description, input_summary, output_summary = STEP_HINTS.get(
+        phase, ("等待算法步骤。", "暂无输入。", "等待输出。")
+    )
+    return (
+        "<div class='algorithm-hint'>"
+        f"<b>当前算法说明</b><p>{html.escape(description)}</p>"
+        f"<b>输入数据摘要</b><p>{html.escape(input_summary)}</p>"
+        f"<b>下一步输出</b><p>{html.escape(output_summary)}</p>"
+        "</div>"
+    )
+
+
+def _event_status(session: LiveSimulation | None, event_type: str, enabled: bool) -> tuple[str, str]:
+    if not enabled or session is None:
+        return "待解锁", "locked"
+    if any(event.get("event_type") == event_type for event in session.event_log):
+        return "已触发", "danger"
+    return "待触发", "ready"
+
+
+def _unit_progress(state: dict[str, Any]) -> int:
+    task = state.get("current_task") or {}
+    route = task.get("route") or {}
+    remaining = float(state.get("remaining_travel") or state.get("remaining_service") or 0.0)
+    total = float(route.get("eta") or remaining or 1.0)
+    if state.get("status") in {"idle", "ready"}:
+        return 0
+    if state.get("status") == "completed":
+        return 100
+    return max(0, min(100, round((1.0 - remaining / max(total, remaining, 1.0)) * 100)))
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -533,20 +746,12 @@ def _render_replan(record: dict[str, Any]) -> None:
 
 def _render_calculation_inspector(session: LiveSimulation) -> None:
     record = _selected_record(session)
+    st.markdown(_render_step_stack(session), unsafe_allow_html=True)
+    st.markdown(_render_algorithm_hint(session, record), unsafe_allow_html=True)
     if record is None:
         st.markdown("<div class='empty-inspector'>", unsafe_allow_html=True)
         st.markdown("#### 等待第一步计算")
-        st.caption("地图已生成。点击“执行下一算法步骤”，从输入校验开始展示完整证据链。")
-        st.markdown(
-            """
-            1. JSON 结构校验与归一化
-            2. 贝叶斯精确枚举
-            3. 加权风险排序
-            4. 风险感知 A*
-            5. 期望效用分解
-            6. 全局组合分配
-            """
-        )
+        st.caption("地图已生成，等待输入校验。点击顶部按钮后，这里会显示每一步的结果卡。")
         st.markdown("</div>", unsafe_allow_html=True)
         return
 
@@ -606,24 +811,53 @@ def _render_event_dock(session: LiveSimulation | None) -> None:
     for event_type, label, hint in EVENTS:
         targets = session.available_event_targets(event_type) if enabled and session else []
         default_target = session.select_event_target(event_type) if targets and session else EVENT_LOCKED_LABEL
-        selected = st.selectbox(
-            f"{label}目标",
-            targets or [EVENT_LOCKED_LABEL],
-            index=(targets.index(default_target) if targets and default_target in targets else 0),
-            key=_event_target_key(event_type),
-            disabled=not targets,
-            label_visibility="collapsed",
-        )
-        st.button(
-            label,
-            key=f"event_{event_type}",
-            disabled=not targets,
-            width="stretch",
-            on_click=inject_event,
-            args=(event_type,),
-        )
+        status_label, status_kind = _event_status(session, event_type, enabled)
+        with st.container(border=True):
+            st.markdown(
+                f"<div class='event-card-head'><b>{html.escape(label)}</b>"
+                f"<span class='event-status {status_kind}'>{html.escape(status_label)}</span></div>",
+                unsafe_allow_html=True,
+            )
+            selected = st.selectbox(
+                f"{label}目标",
+                targets or [EVENT_LOCKED_LABEL],
+                index=(targets.index(default_target) if targets and default_target in targets else 0),
+                key=_event_target_key(event_type),
+                disabled=not targets,
+                label_visibility="collapsed",
+            )
+            st.button(
+                label,
+                key=f"event_{event_type}",
+                disabled=not targets,
+                width="stretch",
+                on_click=inject_event,
+                args=(event_type,),
+            )
+            st.markdown(
+                f"<div class='event-meta'>{html.escape(hint)}"
+                f"<b>目标 · {html.escape(_display_node_id(selected))}</b></div>",
+                unsafe_allow_html=True,
+            )
+    with st.container(border=True):
+        if session and session.current_plan:
+            status_label, status_kind = "已处理", "ready"
+            target = f"{len(session.current_plan.get('assignments', []))} 个任务"
+        elif session:
+            status_label, status_kind = "等待规划", "locked"
+            target = "等待任务分配"
+        else:
+            status_label, status_kind = "待解锁", "locked"
+            target = "等待地图生成"
         st.markdown(
-            f"<div class='event-meta'>{html.escape(hint)}<b>目标 · {html.escape(_display_node_id(selected))}</b></div>",
+            f"<div class='event-card-head'><b>资源调度</b>"
+            f"<span class='event-status {status_kind}'>{status_label}</span></div>",
+            unsafe_allow_html=True,
+        )
+        st.button("随算法自动更新", key="event_resource_dispatch", disabled=True, width="stretch")
+        st.markdown(
+            f"<div class='event-meta'>任务分配完成后自动刷新救援单位状态"
+            f"<b>当前 · {html.escape(target)}</b></div>",
             unsafe_allow_html=True,
         )
 
@@ -647,12 +881,16 @@ def _render_footer(session: LiveSimulation) -> None:
         target = task.get("target_zone") or task.get("origin_zone") or "--"
         status = str(state["status"])
         status_label = STATUS_LABELS.get(status, status)
+        progress = _unit_progress(state)
+        payload_label = "载荷" if state.get("type") == "drone" else "载员"
         cards.append(
             "<div class='unit-card'>"
             f"<i class='state-{html.escape(status)}'></i>"
             f"<b>{html.escape(_display_unit_id(unit_id))}</b><span>{html.escape(status_label)}</span>"
-            f"<small>目标 {html.escape(_display_zone_id(target))} · 剩余 {state.get('remaining_travel', 0):.1f} 分钟 · "
-            f"载员 {state.get('onboard', 0)}/{state.get('capacity', 0)}</small></div>"
+            f"<small>目标：{html.escape(_display_zone_id(target))}<br>"
+            f"剩余：{state.get('remaining_travel', 0):.1f} 分钟<br>"
+            f"{payload_label}：{state.get('onboard', 0)}/{state.get('capacity', 0)}</small>"
+            f"<div class='unit-progress'><i style='--progress:{progress}%'></i></div></div>"
         )
     st.markdown(
         "<div class='footer-strip'>" + "".join(cards) + "</div>",
@@ -670,43 +908,134 @@ st.set_page_config(
 st.markdown(
     """
 <style>
-:root { --shell:#11161b; --panel:#1b2228; --panel2:#242c32; --line:#39434a;
-  --paper:#f3ead5; --ink:#151a1d; --muted:#8c989f; --orange:#ff6332;
-  --cyan:#25c4d8; --amber:#f0b33a; --green:#50c98b; --red:#e94f37; }
-html, body, [data-testid="stAppViewContainer"], .stApp { height:100vh; overflow:hidden; }
+:root { --shell:#0e1720; --shell2:#111d28; --panel:#172330; --panel2:#1d2b38;
+  --panel3:#243442; --line:#314250; --soft-line:#243541; --paper:#f2ead8;
+  --ink:#101820; --muted:#96a7b5; --orange:#ff7043; --amber:#f5b84b;
+  --green:#49d18a; --red:#ee5148; --cyan:#36bed2; --blue:#7ea8ff; }
+html, body, [data-testid="stAppViewContainer"], .stApp {
+  min-height:100vh; overflow-x:hidden; overflow-y:auto;
+}
 [data-testid="stHeader"], [data-testid="stToolbar"], footer { display:none !important; }
-.stApp { background:var(--shell); color:#f7eedc; }
-.block-container { max-width:none; height:100vh; overflow:hidden; padding:.55rem .8rem .4rem; }
+.stApp {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(54,190,210,.10), transparent 31%),
+    linear-gradient(180deg,var(--shell2),var(--shell));
+  color:#edf4f7;
+}
+.block-container { max-width:none; min-height:100vh; padding:.75rem .95rem .7rem; }
 h1,h2,h3,h4 { font-family:"DIN Condensed","Avenir Next Condensed",sans-serif !important;
-  text-transform:uppercase; letter-spacing:.055em; }
-p,div,button,input,small { font-family:"IBM Plex Mono","Menlo",monospace; }
-h1 { font-size:1.42rem !important; margin:0 !important; line-height:1 !important; color:#fff4df; }
-[data-testid="stVerticalBlock"] { gap:.42rem; }
-[data-testid="stHorizontalBlock"] { gap:.55rem; align-items:center; }
+  text-transform:uppercase; letter-spacing:.04em; }
+p,div,button,input,small { font-family:"Inter","IBM Plex Mono","Menlo",sans-serif; }
+h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !important; color:#fff6e7; }
+[data-testid="stVerticalBlock"] { gap:.55rem; }
+[data-testid="stHorizontalBlock"] { gap:.75rem; align-items:stretch; }
 [data-testid="stSelectbox"] label { display:none; }
-[data-baseweb="select"] > div { background:#20282e; border-color:#45515a; color:#fff4df; border-radius:2px; }
-.command-kicker { color:var(--orange); font-size:.66rem; letter-spacing:.18em; margin-bottom:3px; }
-.command-sub { color:#87939a; font-size:.67rem; margin-top:4px; }
-.phase-chip { border-left:4px solid var(--orange); background:#1b2228; padding:7px 10px;
-  min-height:44px; color:#fff4df; }
-.phase-chip small { color:#839198; display:block; font-size:.58rem; letter-spacing:.12em; }
-.phase-chip b { color:var(--orange); font-size:.82rem; }
-.phase-chip span { color:#c9d1d5; font-size:.67rem; margin-left:8px; }
-.stButton > button, .stDownloadButton > button { min-height:36px; border:1px solid #53616a;
-  border-radius:2px; background:#20282e; color:#f8eedb; font-weight:800; font-size:.72rem; }
-.stButton > button:hover { border-color:var(--orange); color:var(--orange); }
-.stButton > button[kind="primary"] { background:var(--orange); color:#151a1d; border-color:var(--orange); }
-.stButton > button:disabled { opacity:.72; color:#6f7b82; background:#151b20; border-color:#2e383e; }
-[data-testid="stPlotlyChart"] { border:1px solid #3a454c; box-shadow:0 0 0 1px #0b0e10; }
-.map-caption { display:flex; justify-content:space-between; align-items:center; color:#9ba5aa;
-  font-size:.62rem; letter-spacing:.08em; margin:0 2px -2px; }
-.map-caption b { color:#f4e6ca; }
-.dock-label { color:var(--orange); border-bottom:2px solid var(--orange); padding:0 0 7px;
-  font-size:.65rem; letter-spacing:.18em; font-weight:900; }
-.event-meta { color:#7f8b92; font-size:.55rem; line-height:1.35; margin:-3px 1px 9px; }
-.event-meta b { display:block; color:#bac4c8; font-size:.52rem; margin-top:2px; }
+[data-baseweb="select"] > div {
+  min-height:34px; background:#21313d; border:1px solid #3b5060; color:#eef6f7;
+  border-radius:8px; box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+.command-kicker { color:var(--amber); font-size:.68rem; letter-spacing:.16em; margin-bottom:5px; }
+.command-sub { color:#9fb1bd; font-size:.76rem; margin-top:6px; line-height:1.4; }
+.phase-chip {
+  border:1px solid var(--line); border-left:4px solid var(--orange);
+  background:linear-gradient(180deg,#1a2834,#14212b); padding:9px 12px;
+  min-height:58px; color:#fff4df; border-radius:8px;
+  box-shadow:0 10px 28px rgba(0,0,0,.20);
+}
+.phase-chip small { color:#97a8b4; display:block; font-size:.66rem; letter-spacing:.08em; }
+.phase-chip b { color:#fff2d9; font-size:.96rem; }
+.phase-chip span { color:#c5d1d7; font-size:.74rem; margin-left:8px; }
+.progress-rail {
+  height:70px; display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
+  padding:8px; border:1px solid var(--line); border-radius:8px;
+  background:linear-gradient(180deg,rgba(31,45,57,.98),rgba(20,31,42,.98));
+  box-shadow:0 10px 28px rgba(0,0,0,.20);
+}
+.progress-step {
+  position:relative; min-width:0; padding:8px 7px 7px 30px; border-radius:7px;
+  background:#172632; color:#7f91a0; border:1px solid #263947;
+}
+.progress-step::after {
+  content:""; position:absolute; left:12px; right:-13px; top:20px; height:2px;
+  background:#324657; z-index:0;
+}
+.progress-step:last-child::after { display:none; }
+.progress-step span {
+  position:absolute; left:8px; top:10px; width:16px; height:16px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:.58rem; z-index:1;
+  background:#0f1b24; border:1px solid #3c5161;
+}
+.progress-step b { display:block; font-size:.64rem; letter-spacing:.08em; }
+.progress-step small { display:block; margin-top:5px; font-size:.72rem; color:inherit; white-space:nowrap; }
+.progress-done { color:#b9d6c6; border-color:rgba(73,209,138,.35); }
+.progress-done span { background:rgba(73,209,138,.18); color:var(--green); border-color:rgba(73,209,138,.55); }
+.progress-active { color:#fff1da; border-color:rgba(255,112,67,.65); box-shadow:0 0 0 1px rgba(255,112,67,.16); }
+.progress-active span { background:rgba(255,112,67,.20); color:var(--orange); border-color:var(--orange); }
+.status-capsules { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; margin-bottom:8px; }
+.status-pill {
+  display:inline-flex; align-items:center; height:25px; padding:0 9px; border-radius:999px;
+  background:#1b2a36; border:1px solid #334757; color:#cbd9df; font-size:.68rem;
+}
+.status-pill::before { content:""; width:6px; height:6px; border-radius:50%; background:#8998a3; margin-right:6px; }
+.status-ok::before { background:var(--green); box-shadow:0 0 10px rgba(73,209,138,.6); }
+.status-standby::before { background:var(--amber); }
+.stButton > button, .stDownloadButton > button {
+  min-height:38px; border:1px solid #496071; border-radius:8px;
+  background:linear-gradient(180deg,#263846,#1d2b36); color:#eef6f7;
+  font-weight:800; font-size:.78rem; box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+.stButton > button:hover { border-color:var(--orange); color:#fff2e7; background:#2b3d4a; }
+.stButton > button[kind="primary"] {
+  background:linear-gradient(180deg,#ff7a4f,#f05a2f); color:#1d2022;
+  border-color:#ff8c68; box-shadow:0 10px 24px rgba(255,112,67,.24);
+}
+.stButton > button:disabled {
+  opacity:.58; color:#81919c; background:#182630; border-color:#2c3e4a; box-shadow:none;
+}
+[data-testid="stPlotlyChart"] {
+  border:1px solid #334754; border-radius:8px; overflow:hidden;
+  box-shadow:0 14px 34px rgba(0,0,0,.24);
+}
+.panel-title {
+  display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
+  margin:0 0 8px; padding-bottom:8px; border-bottom:1px solid var(--soft-line);
+}
+.panel-title b { color:#fff4df; font-size:.95rem; letter-spacing:.05em; }
+.panel-title span { color:#94a7b4; font-size:.7rem; }
+.map-caption { display:flex; justify-content:space-between; align-items:center; color:#94a7b4;
+  font-size:.68rem; letter-spacing:.06em; margin:0 2px 6px; }
+.map-caption b { color:#f7ecd2; }
+.map-legend {
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px 12px;
+  padding:8px 10px; margin-top:8px; border:1px solid #2c4050; border-radius:8px;
+  background:rgba(20,31,41,.92);
+}
+.map-legend span { display:flex; align-items:center; gap:7px; color:#bed0d9; font-size:.7rem; white-space:nowrap; }
+.map-legend i { display:inline-block; width:15px; height:10px; border-radius:3px; border:1px solid rgba(255,255,255,.25); }
+.map-empty {
+  height:500px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border:1px solid #2d4352; border-radius:8px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(255,255,255,.035) 1px,transparent 1px),
+    radial-gradient(circle at 50% 45%,#22323f,#131f29);
+  background-size:28px 28px,28px 28px,auto;
+  color:#8ea2b0; text-align:center; padding:20px;
+}
+.map-empty b { color:#f3e6cc; font-size:1rem; margin-bottom:8px; }
+.map-empty span { max-width:520px; line-height:1.55; font-size:.78rem; }
+.dock-label { color:#fff1d4; padding:0 0 8px; font-size:.86rem; font-weight:900; }
+.event-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.event-card-head b { color:#f4ead8; font-size:.82rem; }
+.event-status { border-radius:999px; padding:3px 8px; font-size:.62rem; border:1px solid #3a4d5b; color:#9fb0bb; }
+.event-status.ready { color:#ffdbaa; border-color:rgba(245,184,75,.45); background:rgba(245,184,75,.08); }
+.event-status.danger { color:#ffd0c9; border-color:rgba(238,81,72,.52); background:rgba(238,81,72,.10); }
+.event-status.locked { opacity:.72; }
+.event-meta { color:#8fa2af; font-size:.68rem; line-height:1.42; margin:5px 1px 3px; }
+.event-meta b { display:block; color:#c6d4db; font-size:.64rem; margin-top:4px; }
 [data-testid="stVerticalBlockBorderWrapper"] { border-color:#39444b !important; border-radius:2px !important;
-  background:linear-gradient(180deg,#1d252b,#171d22); }
+  background:linear-gradient(180deg,#1a2834,#14212b) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.20); border-radius:8px !important; }
 .inspector-head { display:grid; grid-template-columns:54px 1fr; gap:10px; align-items:center;
   border-bottom:1px solid #3d474e; padding-bottom:9px; }
 .inspector-head > span { font-family:"DIN Condensed",sans-serif; font-size:2.2rem; line-height:1;
@@ -714,6 +1043,28 @@ h1 { font-size:1.42rem !important; margin:0 !important; line-height:1 !important
 .inspector-head small,.inspector-head em { display:block; color:#7f8b92; font-size:.57rem;
   letter-spacing:.13em; font-style:normal; }
 .inspector-head b { display:block; color:#fff0d4; font-size:.92rem; margin:2px 0; }
+.step-stack { display:flex; flex-direction:column; gap:7px; margin-bottom:10px; }
+.step-card {
+  display:grid; grid-template-columns:26px 1fr; gap:8px; align-items:center;
+  padding:7px 8px; border:1px solid #2c3f4d; border-radius:8px; background:#15232e;
+}
+.step-card > span {
+  width:20px; height:20px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; background:#0f1b24; color:#718694; border:1px solid #304656; font-size:.7rem;
+}
+.step-card b { display:block; color:#cddbe2; font-size:.72rem; }
+.step-card small { display:block; color:#7f93a0; font-size:.63rem; margin-top:2px; }
+.step-done > span { color:var(--green); border-color:rgba(73,209,138,.55); background:rgba(73,209,138,.11); }
+.step-active { border-color:rgba(255,112,67,.70); box-shadow:0 0 0 1px rgba(255,112,67,.12); }
+.step-active > span { color:var(--orange); border-color:var(--orange); background:rgba(255,112,67,.13); }
+.step-active b { color:#fff2dd; }
+.algorithm-hint {
+  border:1px solid #2e4250; border-radius:8px; padding:10px 11px; margin:8px 0 10px;
+  background:rgba(14,25,34,.78);
+}
+.algorithm-hint b { display:block; color:#f4c66c; font-size:.7rem; margin-top:6px; }
+.algorithm-hint b:first-child { margin-top:0; }
+.algorithm-hint p { margin:3px 0 0; color:#b9c8cf; font-size:.68rem; line-height:1.45; }
 .formula-box,.alert-box { background:#0f1418; border:1px solid #3b464d; border-left:4px solid var(--cyan);
   color:#dce4e5; padding:10px 12px; font-size:.68rem; margin:5px 0 8px; line-height:1.55; }
 .formula-box b { color:var(--cyan); }
@@ -739,19 +1090,33 @@ h1 { font-size:1.42rem !important; margin:0 !important; line-height:1 !important
 .check-line::first-letter { color:var(--green); }
 .empty-inspector { border-top:5px solid var(--orange); padding-top:8px; }
 [data-testid="stDataFrame"] { border:1px solid #354047; }
-.footer-strip { height:66px; display:grid; grid-template-columns:repeat(5,1fr); gap:7px;
-  border-top:1px solid #3d484f; padding-top:7px; }
-.unit-card { position:relative; background:#192026; border:1px solid #333e45; padding:6px 8px 5px 24px;
-  min-width:0; }
-.unit-card i { position:absolute; left:9px; top:10px; width:7px; height:7px; border-radius:50%;
-  background:var(--cyan); box-shadow:0 0 0 3px rgba(37,196,216,.12); }
+.footer-strip { min-height:104px; display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+  padding-top:4px; }
+.unit-card {
+  position:relative; background:linear-gradient(180deg,#1a2a36,#14222d);
+  border:1px solid #334859; border-radius:8px; padding:12px 12px 11px 32px;
+  min-width:0; box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.unit-card i { position:absolute; left:13px; top:16px; width:8px; height:8px; border-radius:50%;
+  background:var(--cyan); box-shadow:0 0 0 4px rgba(54,190,210,.12); }
 .unit-card i.state-idle,.unit-card i.state-ready { background:var(--green); }
 .unit-card i.state-stranded { background:var(--red); }
-.unit-card b { color:#f5ead4; font-size:.62rem; display:block; white-space:nowrap; overflow:hidden; }
-.unit-card span { position:absolute; right:7px; top:6px; color:var(--orange); font-size:.52rem; }
-.unit-card small { color:#7f8b92; font-size:.51rem; white-space:nowrap; }
+.unit-card b { color:#f5ead4; font-size:.82rem; display:block; white-space:nowrap; overflow:hidden; }
+.unit-card span {
+  position:absolute; right:10px; top:10px; color:#ffe1c9; font-size:.62rem;
+  border:1px solid rgba(255,112,67,.38); background:rgba(255,112,67,.10);
+  padding:2px 7px; border-radius:999px;
+}
+.unit-card small { color:#a7bac5; font-size:.67rem; line-height:1.55; display:block; margin-top:7px; }
+.unit-progress { height:5px; border-radius:999px; background:#263b49; margin-top:9px; overflow:hidden; }
+.unit-progress i { position:static; display:block; width:var(--progress); height:100%; border-radius:999px;
+  background:linear-gradient(90deg,var(--green),var(--amber)); box-shadow:none; }
 [data-testid="stToast"] { background:#252e34; color:#fff0d4; }
-@media (max-width:1100px) { .footer-strip { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:1200px) {
+  .progress-step small { font-size:.62rem; }
+  .map-legend { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .footer-strip { grid-template-columns:repeat(3,1fr); }
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -760,142 +1125,144 @@ h1 { font-size:1.42rem !important; margin:0 !important; line-height:1 !important
 session = _load_session()
 record = _selected_record(session) if session else None
 
-header_title, header_meta, model_col, generate_col, next_col, minute_col, transition_col = st.columns(
-    [2.25, 1.55, 1.05, 1.05, 1.22, 1.08, 1.3]
-)
-with header_title:
+title_col, progress_col, control_col = st.columns([1.35, 2.65, 1.55])
+with title_col:
     st.markdown("<div class='command-kicker'>离线救援决策实验台</div>", unsafe_allow_html=True)
     st.title("AI Emergency Commander｜灾后救援指挥台")
-    st.markdown("<div class='command-sub'>复杂路网 · 可解释算法 · 手动应急推演</div>", unsafe_allow_html=True)
-with header_meta:
-    if session:
-        number, label, algorithm = PHASE_LABELS[session.phase]
-        st.markdown(
-            f"<div class='phase-chip'><small>种子 {session.seed} · 时间 +{session.clock_minutes:.1f} 分钟</small>"
-            f"<b>{number} {label}</b><span>{algorithm}</span></div>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            "<div class='phase-chip'><small>等待场景</small><b>00 待命</b>"
-            "<span>生成地图后开始</span></div>",
-            unsafe_allow_html=True,
-        )
-with model_col:
+    st.markdown("<div class='command-sub'>灾后救援指挥台 / Disaster Response Console</div>", unsafe_allow_html=True)
+with progress_col:
+    st.markdown(_render_progress_bar(session), unsafe_allow_html=True)
+with control_col:
     selected_model = st.selectbox(
         "概率模型",
         ["固定专家 CPT", "学习 CPT"],
         key="model_selector",
         label_visibility="collapsed",
     )
+    st.markdown(_render_status_capsules(session, selected_model), unsafe_allow_html=True)
     if selected_model == "学习 CPT":
         _render_learned_advantage_panel()
-with generate_col:
-    st.button(
-        "生成复杂地图",
-        key="generate_map",
-        on_click=start_random_session,
-        type="primary",
-        width="stretch",
-    )
-with next_col:
-    st.button(
-        "执行下一算法步骤",
-        key="advance_phase",
-        on_click=advance_phase,
-        disabled=session is None or session.status != "running" or session.phase == "execute",
-        width="stretch",
-    )
-with minute_col:
-    st.button(
-        "推进 1 分钟",
-        key="advance_minute",
-        on_click=advance_execution,
-        disabled=session is None or session.status != "running" or session.phase != "execute",
-        width="stretch",
-    )
-with transition_col:
+    action_a, action_b = st.columns(2)
+    with action_a:
+        st.button(
+            "生成复杂地图",
+            key="generate_map",
+            on_click=start_random_session,
+            type="primary",
+            width="stretch",
+        )
+    with action_b:
+        st.button(
+            "执行下一算法步骤",
+            key="advance_phase",
+            on_click=advance_phase,
+            disabled=session is None or session.status != "running" or session.phase == "execute",
+            width="stretch",
+        )
     next_transition = session.next_transition_minutes() if session and session.phase == "execute" else None
-    st.button(
-        "推进到下一状态",
-        key="advance_transition",
-        on_click=advance_execution,
-        kwargs={"to_transition": True},
-        disabled=next_transition is None or (session is not None and session.status != "running"),
-        width="stretch",
-    )
+    action_c, action_d = st.columns(2)
+    with action_c:
+        st.button(
+            "推进 1 分钟",
+            key="advance_minute",
+            on_click=advance_execution,
+            disabled=session is None or session.status != "running" or session.phase != "execute",
+            width="stretch",
+        )
+    with action_d:
+        st.button(
+            "推进到状态",
+            key="advance_transition",
+            on_click=advance_execution,
+            kwargs={"to_transition": True},
+            disabled=next_transition is None or (session is not None and session.status != "running"),
+            width="stretch",
+        )
 
 notice = st.session_state.pop("event_notice", None)
 if notice:
     st.toast(notice)
 
 if session is None:
-    st.markdown(
-        "<div class='phase-chip' style='margin-top:8px'><small>指挥台就绪</small>"
-        "<b>等待生成复杂救援地图</b><span>系统将创建 4-7 个灾区、随机道路骨架、受损路段和 5 个异构救援单位。</span></div>",
-        unsafe_allow_html=True,
-    )
-    empty_left, empty_events, empty_detail = st.columns([5.7, 1.15, 3.15])
-    with empty_left:
-        st.markdown(
-            "<div style='height:610px;border:1px solid #39444b;background:radial-gradient(circle at 50% 45%,#283139,#171d22);"
-            "display:flex;align-items:center;justify-content:center;color:#647078;font-size:.75rem;letter-spacing:.12em'>"
-            "地图阵列待生成</div>",
-            unsafe_allow_html=True,
-        )
-    with empty_events:
-        _render_event_dock(None)
-    with empty_detail:
-        with st.container(height=610, border=True):
-            st.markdown("#### 计算证据链")
-            st.caption("生成地图后，每一步由演示者手动触发。")
+    map_column, event_column, inspector_column = st.columns([6, 1.8, 2.2])
+    with map_column:
+        with st.container(border=True):
+            st.markdown(
+                "<div class='panel-title'><b>灾区态势地图 / Situation Map</b>"
+                "<span>等待生成场景</span></div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                "<div class='map-empty'><b>等待生成复杂救援地图</b>"
+                "<span>点击“生成复杂地图”，系统将创建 4-7 个灾区、随机道路骨架、受损路段和 5 个异构救援单位。</span></div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(_render_map_legend(), unsafe_allow_html=True)
+    with event_column:
+        with st.container(height=645, border=True):
+            _render_event_dock(None)
+    with inspector_column:
+        with st.container(height=645, border=True):
+            st.markdown("<div class='dock-label'>算法步骤</div>", unsafe_allow_html=True)
+            st.markdown(_render_step_stack(None), unsafe_allow_html=True)
+            st.markdown(_render_algorithm_hint(None, None), unsafe_allow_html=True)
+            st.info("等待生成地图后开始输入校验。")
 else:
     snapshot = _current_snapshot(session)
     focus = record.get("focus", {}) if record else {}
-    map_column, event_column, inspector_column = st.columns([5.7, 1.15, 3.15])
+    map_column, event_column, inspector_column = st.columns([6, 1.8, 2.2])
     with map_column:
-        st.markdown(
-            f"<div class='map-caption'><b>战术路网 / {len(session.scenario['nodes'])} 个节点 · "
-            f"{len(session.scenario['roads'])} 条道路</b><span>当前计算对象高亮显示</span></div>",
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(
-            build_map_figure(session.scenario, snapshot, focus=focus),
-            width="stretch",
-            key=f"command_map_{session.step_count}_{len(session.event_log)}_{st.session_state.get('history_index', -1)}",
-            config={"displayModeBar": False, "scrollZoom": True},
-        )
-    with event_column:
-        _render_event_dock(session)
-    with inspector_column:
-        nav_prev, nav_label, nav_next = st.columns([1, 1.4, 1])
-        with nav_prev:
-            st.button(
-                "上一条",
-                key="history_previous",
-                on_click=move_history,
-                args=(-1,),
-                disabled=not session.calculation_history
-                or st.session_state.get("history_index", 0) <= 0,
-                width="stretch",
-            )
-        with nav_label:
+        with st.container(border=True):
             st.markdown(
-                f"<div style='text-align:center;color:#7f8b92;font-size:.58rem;padding-top:10px'>"
-                f"步骤 {session.step_count} · 事件 {len(session.event_log)}</div>",
+                "<div class='panel-title'><b>灾区态势地图 / Situation Map</b>"
+                "<span>当前计算对象高亮显示</span></div>",
                 unsafe_allow_html=True,
             )
-        with nav_next:
-            st.button(
-                "下一条",
-                key="history_next",
-                on_click=move_history,
-                args=(1,),
-                disabled=not session.calculation_history
-                or st.session_state.get("history_index", -1)
-                >= len(session.calculation_history) - 1,
-                width="stretch",
+            st.markdown(
+                f"<div class='map-caption'><b>战术路网：{len(session.scenario['nodes'])} 个节点 · "
+                f"{len(session.scenario['roads'])} 条道路</b><span>滚轮可缩放，悬停可查看地块含义</span></div>",
+                unsafe_allow_html=True,
             )
-        with st.container(height=560, border=True):
+            st.plotly_chart(
+                build_map_figure(session.scenario, snapshot, focus=focus),
+                width="stretch",
+                key=f"command_map_{session.step_count}_{len(session.event_log)}_{st.session_state.get('history_index', -1)}",
+                config={"displayModeBar": False, "scrollZoom": True},
+            )
+            st.markdown(_render_map_legend(), unsafe_allow_html=True)
+    with event_column:
+        with st.container(height=645, border=True):
+            _render_event_dock(session)
+    with inspector_column:
+        with st.container(height=645, border=True):
+            st.markdown("<div class='dock-label'>算法步骤</div>", unsafe_allow_html=True)
+            nav_prev, nav_label, nav_next = st.columns([1, 1.4, 1])
+            with nav_prev:
+                st.button(
+                    "上一条",
+                    key="history_previous",
+                    on_click=move_history,
+                    args=(-1,),
+                    disabled=not session.calculation_history
+                    or st.session_state.get("history_index", 0) <= 0,
+                    width="stretch",
+                )
+            with nav_label:
+                st.markdown(
+                    f"<div style='text-align:center;color:#91a4b1;font-size:.66rem;padding-top:10px'>"
+                    f"步骤 {session.step_count} · 事件 {len(session.event_log)}</div>",
+                    unsafe_allow_html=True,
+                )
+            with nav_next:
+                st.button(
+                    "下一条",
+                    key="history_next",
+                    on_click=move_history,
+                    args=(1,),
+                    disabled=not session.calculation_history
+                    or st.session_state.get("history_index", -1)
+                    >= len(session.calculation_history) - 1,
+                    width="stretch",
+                )
             _render_calculation_inspector(session)
     _render_footer(session)

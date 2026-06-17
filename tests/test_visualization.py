@@ -88,14 +88,14 @@ def test_map_renders_complex_scenario_before_inference_and_highlights_focus():
     grid_values = {value for row in state_grid.z for value in row}
     assert {3, 4} <= grid_values
     grid_colors = [entry[1] for entry in state_grid.colorscale]
-    assert "#e64032" in grid_colors
-    assert "#2b3033" in grid_colors
+    assert "#df553f" in grid_colors
+    assert "#39444c" in grid_colors
     assert len(figure.layout.shapes) == 0
     road_trace = next(trace for trace in figure.data if trace.name == "道路骨架")
     assert road_trace.line.color == "rgba(16,18,20,.72)"
     fire_trace = next(trace for trace in figure.data if trace.name == "火势范围")
     assert "#e3342f" in list(fire_trace.marker.color)
-    assert figure.layout.plot_bgcolor == "#ead8b4"
+    assert figure.layout.plot_bgcolor == "#d8c79d"
 
 
 def test_map_hides_synthetic_position_connectors_from_base_road_layers():
