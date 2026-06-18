@@ -81,6 +81,13 @@ def test_map_renders_complex_scenario_before_inference_and_highlights_focus():
     assert len(disaster_trace.x) == len(scenario["zones"])
     unit_trace = next(trace for trace in figure.data if trace.name == "救援单位")
     assert len(unit_trace.x) == 5
+    unit_labels = [
+        annotation.text
+        for annotation in figure.layout.annotations
+        if "救援车" in annotation.text or "无人机" in annotation.text
+    ]
+    assert len(unit_labels) == 1
+    assert "救援车1 / 救援车2" in unit_labels[0]
     state_grid = next(trace for trace in figure.data if trace.name == "地形网格")
     assert state_grid.type == "heatmap"
     assert len(state_grid.x) * len(state_grid.y) >= 2000
@@ -133,7 +140,7 @@ def test_streamlit_demo_starts_without_runtime_exception():
 def test_learned_cpt_mode_shows_advantage_metrics_in_console():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
 
-    app.selectbox(key="model_selector").select("学习 CPT").run()
+    app.radio(key="model_selector").set_value("学习 CPT").run()
     next(
         button for button in app.button if button.label == "导入地图模型"
     ).click().run()
@@ -142,6 +149,22 @@ def test_learned_cpt_mode_shows_advantage_metrics_in_console():
     assert "学习 CPT 优势" in markdown
     assert "被困 F1" in markdown
     assert "道路 ROC-AUC" in markdown
+
+
+def test_cpt_selector_syncs_existing_session_model():
+    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30).run()
+
+    next(
+        button for button in app.button if button.label == "导入地图模型"
+    ).click().run()
+    assert app.session_state["live_simulation"]["model_name"] == "expert_cpt"
+
+    app.radio(key="model_selector").set_value("学习 CPT").run()
+
+    assert app.session_state["live_simulation"]["model_name"] == "learned_cpt"
+    assert app.session_state["live_simulation"]["scenario"]["run_mode"] == "learned"
+    markdown = "\n".join(item.value for item in app.markdown)
+    assert "已切换为 学习 CPT" in markdown
 
 
 def test_generation_creates_a_manual_session_that_advances_one_phase_per_click():

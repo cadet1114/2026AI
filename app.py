@@ -21,6 +21,11 @@ EVENTS = (
     ("fire_spread", "火势蔓延", "提高区域风险"),
     ("new_sos", "新增求救", "注入高置信 SOS"),
 )
+MODEL_LABEL_TO_NAME = {
+    "固定专家 CPT": "expert_cpt",
+    "学习 CPT": "learned_cpt",
+}
+MODEL_NAME_TO_LABEL = {value: key for key, value in MODEL_LABEL_TO_NAME.items()}
 COMMAND_STEPS = (
     ("validate", "01", "输入校验"),
     ("infer", "02", "贝叶斯推断"),
@@ -203,14 +208,13 @@ def _render_status_capsules(session: LiveSimulation | None, selected_model: str)
     if session is None:
         capsules = [
             ("等待场景", "standby"),
-            ("模型 " + selected_model, "neutral"),
             ("时间 0.0 分钟", "neutral"),
         ]
     else:
         capsules = [
             (f"种子 {session.seed}", "neutral"),
             (f"时间 +{session.clock_minutes:.1f} 分钟", "neutral"),
-            (f"模式 {selected_model}", "ok"),
+            ("模型已同步", "ok"),
         ]
     return "<div class='status-capsules'>" + "".join(
         f"<span class='status-pill status-{kind}'>{html.escape(label)}</span>"
@@ -359,17 +363,64 @@ def _save_session(session: LiveSimulation) -> None:
     st.session_state["history_index"] = len(session.calculation_history) - 1
 
 
+def _selected_model_name() -> str:
+    return MODEL_LABEL_TO_NAME.get(
+        st.session_state.get("model_selector", "固定专家 CPT"),
+        "expert_cpt",
+    )
+
+
+def sync_model_selector() -> None:
+    session = _load_session()
+    if session is None:
+        return
+
+    selected_model_name = _selected_model_name()
+    if session.model_name == selected_model_name:
+        return
+
+    session.model_name = selected_model_name
+    scenario_mode = "learned" if selected_model_name == "learned_cpt" else "fixed"
+    session.scenario["mode"] = scenario_mode
+    session.scenario["run_mode"] = scenario_mode
+
+    stale_outputs = session.phase not in {"validate", "infer"} or bool(session.assessments)
+    if stale_outputs:
+        session.phase = "infer"
+        session.status = "running"
+        session.end_reason = None
+        session.assessments = []
+        session.utility_matrix = []
+        session.current_plan = {}
+        session.initial_plan = {}
+        session.timeline = []
+        session.replan_log = []
+        session.replan_context = None
+        session.calculation_history = [
+            item for item in session.calculation_history if item.get("phase") == "validate"
+        ]
+        session.algorithm_log = [
+            item for item in session.algorithm_log if item.get("phase") == "validate"
+        ]
+
+    _save_session(session)
+    label = MODEL_NAME_TO_LABEL[selected_model_name]
+    suffix = "，已回退到贝叶斯推断阶段" if stale_outputs else ""
+    st.session_state["event_notice"] = f"已切换为 {label}{suffix}。"
+
+
 def _event_target_key(event_type: str) -> str:
     return f"event_target_{event_type}"
 
 
 def start_random_session() -> None:
     seed = secrets.randbelow(900_000_000) + 100_000_000
-    learned = st.session_state.get("model_selector") == "学习 CPT"
+    model_name = _selected_model_name()
+    learned = model_name == "learned_cpt"
     session = LiveSimulation.create(
         generate_random_scenario(seed, mode="learned" if learned else "fixed"),
         seed=seed,
-        model_name="learned_cpt" if learned else "expert_cpt",
+        model_name=model_name,
     )
     _save_session(session)
     st.session_state["event_notice"] = f"地图模型已导入 · 种子 {seed}"
@@ -943,6 +994,29 @@ h1 { font-size:1.65rem !important; margin:0 !important; line-height:1.05 !import
   min-height:34px; background:#21313d; border:1px solid #3b5060; color:#eef6f7;
   border-radius:8px; box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
 }
+.model-switch-title {
+  color:#d9e5e9; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase;
+  margin:0 0 5px 2px;
+}
+[data-testid="stRadio"] {
+  background:#152530; border:1px solid #304656; border-radius:10px;
+  padding:7px 8px 8px; margin-bottom:8px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 8px 20px rgba(0,0,0,.16);
+}
+[data-testid="stRadio"] > label { display:none; }
+[data-testid="stRadio"] div[role="radiogroup"] {
+  display:grid; grid-template-columns:1fr 1fr; gap:7px;
+}
+[data-testid="stRadio"] div[role="radiogroup"] label {
+  min-height:32px; margin:0; padding:6px 8px; border-radius:8px;
+  background:#1d2e3a; border:1px solid #3a5264;
+}
+[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+  border-color:var(--orange); background:#243846;
+}
+[data-testid="stRadio"] div[role="radiogroup"] p {
+  color:#edf5f7; font-size:.72rem; white-space:nowrap;
+}
 .command-kicker { color:var(--amber); font-size:.68rem; letter-spacing:.16em; margin-bottom:5px; }
 .command-sub { color:#9fb1bd; font-size:.76rem; margin-top:6px; line-height:1.4; }
 .phase-chip {
@@ -1174,11 +1248,14 @@ with title_col:
 with progress_col:
     st.markdown(_render_progress_bar(session), unsafe_allow_html=True)
 with control_col:
-    selected_model = st.selectbox(
+    st.markdown("<div class='model-switch-title'>CPT 概率模型</div>", unsafe_allow_html=True)
+    selected_model = st.radio(
         "概率模型",
         ["固定专家 CPT", "学习 CPT"],
         key="model_selector",
         label_visibility="collapsed",
+        horizontal=True,
+        on_change=sync_model_selector,
     )
     st.markdown(_render_status_capsules(session, selected_model), unsafe_allow_html=True)
     if selected_model == "学习 CPT":
@@ -1275,7 +1352,11 @@ else:
                 build_map_figure(session.scenario, snapshot, focus=focus),
                 width="stretch",
                 key=f"command_map_{session.step_count}_{len(session.event_log)}_{st.session_state.get('history_index', -1)}",
-                config={"displayModeBar": False, "scrollZoom": True},
+                config={
+                    "displayModeBar": False,
+                    "scrollZoom": False,
+                    "doubleClick": False,
+                },
             )
             st.markdown(_render_map_legend(), unsafe_allow_html=True)
     with event_column:

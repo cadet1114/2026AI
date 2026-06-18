@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import math
 from typing import Any
 
@@ -49,6 +50,24 @@ NODE_DISPLAY_LABELS = {
     "HOSPITAL": "医院",
     "AIR_RELAY": "空中中继",
 }
+MAP_LABEL_FONT = "Microsoft YaHei, Noto Sans CJK SC, Inter, Arial, sans-serif"
+MAP_LABEL_STYLES = {
+    "zone": {
+        "bgcolor": "rgba(246,240,220,.88)",
+        "bordercolor": "rgba(22,30,35,.46)",
+        "font_color": "#132029",
+    },
+    "facility": {
+        "bgcolor": "rgba(16,27,36,.84)",
+        "bordercolor": "rgba(255,244,218,.50)",
+        "font_color": "#fff3d4",
+    },
+    "unit": {
+        "bgcolor": "rgba(15,25,34,.84)",
+        "bordercolor": "rgba(255,248,232,.46)",
+        "font_color": "#f7f1e4",
+    },
+}
 
 
 def _zone_label(zone_id: str) -> str:
@@ -66,6 +85,188 @@ def _unit_label(unit_id: str) -> str:
         unit_id.replace("RescueCar-", "救援车")
         .replace("Drone-", "无人机")
     )
+
+
+def _add_map_label(
+    figure: go.Figure,
+    *,
+    x: float,
+    y: float,
+    text: str,
+    kind: str = "zone",
+    xshift: int = 0,
+    yshift: int = 0,
+    size: int = 12,
+) -> None:
+    style = MAP_LABEL_STYLES[kind]
+    escaped_text = "<br>".join(
+        f"<b>{html.escape(line)}</b>" for line in text.splitlines()
+    )
+    figure.add_annotation(
+        x=x,
+        y=y,
+        text=escaped_text,
+        showarrow=False,
+        xshift=xshift,
+        yshift=yshift,
+        align="center",
+        bgcolor=style["bgcolor"],
+        bordercolor=style["bordercolor"],
+        borderwidth=1,
+        borderpad=3,
+        opacity=0.96,
+        font={
+            "family": MAP_LABEL_FONT,
+            "size": size,
+            "color": style["font_color"],
+        },
+    )
+
+
+def _label_collision_radius(text: str) -> float:
+    longest_line = max((len(line) for line in text.splitlines()), default=len(text))
+    line_count = max(1, len(text.splitlines()))
+    return min(3.2, max(1.0, longest_line * 0.16 + line_count * 0.24))
+
+
+def _point_segment_distance(
+    point_x: float,
+    point_y: float,
+    start_x: float,
+    start_y: float,
+    end_x: float,
+    end_y: float,
+) -> float:
+    segment_dx = end_x - start_x
+    segment_dy = end_y - start_y
+    segment_length_sq = segment_dx * segment_dx + segment_dy * segment_dy
+    if segment_length_sq == 0:
+        return math.hypot(point_x - start_x, point_y - start_y)
+    projection = (
+        (point_x - start_x) * segment_dx + (point_y - start_y) * segment_dy
+    ) / segment_length_sq
+    projection = max(0.0, min(1.0, projection))
+    closest_x = start_x + projection * segment_dx
+    closest_y = start_y + projection * segment_dy
+    return math.hypot(point_x - closest_x, point_y - closest_y)
+
+
+def _label_avoidance_segments(
+    scenario: dict[str, Any],
+    nodes: dict[str, dict[str, float]],
+    plan: dict[str, Any],
+) -> list[tuple[float, float, float, float]]:
+    segments: list[tuple[float, float, float, float]] = []
+    for edge in scenario.get("roads", []):
+        if _is_synthetic_connector(edge):
+            continue
+        if edge["from"] not in nodes or edge["to"] not in nodes:
+            continue
+        start = nodes[edge["from"]]
+        end = nodes[edge["to"]]
+        segments.append((start["x"], start["y"], end["x"], end["y"]))
+    for route in plan.get("routes", []):
+        path = route.get("path") or []
+        for start_id, end_id in zip(path, path[1:]):
+            if start_id not in nodes or end_id not in nodes:
+                continue
+            start = nodes[start_id]
+            end = nodes[end_id]
+            segments.append((start["x"], start["y"], end["x"], end["y"]))
+    return segments
+
+
+def _choose_label_position(
+    anchor_x: float,
+    anchor_y: float,
+    avoidance_segments: list[tuple[float, float, float, float]],
+    occupied_labels: list[tuple[float, float, float]],
+    *,
+    label_radius: float = 1.1,
+    prefer_above: bool = True,
+) -> tuple[float, float]:
+    candidate_offsets = [
+        (0.0, 1.18),
+        (1.08, 0.86),
+        (-1.08, 0.86),
+        (1.24, -0.70),
+        (-1.24, -0.70),
+        (0.0, -1.18),
+        (1.70, 0.08),
+        (-1.70, 0.08),
+        (0.0, 1.72),
+        (1.48, 1.30),
+        (-1.48, 1.30),
+        (0.0, -1.72),
+    ]
+    if not prefer_above:
+        candidate_offsets = [
+            (x_offset, -y_offset) for x_offset, y_offset in candidate_offsets
+        ]
+
+    best_position = (anchor_x, anchor_y + 1.18)
+    best_score = float("-inf")
+    for x_offset, y_offset in candidate_offsets:
+        candidate_x = anchor_x + x_offset
+        candidate_y = anchor_y + y_offset
+        road_distance = min(
+            (
+                _point_segment_distance(
+                    candidate_x,
+                    candidate_y,
+                    start_x,
+                    start_y,
+                    end_x,
+                    end_y,
+                )
+                for start_x, start_y, end_x, end_y in avoidance_segments
+            ),
+            default=9.0,
+        )
+        label_clearance = min(
+            (
+                math.hypot(candidate_x - label_x, candidate_y - label_y)
+                - label_radius
+                - occupied_radius
+                for label_x, label_y, occupied_radius in occupied_labels
+            ),
+            default=9.0,
+        )
+        score = min(road_distance, 1.8) * 5.0 + min(label_clearance, 2.2) * 1.4
+        score -= math.hypot(x_offset, y_offset) * 0.25
+        if road_distance < 0.74:
+            score -= (0.74 - road_distance) * 18.0
+        if label_clearance < 0.0:
+            score -= abs(label_clearance) * 16.0
+        if y_offset > 0:
+            score += 0.2
+        if score > best_score:
+            best_score = score
+            best_position = (candidate_x, candidate_y)
+    occupied_labels.append((best_position[0], best_position[1], label_radius))
+    return best_position
+
+
+def _group_unit_states_by_position(
+    states: dict[str, dict[str, Any]],
+) -> list[tuple[float, float, list[tuple[str, dict[str, Any]]]]]:
+    grouped: dict[tuple[float, float], list[tuple[str, dict[str, Any]]]] = {}
+    anchors: dict[tuple[float, float], tuple[float, float]] = {}
+    for unit_id, state in states.items():
+        x = float(state["position"]["x"])
+        y = float(state["position"]["y"])
+        key = (round(x, 1), round(y, 1))
+        grouped.setdefault(key, []).append((unit_id, state))
+        anchors.setdefault(key, (x, y))
+    return [(anchors[key][0], anchors[key][1], grouped[key]) for key in grouped]
+
+
+def _unit_group_label(units: list[tuple[str, dict[str, Any]]]) -> str:
+    labels = [_unit_label(unit_id) for unit_id, _state in units]
+    if len(labels) == 1:
+        return labels[0]
+    lines = [" / ".join(labels[index : index + 2]) for index in range(0, len(labels), 2)]
+    return "\n".join(lines)
 
 
 def _is_synthetic_connector(edge: dict[str, Any]) -> bool:
@@ -315,6 +516,8 @@ def build_map_figure(
     }
     focus = focus or {}
     figure = go.Figure()
+    avoidance_segments = _label_avoidance_segments(scenario, nodes, plan)
+    occupied_labels: list[tuple[float, float, float]] = []
     _add_sandbox_state_grid(figure, scenario)
     open_roads = [
         road
@@ -546,11 +749,9 @@ def build_map_figure(
         go.Scatter(
             x=[nodes[zone["node_id"]]["x"] for zone in zones],
             y=[nodes[zone["node_id"]]["y"] for zone in zones],
-            mode="markers+text",
+            mode="markers",
             name="灾区优先级",
             text=[f"#{rank_by_zone[zone['zone_id']]} {_zone_label(zone['zone_id'])}" for zone in zones],
-            textposition="top center",
-            textfont={"color": "#111719", "size": 13},
             marker={
                 "size": [21 + 16 * display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
                 "color": [display_assessments[zone["zone_id"]]["life_risk"] for zone in zones],
@@ -575,6 +776,24 @@ def build_map_figure(
             ),
         )
     )
+    for zone in zones:
+        node = nodes[zone["node_id"]]
+        label = f"#{rank_by_zone[zone['zone_id']]} {_zone_label(zone['zone_id'])}"
+        label_x, label_y = _choose_label_position(
+            node["x"],
+            node["y"],
+            avoidance_segments,
+            occupied_labels,
+            label_radius=_label_collision_radius(label),
+        )
+        _add_map_label(
+            figure,
+            x=label_x,
+            y=label_y,
+            text=label,
+            kind="zone",
+            size=12,
+        )
 
     junction_ids = sorted(node_id for node_id in nodes if node_id.startswith("J"))
     if junction_ids:
@@ -602,19 +821,37 @@ def build_map_figure(
         go.Scatter(
             x=[nodes[node]["x"] for node in infrastructure_ids],
             y=[nodes[node]["y"] for node in infrastructure_ids],
-            mode="markers+text",
+            mode="markers",
             name="关键设施",
             text=[_node_label(node) for node in infrastructure_ids],
-            textposition="top center",
-            textfont={"color": "#111719", "size": 12},
             marker={
                 "size": 16,
                 "symbol": "diamond",
                 "color": ["#2d2a26", "#f6f0e1", "#2d2a26"][: len(infrastructure_ids)],
                 "line": {"color": "#1b1712", "width": 1.5},
             },
+            hovertemplate="%{text}<extra></extra>",
         )
     )
+    for node_id in infrastructure_ids:
+        node = nodes[node_id]
+        label = _node_label(node_id)
+        label_x, label_y = _choose_label_position(
+            node["x"],
+            node["y"],
+            avoidance_segments,
+            occupied_labels,
+            label_radius=_label_collision_radius(label),
+            prefer_above=node_id != "AIR_RELAY",
+        )
+        _add_map_label(
+            figure,
+            x=label_x,
+            y=label_y,
+            text=label,
+            kind="facility",
+            size=11,
+        )
 
     states = snapshot.get("unit_states") or {
         unit["unit_id"]: {
@@ -631,11 +868,9 @@ def build_map_figure(
         go.Scatter(
             x=[state["position"]["x"] for state in states.values()],
             y=[state["position"]["y"] for state in states.values()],
-            mode="markers+text",
+            mode="markers",
             name="救援单位",
             text=[_unit_label(unit_id) for unit_id in states],
-            textposition="middle right",
-            textfont={"color": "#111719", "size": 12},
             marker={
                 "size": 17,
                 "symbol": ["triangle-up" if state["type"] == "drone" else "square" for state in states.values()],
@@ -657,6 +892,24 @@ def build_map_figure(
             ),
         )
     )
+    for anchor_x, anchor_y, units_at_position in _group_unit_states_by_position(states):
+        label = _unit_group_label(units_at_position)
+        label_x, label_y = _choose_label_position(
+            anchor_x,
+            anchor_y,
+            avoidance_segments,
+            occupied_labels,
+            label_radius=_label_collision_radius(label),
+            prefer_above=False,
+        )
+        _add_map_label(
+            figure,
+            x=label_x,
+            y=label_y,
+            text=label,
+            kind="unit",
+            size=11,
+        )
 
     focused_roads = [
         road for road in [*scenario["roads"], *scenario.get("air_routes", [])]
@@ -724,8 +977,13 @@ def build_map_figure(
             "borderwidth": 1,
             "itemsizing": "constant",
         },
-        xaxis={"visible": False, "scaleanchor": "y", "scaleratio": 1},
-        yaxis={"visible": False},
+        xaxis={
+            "visible": False,
+            "scaleanchor": "y",
+            "scaleratio": 1,
+            "fixedrange": True,
+        },
+        yaxis={"visible": False, "fixedrange": True},
         hoverlabel={"bgcolor": "#2d2a26", "font_color": "#fff8e8"},
         hovermode="closest",
     )
