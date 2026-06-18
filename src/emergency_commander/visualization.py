@@ -981,11 +981,11 @@ def build_map_figure(
             "visible": False,
             "scaleanchor": "y",
             "scaleratio": 1,
-            "fixedrange": True,
         },
-        yaxis={"visible": False, "fixedrange": True},
+        yaxis={"visible": False},
         hoverlabel={"bgcolor": "#2d2a26", "font_color": "#fff8e8"},
         hovermode="closest",
+        dragmode="pan",
     )
     return figure
 

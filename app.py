@@ -1354,8 +1354,8 @@ else:
                 key=f"command_map_{session.step_count}_{len(session.event_log)}_{st.session_state.get('history_index', -1)}",
                 config={
                     "displayModeBar": False,
-                    "scrollZoom": False,
-                    "doubleClick": False,
+                    "scrollZoom": True,
+                    "doubleClick": "reset",
                 },
             )
             st.markdown(_render_map_legend(), unsafe_allow_html=True)
