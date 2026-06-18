@@ -88,6 +88,15 @@ def test_map_renders_complex_scenario_before_inference_and_highlights_focus():
     ]
     assert len(unit_labels) == 1
     assert "救援车1 / 救援车2" in unit_labels[0]
+    unit_label = next(
+        annotation
+        for annotation in figure.layout.annotations
+        if "救援车1 / 救援车2" in annotation.text
+    )
+    unit_start = scenario["nodes"][scenario["units"][0]["start_node"]]
+    assert unit_label.x == unit_start["x"]
+    assert unit_label.y == unit_start["y"]
+    assert unit_label.xshift or unit_label.yshift
     state_grid = next(trace for trace in figure.data if trace.name == "地形网格")
     assert state_grid.type == "heatmap"
     assert len(state_grid.x) * len(state_grid.y) >= 2000

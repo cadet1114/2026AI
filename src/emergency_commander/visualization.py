@@ -68,6 +68,7 @@ MAP_LABEL_STYLES = {
         "font_color": "#f7f1e4",
     },
 }
+LABEL_PIXELS_PER_MAP_UNIT = 22.0
 
 
 def _zone_label(zone_id: str) -> str:
@@ -126,7 +127,7 @@ def _add_map_label(
 def _label_collision_radius(text: str) -> float:
     longest_line = max((len(line) for line in text.splitlines()), default=len(text))
     line_count = max(1, len(text.splitlines()))
-    return min(3.2, max(1.0, longest_line * 0.16 + line_count * 0.24))
+    return min(92.0, max(30.0, longest_line * 4.8 + line_count * 9.0))
 
 
 def _point_segment_distance(
@@ -176,39 +177,39 @@ def _label_avoidance_segments(
     return segments
 
 
-def _choose_label_position(
+def _choose_label_shift(
     anchor_x: float,
     anchor_y: float,
     avoidance_segments: list[tuple[float, float, float, float]],
-    occupied_labels: list[tuple[float, float, float]],
+    occupied_labels: list[tuple[float, float, int, int, float]],
     *,
-    label_radius: float = 1.1,
+    label_radius: float = 36.0,
     prefer_above: bool = True,
-) -> tuple[float, float]:
+) -> tuple[int, int]:
     candidate_offsets = [
-        (0.0, 1.18),
-        (1.08, 0.86),
-        (-1.08, 0.86),
-        (1.24, -0.70),
-        (-1.24, -0.70),
-        (0.0, -1.18),
-        (1.70, 0.08),
-        (-1.70, 0.08),
-        (0.0, 1.72),
-        (1.48, 1.30),
-        (-1.48, 1.30),
-        (0.0, -1.72),
+        (0, 34),
+        (46, 28),
+        (-46, 28),
+        (56, -24),
+        (-56, -24),
+        (0, -38),
+        (72, 4),
+        (-72, 4),
+        (0, 54),
+        (66, 46),
+        (-66, 46),
+        (0, -58),
     ]
     if not prefer_above:
         candidate_offsets = [
             (x_offset, -y_offset) for x_offset, y_offset in candidate_offsets
         ]
 
-    best_position = (anchor_x, anchor_y + 1.18)
+    best_shift = (0, 34)
     best_score = float("-inf")
     for x_offset, y_offset in candidate_offsets:
-        candidate_x = anchor_x + x_offset
-        candidate_y = anchor_y + y_offset
+        candidate_x = anchor_x + x_offset / LABEL_PIXELS_PER_MAP_UNIT
+        candidate_y = anchor_y + y_offset / LABEL_PIXELS_PER_MAP_UNIT
         road_distance = min(
             (
                 _point_segment_distance(
@@ -221,30 +222,39 @@ def _choose_label_position(
                 )
                 for start_x, start_y, end_x, end_y in avoidance_segments
             ),
-            default=9.0,
+            default=120.0,
         )
         label_clearance = min(
             (
-                math.hypot(candidate_x - label_x, candidate_y - label_y)
+                math.hypot(
+                    (anchor_x - label_x) * LABEL_PIXELS_PER_MAP_UNIT
+                    + x_offset
+                    - label_xshift,
+                    (anchor_y - label_y) * LABEL_PIXELS_PER_MAP_UNIT
+                    + y_offset
+                    - label_yshift,
+                )
                 - label_radius
                 - occupied_radius
-                for label_x, label_y, occupied_radius in occupied_labels
+                for label_x, label_y, label_xshift, label_yshift, occupied_radius in occupied_labels
             ),
-            default=9.0,
+            default=120.0,
         )
-        score = min(road_distance, 1.8) * 5.0 + min(label_clearance, 2.2) * 1.4
-        score -= math.hypot(x_offset, y_offset) * 0.25
+        score = min(road_distance, 1.8) * 5.0 + min(label_clearance, 120.0) * 0.035
+        score -= math.hypot(x_offset, y_offset) * 0.012
         if road_distance < 0.74:
             score -= (0.74 - road_distance) * 18.0
         if label_clearance < 0.0:
-            score -= abs(label_clearance) * 16.0
+            score -= abs(label_clearance) * 0.45
         if y_offset > 0:
             score += 0.2
         if score > best_score:
             best_score = score
-            best_position = (candidate_x, candidate_y)
-    occupied_labels.append((best_position[0], best_position[1], label_radius))
-    return best_position
+            best_shift = (x_offset, y_offset)
+    occupied_labels.append(
+        (anchor_x, anchor_y, best_shift[0], best_shift[1], label_radius)
+    )
+    return best_shift
 
 
 def _group_unit_states_by_position(
@@ -517,7 +527,7 @@ def build_map_figure(
     focus = focus or {}
     figure = go.Figure()
     avoidance_segments = _label_avoidance_segments(scenario, nodes, plan)
-    occupied_labels: list[tuple[float, float, float]] = []
+    occupied_labels: list[tuple[float, float, int, int, float]] = []
     _add_sandbox_state_grid(figure, scenario)
     open_roads = [
         road
@@ -779,7 +789,7 @@ def build_map_figure(
     for zone in zones:
         node = nodes[zone["node_id"]]
         label = f"#{rank_by_zone[zone['zone_id']]} {_zone_label(zone['zone_id'])}"
-        label_x, label_y = _choose_label_position(
+        xshift, yshift = _choose_label_shift(
             node["x"],
             node["y"],
             avoidance_segments,
@@ -788,10 +798,12 @@ def build_map_figure(
         )
         _add_map_label(
             figure,
-            x=label_x,
-            y=label_y,
+            x=node["x"],
+            y=node["y"],
             text=label,
             kind="zone",
+            xshift=xshift,
+            yshift=yshift,
             size=12,
         )
 
@@ -836,7 +848,7 @@ def build_map_figure(
     for node_id in infrastructure_ids:
         node = nodes[node_id]
         label = _node_label(node_id)
-        label_x, label_y = _choose_label_position(
+        xshift, yshift = _choose_label_shift(
             node["x"],
             node["y"],
             avoidance_segments,
@@ -846,10 +858,12 @@ def build_map_figure(
         )
         _add_map_label(
             figure,
-            x=label_x,
-            y=label_y,
+            x=node["x"],
+            y=node["y"],
             text=label,
             kind="facility",
+            xshift=xshift,
+            yshift=yshift,
             size=11,
         )
 
@@ -894,7 +908,7 @@ def build_map_figure(
     )
     for anchor_x, anchor_y, units_at_position in _group_unit_states_by_position(states):
         label = _unit_group_label(units_at_position)
-        label_x, label_y = _choose_label_position(
+        xshift, yshift = _choose_label_shift(
             anchor_x,
             anchor_y,
             avoidance_segments,
@@ -904,10 +918,12 @@ def build_map_figure(
         )
         _add_map_label(
             figure,
-            x=label_x,
-            y=label_y,
+            x=anchor_x,
+            y=anchor_y,
             text=label,
             kind="unit",
+            xshift=xshift,
+            yshift=yshift,
             size=11,
         )
 
